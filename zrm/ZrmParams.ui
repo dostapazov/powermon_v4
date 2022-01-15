@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ZrmParams</class>
+ <widget class="QWidget" name="ZrmParams">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>762</width>
+    <height>502</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item>
+    <widget class="QSplitter" name="splitter_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <widget class="QGroupBox" name="groupBoxParams">
+      <property name="title">
+       <string>Параметры</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="ZrmParamsView" name="widgetParams" native="true"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QGroupBox" name="groupBoxCalibrate">
+       <property name="title">
+        <string>Калибровка</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="ZrmCalibrate" name="widgetCalibrate" native="true"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="groupBoxTCP">
+       <property name="title">
+        <string>Настройка TCP</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="ZrmTCPSettings" name="widgetTCP" native="true"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ZrmParamsView</class>
+   <extends>QWidget</extends>
+   <header>zrmparamsview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZrmCalibrate</class>
+   <extends>QWidget</extends>
+   <header>zrmcalibrate.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZrmTCPSettings</class>
+   <extends>QWidget</extends>
+   <header>ZrmTCPSettings.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

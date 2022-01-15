@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ZrmReports</class>
+ <widget class="QWidget" name="ZrmReports">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>650</width>
+    <height>410</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="ZrmReport" name="tabReport">
+      <attribute name="title">
+       <string>Отчет о выполнении</string>
+      </attribute>
+     </widget>
+     <widget class="ReportCommon" name="tabReportBase">
+      <attribute name="title">
+       <string>Отчеты</string>
+      </attribute>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ZrmReport</class>
+   <extends>QWidget</extends>
+   <header>zrmreport.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ReportCommon</class>
+   <extends>QWidget</extends>
+   <header>reportcommon.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

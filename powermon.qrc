@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>icons/exit.png</file>
+        <file>icons/method_editor.png</file>
+        <file>icons/style.png</file>
+        <file>icons/checkbox_checked.png</file>
+        <file>icons/checkbox_checked_focus.png</file>
+        <file>icons/checkbox_unchecked_disabled.png</file>
+        <file>icons/checkbox_unchecked_focus.png</file>
+        <file>icons/powermon.png</file>
+        <file>icons/param.png</file>
+        <file>icons/zrm_ready.png</file>
+        <file>icons/logo.png</file>
+        <file>icons/methods.png</file>
+        <file>icons/params.png</file>
+        <file>icons/report.png</file>
+        <file>icons/settings.png</file>
+        <file>icons/background.png</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>powermon.qss</file>
+    </qresource>
+</RCC>

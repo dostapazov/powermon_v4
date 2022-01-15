@@ -1,0 +1,1073 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ReportCommon</class>
+ <widget class="QWidget" name="ReportCommon">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>886</width>
+    <height>685</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <item>
+    <widget class="QSplitter" name="splitter_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QGroupBox" name="gb_akb_type">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="title">
+        <string>Типы АКБ</string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="leftMargin">
+         <number>4</number>
+        </property>
+        <property name="topMargin">
+         <number>4</number>
+        </property>
+        <property name="rightMargin">
+         <number>4</number>
+        </property>
+        <property name="bottomMargin">
+         <number>4</number>
+        </property>
+        <item>
+         <widget class="QFrame" name="fr_types_btn">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <property name="leftMargin">
+            <number>4</number>
+           </property>
+           <property name="topMargin">
+            <number>4</number>
+           </property>
+           <property name="rightMargin">
+            <number>4</number>
+           </property>
+           <property name="bottomMargin">
+            <number>4</number>
+           </property>
+           <item>
+            <widget class="QToolButton" name="bTypesNew">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>48</width>
+               <height>48</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="bTypesMarkDel">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>48</width>
+               <height>48</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QToolButton" name="tbUsersPage">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Отчеты</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="../powermon.qrc">
+               <normaloff>:/icons/icons/report.png</normaloff>:/icons/icons/report.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>48</width>
+               <height>48</height>
+              </size>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+             <property name="autoExclusive">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="tbAnalizePage">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Список пользователей</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="zrm_data.qrc">
+               <normaloff>:/data/icons/system-users.png</normaloff>:/data/icons/system-users.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>48</width>
+               <height>48</height>
+              </size>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="autoExclusive">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableView" name="TypesTable">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="gb_akb_list">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="title">
+        <string>АКБ</string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="leftMargin">
+         <number>4</number>
+        </property>
+        <property name="topMargin">
+         <number>4</number>
+        </property>
+        <property name="rightMargin">
+         <number>4</number>
+        </property>
+        <property name="bottomMargin">
+         <number>4</number>
+        </property>
+        <item>
+         <widget class="QFrame" name="fr_numbers_btn">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <property name="leftMargin">
+            <number>4</number>
+           </property>
+           <property name="topMargin">
+            <number>4</number>
+           </property>
+           <property name="rightMargin">
+            <number>4</number>
+           </property>
+           <property name="bottomMargin">
+            <number>4</number>
+           </property>
+           <item>
+            <widget class="QToolButton" name="bNumbersNew">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>48</width>
+               <height>48</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="bNumbersMarkDel">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>48</width>
+               <height>48</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableView" name="NumbersTable">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="currentIndex">
+       <number>2</number>
+      </property>
+      <widget class="QWidget" name="users_page">
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>Пользователи</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <property name="leftMargin">
+            <number>4</number>
+           </property>
+           <property name="topMargin">
+            <number>4</number>
+           </property>
+           <property name="rightMargin">
+            <number>4</number>
+           </property>
+           <property name="bottomMargin">
+            <number>4</number>
+           </property>
+           <item>
+            <widget class="QTableView" name="UsersTable">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Sunken</enum>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+             </property>
+             <property name="sortingEnabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QFrame" name="fr_users_btn">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <property name="spacing">
+               <number>4</number>
+              </property>
+              <property name="leftMargin">
+               <number>4</number>
+              </property>
+              <property name="topMargin">
+               <number>4</number>
+              </property>
+              <property name="rightMargin">
+               <number>4</number>
+              </property>
+              <property name="bottomMargin">
+               <number>4</number>
+              </property>
+              <item>
+               <widget class="QToolButton" name="bUserNew">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>48</width>
+                  <height>48</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="bUserMarkDel">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>48</width>
+                  <height>48</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_4">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page">
+       <widget class="QToolButton" name="bTypesApply">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>40</y>
+          <width>55</width>
+          <height>54</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>48</width>
+          <height>48</height>
+         </size>
+        </property>
+       </widget>
+       <widget class="QToolButton" name="bTypesRevert">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>100</y>
+          <width>55</width>
+          <height>54</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>48</width>
+          <height>48</height>
+         </size>
+        </property>
+       </widget>
+       <widget class="QToolButton" name="bNumbersApply">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>40</y>
+          <width>55</width>
+          <height>54</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>48</width>
+          <height>48</height>
+         </size>
+        </property>
+       </widget>
+       <widget class="QToolButton" name="bNumbersRevert">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>100</y>
+          <width>55</width>
+          <height>54</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>48</width>
+          <height>48</height>
+         </size>
+        </property>
+       </widget>
+       <widget class="QToolButton" name="bUserRevert">
+        <property name="geometry">
+         <rect>
+          <x>220</x>
+          <y>100</y>
+          <width>55</width>
+          <height>54</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>48</width>
+          <height>48</height>
+         </size>
+        </property>
+       </widget>
+       <widget class="QToolButton" name="bUserApply">
+        <property name="geometry">
+         <rect>
+          <x>220</x>
+          <y>40</y>
+          <width>55</width>
+          <height>54</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>48</width>
+          <height>48</height>
+         </size>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="analize_page">
+       <layout class="QVBoxLayout" name="verticalLayout_7">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="leftMargin">
+         <number>4</number>
+        </property>
+        <property name="topMargin">
+         <number>4</number>
+        </property>
+        <property name="rightMargin">
+         <number>4</number>
+        </property>
+        <property name="bottomMargin">
+         <number>4</number>
+        </property>
+        <item>
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="title">
+           <string>Отчеты</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <property name="leftMargin">
+            <number>4</number>
+           </property>
+           <property name="topMargin">
+            <number>4</number>
+           </property>
+           <property name="rightMargin">
+            <number>4</number>
+           </property>
+           <property name="bottomMargin">
+            <number>4</number>
+           </property>
+           <item>
+            <widget class="QGroupBox" name="groupBox_3">
+             <property name="title">
+              <string>Период</string>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QPushButton" name="bReadReports">
+                <property name="text">
+                 <string>Обновить</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="zrm_data.qrc">
+                  <normaloff>:/data/icons/undo.png</normaloff>:/data/icons/undo.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDateEdit" name="dtm_beg">
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::PlusMinus</enum>
+                </property>
+                <property name="maximumTime">
+                 <time>
+                  <hour>23</hour>
+                  <minute>59</minute>
+                  <second>59</second>
+                 </time>
+                </property>
+                <property name="minimumTime">
+                 <time>
+                  <hour>0</hour>
+                  <minute>0</minute>
+                  <second>0</second>
+                 </time>
+                </property>
+                <property name="displayFormat">
+                 <string>dd.MM.yyyy</string>
+                </property>
+                <property name="calendarPopup">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDateEdit" name="dtm_end">
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::PlusMinus</enum>
+                </property>
+                <property name="displayFormat">
+                 <string>dd.MM.yyyy</string>
+                </property>
+                <property name="calendarPopup">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QToolButton" name="bShowReport">
+                <property name="toolTip">
+                 <string>Показать отчет</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="zrm_data.qrc">
+                  <normaloff>:/data/icons/report.png</normaloff>:/data/icons/report.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="bDelReport">
+                <property name="toolTip">
+                 <string>Удалить отчет</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="zrm_data.qrc">
+                  <normaloff>:/data/icons/delete.png</normaloff>:/data/icons/delete.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="bAllTimes">
+                <property name="text">
+                 <string>За весь период</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../powermon.qrc">
+                  <normaloff>:/icons/icons/checkbox_unchecked_focus.png</normaloff>
+                  <normalon>:/icons/icons/checkbox_checked_focus.png</normalon>:/icons/icons/checkbox_unchecked_focus.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>24</width>
+                  <height>24</height>
+                 </size>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSplitter" name="splitter_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <widget class="QTableView" name="ReportTable">
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+             </widget>
+             <widget class="QTableView" name="ReportDetailTable">
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+  <action name="actUserNew">
+   <property name="icon">
+    <iconset resource="zrm_data.qrc">
+     <normaloff>:/data/icons/new.png</normaloff>:/data/icons/new.png</iconset>
+   </property>
+   <property name="text">
+    <string>Создать нового пользователя</string>
+   </property>
+   <property name="toolTip">
+    <string>Создать пользователя</string>
+   </property>
+  </action>
+  <action name="actUserRevert">
+   <property name="icon">
+    <iconset resource="zrm_data.qrc">
+     <normaloff>:/data/icons/undo.png</normaloff>:/data/icons/undo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Отмена изменений</string>
+   </property>
+   <property name="toolTip">
+    <string>Отмена изменений</string>
+   </property>
+  </action>
+  <action name="actUserApply">
+   <property name="icon">
+    <iconset resource="zrm_data.qrc">
+     <normaloff>:/data/icons/apply.png</normaloff>:/data/icons/apply.png</iconset>
+   </property>
+   <property name="text">
+    <string>Внести изменения</string>
+   </property>
+   <property name="toolTip">
+    <string>Внести изменения</string>
+   </property>
+  </action>
+  <action name="actUserMarkDel">
+   <property name="icon">
+    <iconset resource="zrm_data.qrc">
+     <normaloff>:/data/icons/delete.png</normaloff>:/data/icons/delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>Удалить</string>
+   </property>
+   <property name="toolTip">
+    <string>Удалить</string>
+   </property>
+  </action>
+  <action name="actTypeNew">
+   <property name="icon">
+    <iconset resource="zrm_data.qrc">
+     <normaloff>:/data/icons/new.png</normaloff>:/data/icons/new.png</iconset>
+   </property>
+   <property name="text">
+    <string>Создать новый тип</string>
+   </property>
+   <property name="toolTip">
+    <string>Создать новый тип</string>
+   </property>
+  </action>
+  <action name="actTypeRevert">
+   <property name="icon">
+    <iconset resource="zrm_data.qrc">
+     <normaloff>:/data/icons/undo.png</normaloff>:/data/icons/undo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Отмена изменений</string>
+   </property>
+   <property name="toolTip">
+    <string>Отмена изменений</string>
+   </property>
+  </action>
+  <action name="actTypeApply">
+   <property name="icon">
+    <iconset resource="zrm_data.qrc">
+     <normaloff>:/data/icons/apply.png</normaloff>:/data/icons/apply.png</iconset>
+   </property>
+   <property name="text">
+    <string>Внести изменения</string>
+   </property>
+   <property name="toolTip">
+    <string>Внести изменения</string>
+   </property>
+  </action>
+  <action name="actTypeMarkDel">
+   <property name="icon">
+    <iconset resource="zrm_data.qrc">
+     <normaloff>:/data/icons/delete.png</normaloff>:/data/icons/delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>Удалить</string>
+   </property>
+   <property name="toolTip">
+    <string>Удалить</string>
+   </property>
+  </action>
+  <action name="actNumberNew">
+   <property name="icon">
+    <iconset resource="zrm_data.qrc">
+     <normaloff>:/data/icons/new.png</normaloff>:/data/icons/new.png</iconset>
+   </property>
+   <property name="text">
+    <string>Создать новый серийный номер</string>
+   </property>
+   <property name="toolTip">
+    <string>Создать  серийный номер</string>
+   </property>
+  </action>
+  <action name="actNumberRevert">
+   <property name="icon">
+    <iconset resource="zrm_data.qrc">
+     <normaloff>:/data/icons/undo.png</normaloff>:/data/icons/undo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Отмена изменений</string>
+   </property>
+   <property name="toolTip">
+    <string>Отмена изменений</string>
+   </property>
+  </action>
+  <action name="actNumberApply">
+   <property name="icon">
+    <iconset resource="zrm_data.qrc">
+     <normaloff>:/data/icons/apply.png</normaloff>:/data/icons/apply.png</iconset>
+   </property>
+   <property name="text">
+    <string>Внести изменения</string>
+   </property>
+   <property name="toolTip">
+    <string>Внести изменения</string>
+   </property>
+  </action>
+  <action name="actNumberMarkDel">
+   <property name="icon">
+    <iconset resource="zrm_data.qrc">
+     <normaloff>:/data/icons/delete.png</normaloff>:/data/icons/delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>Удалить</string>
+   </property>
+   <property name="toolTip">
+    <string>Удалить</string>
+   </property>
+  </action>
+ </widget>
+ <tabstops>
+  <tabstop>bTypesNew</tabstop>
+  <tabstop>bTypesMarkDel</tabstop>
+  <tabstop>TypesTable</tabstop>
+  <tabstop>tbUsersPage</tabstop>
+  <tabstop>tbAnalizePage</tabstop>
+  <tabstop>bNumbersNew</tabstop>
+  <tabstop>bNumbersMarkDel</tabstop>
+  <tabstop>NumbersTable</tabstop>
+  <tabstop>bReadReports</tabstop>
+  <tabstop>dtm_beg</tabstop>
+  <tabstop>dtm_end</tabstop>
+  <tabstop>bAllTimes</tabstop>
+  <tabstop>ReportTable</tabstop>
+  <tabstop>ReportDetailTable</tabstop>
+  <tabstop>UsersTable</tabstop>
+  <tabstop>bUserNew</tabstop>
+  <tabstop>bUserMarkDel</tabstop>
+  <tabstop>bTypesApply</tabstop>
+  <tabstop>bUserRevert</tabstop>
+  <tabstop>bUserApply</tabstop>
+  <tabstop>bNumbersRevert</tabstop>
+  <tabstop>bTypesRevert</tabstop>
+  <tabstop>bNumbersApply</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../powermon.qrc"/>
+  <include location="zrm_data.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>bAllTimes</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dtm_end</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>820</x>
+     <y>73</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>637</x>
+     <y>68</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>bAllTimes</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dtm_beg</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>821</x>
+     <y>54</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>574</x>
+     <y>68</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ZrmTabMethodEditor</class>
+ <widget class="QWidget" name="ZrmTabMethodEditor">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="ZrmMethodEditor" name="tabAKB">
+      <attribute name="title">
+       <string>Модели АКБ</string>
+      </attribute>
+     </widget>
+     <widget class="ZrmMethodEditor" name="tabMethods">
+      <attribute name="title">
+       <string>Методы (профили)</string>
+      </attribute>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ZrmMethodEditor</class>
+   <extends>QWidget</extends>
+   <header>zrmmethodeditor.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
