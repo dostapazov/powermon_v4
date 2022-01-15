@@ -11,14 +11,17 @@ int main(int argc, char *argv[])
     if(!file.open(QIODevice::ReadOnly))
         qDebug() << "Cannot open stylesheet file powermon.qss";
     QString stylesheet = QString::fromUtf8(file.readAll());
-    qApp->setStyleSheet(stylesheet);
+    //qApp->setStyleSheet(stylesheet);
 
     MainWindow w;
 #ifdef Q_OS_ANDROID
     w.showFullScreen();
 #else
-    //w.show();
-    w.showMaximized();
+    #ifdef QT_DEBUG
+        w.show();
+    #else
+        w.showMaximized();
+    #endif
 #endif
 
     return a.exec();

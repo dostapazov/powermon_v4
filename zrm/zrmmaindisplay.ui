@@ -69,6 +69,10 @@
           <property name="text">
            <string/>
           </property>
+          <property name="icon">
+           <iconset resource="zrm_resource.qrc">
+            <normaloff>:/zrm/icons/start_pressed.png</normaloff>:/zrm/icons/start_pressed.png</iconset>
+          </property>
           <property name="iconSize">
            <size>
             <width>32</width>
@@ -103,6 +107,11 @@
           <property name="text">
            <string/>
           </property>
+          <property name="icon">
+           <iconset resource="zrm_resource.qrc">
+            <normaloff>:/zrm/icons/pause.png</normaloff>
+            <normalon>:/zrm/icons/pause_pressed.png</normalon>:/zrm/icons/pause.png</iconset>
+          </property>
           <property name="iconSize">
            <size>
             <width>32</width>
@@ -130,6 +139,12 @@
           </property>
           <property name="text">
            <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normalon>:/zrm/icons/stop_pressed.png</normalon>
+            <disabledoff>:/zrm/icons/stop.png</disabledoff>
+           </iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -328,11 +343,23 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
          <property name="toolTip">
           <string>Ток</string>
          </property>
          <property name="text">
-          <string>Ток</string>
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="zrm_resource.qrc">:/zrm/icons/current.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -347,14 +374,23 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
          <property name="toolTip">
           <string>Время работы</string>
          </property>
          <property name="text">
-          <string>Время работы</string>
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="zrm_resource.qrc">:/zrm/icons/work_time.png</pixmap>
          </property>
          <property name="scaledContents">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -477,11 +513,23 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
          <property name="toolTip">
           <string>Этап</string>
          </property>
          <property name="text">
-          <string>Этап</string>
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="zrm_resource.qrc">:/zrm/icons/stage_num.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -496,11 +544,23 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
          <property name="toolTip">
           <string>Напряжение</string>
          </property>
          <property name="text">
-          <string>Напряжение</string>
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="zrm_resource.qrc">:/zrm/icons/voltage.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -603,7 +663,7 @@
        <item row="2" column="0">
         <widget class="QLabel" name="labelCycleNum">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -614,11 +674,26 @@
            <height>0</height>
           </size>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
          <property name="toolTip">
           <string>Цикл</string>
          </property>
          <property name="text">
-          <string>Цикл</string>
+          <string/>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::AutoText</enum>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="zrm_resource.qrc">:/zrm/icons/cycle_num.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -656,11 +731,29 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
          <property name="toolTip">
           <string>Ёмкость</string>
          </property>
          <property name="text">
-          <string>Ёмкость</string>
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="zrm_resource.qrc">:/zrm/icons/capacity.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -770,11 +863,23 @@
        </item>
        <item row="5" column="3" colspan="2">
         <widget class="QLabel" name="labelTemperature">
+         <property name="maximumSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
          <property name="toolTip">
           <string>Температура</string>
          </property>
          <property name="text">
-          <string>T</string>
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="zrm_resource.qrc">:/zrm/icons/temperature.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -798,7 +903,7 @@
           <bool>true</bool>
          </property>
          <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -839,7 +944,7 @@
           <bool>true</bool>
          </property>
          <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -873,7 +978,7 @@
          <item>
           <widget class="QLineEdit" name="error_state">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -932,6 +1037,12 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>24</height>
+            </size>
+           </property>
            <property name="text">
             <string>Заряд</string>
            </property>
@@ -941,8 +1052,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>48</width>
-             <height>48</height>
+             <width>24</width>
+             <height>24</height>
             </size>
            </property>
            <property name="checkable">
@@ -964,6 +1075,12 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>24</height>
+            </size>
+           </property>
            <property name="text">
             <string>Разряд</string>
            </property>
@@ -973,8 +1090,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>48</width>
-             <height>48</height>
+             <width>24</width>
+             <height>24</height>
             </size>
            </property>
            <property name="checkable">
