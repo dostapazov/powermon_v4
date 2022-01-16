@@ -75,9 +75,9 @@ void ZrmReadyWidget::update_ready()
   int ch_count = zrm::ZrmConnectivity::channels_total();
   set_layout_count(ch_count);
   int idx = 0;
-  for(auto conn : zrm::ZrmConnectivity::connectivities())
+  for(auto && conn : zrm::ZrmConnectivity::connectivities())
   {
-    for(auto chan : conn->channels())
+    for(auto && chan : conn->channels())
     {
      auto litem = m_ready_layout->itemAt(idx++);
      ZrmChannelMimimal * w = dynamic_cast<ZrmChannelMimimal*>(litem->widget());

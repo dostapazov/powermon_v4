@@ -54,7 +54,7 @@ private:
 #ifdef Q_OS_ANDROID
       void update_android_ui();
 #endif
-
+      void setupStyleSheet();
 
       QFile               log_file;
       QTextStream         log_stream;

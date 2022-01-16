@@ -47,7 +47,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 INCLUDEPATH += ../qtshared/inc
 INCLUDEPATH += $$PWD/zrm
 INCLUDEPATH += $$PWD/data
-
+INCLUDEPATH += $$PWD/utils
 
 SOURCES += \
     data/ZrmTabMethodEditor.cpp \
@@ -58,6 +58,7 @@ SOURCES += \
     data/zrmstageseditor.cpp \
         main.cpp \
         mainwindow.cpp \
+    utils/powermon_utils.cpp \
     zrm/ZrmChannel.cpp \
     zrm/ZrmLogerChart.cpp \
     zrm/ZrmLogerChartUI.cpp \
@@ -99,6 +100,7 @@ HEADERS += \
     data/zrmreportdatabase.h \
     data/zrmstageseditor.h \
         mainwindow.h \
+    utils/powermon_utils.h \
     zrm/ZrmChannel.h \
     zrm/ZrmLogerChart.h \
     zrm/ZrmLogerChartUI.h \

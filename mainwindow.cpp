@@ -88,6 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QIcon icon(QLatin1String(":/icons/icons/powermon.png"));
     setWindowIcon(icon);
     qApp->setWindowIcon(icon);
+    setupStyleSheet();
 }
 
 MainWindow::~MainWindow()
@@ -370,9 +371,9 @@ void MainWindow::write_config       ()
 void MainWindow::read_config()
 {
 #ifdef Q_OS_ANDROID
-       int def_font_size = 6;
+       constexpr int def_font_size = 20;
 #else
-       int def_font_size = 24;
+       constexpr int def_font_size = 12;
 #endif
 
  QString cname = window_param_file_name();
@@ -605,3 +606,20 @@ void MainWindow::channel_activated(ZrmChannelMimimal *cm, bool bSelect)
     if (!visible && buttonZrmReport->isChecked())
         buttonZrmView->setChecked(true);
 }
+
+void MainWindow::setupStyleSheet()
+{
+    QFile file(":/powermon.qss");
+    QString stylesheet;
+    if(!file.open(QIODevice::ReadOnly))
+    {
+        qDebug() << "Cannot open stylesheet file powermon.qss";
+        return;
+    }
+    else
+    {
+        stylesheet = QString::fromUtf8(file.readAll());
+    }
+    setStyleSheet(stylesheet);
+}
+

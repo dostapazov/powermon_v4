@@ -531,7 +531,13 @@ struct  zrm_method_t
   stages_t  m_stages;
   zrm_method_t() { m_method = method_t(); m_stages = stages_t(); }
   // на android не создается zrm_method_t(const zrm_method_t & m) по умолчанию ?
-  zrm_method_t(const zrm_method_t & m) { *this = m; }
+  zrm_method_t(const zrm_method_t & m):m_method(m.m_method), m_stages(m.m_stages) {}
+  zrm_method_t & operator = (const zrm_method_t & other)
+  {
+      m_method = other.m_method;
+      m_stages = other.m_stages;
+      return *this;
+  }
   stages_t::size_type stages_count() const {return m_stages.size();}
 };
 

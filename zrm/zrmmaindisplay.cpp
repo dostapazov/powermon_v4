@@ -4,6 +4,7 @@
 #include <qdesktopwidget.h>
 #include <qscreen.h>
 #include <QGraphicsDropShadowEffect>
+#include <powermon_utils.h>
 
 ZrmMainDisplay::ZrmMainDisplay(QWidget *parent) :
     ZrmChannelWidget(parent)
@@ -101,21 +102,21 @@ void ZrmMainDisplay::clear_controls()
     sbCurrLimit ->setValue(0.0);
     edCapacity  ->setValue(0.0);
     sbTemperature->setValue(0.0);
-    lb_work_time->setText (no_value);
-    edTimeLimit ->setText (no_value);
-    edMode      ->setText (no_value);
+    setEditText(lb_work_time,no_value);
+    setEditText (edTimeLimit,no_value);
+    setEditText (edMode,no_value);
     lbStageNum  ->setValue(0);
     lbStageTotal->setValue(0);
     lbCycleNum  ->setValue(0);
     sbCycleTotal->setValue(0);
-    edMethodName->setText (no_value);
+    setEditText (edMethodName,no_value,0);
     bMethodAuto->setEnabled(false);
     bMethodAny->setEnabled(false);
     bMethodManual->setEnabled(false);
     bPause->setEnabled(false);
     bStart->setEnabled(false);
     bStop->setEnabled(false);
-    edMode->setText(tr("Не назначено устройство"));
+    setEditText(edMode,tr("Не назначено устройство"),0);
     handle_error_state(0);
 }
 
@@ -124,7 +125,7 @@ void  ZrmMainDisplay::handle_error_state (uint32_t err_code)
   auto p = error_state->palette();
   p.setColor(QPalette::Text, Qt::red);
   error_state->setPalette(p);
-  error_state->setText(m_source->zrm_error_text(err_code))  ;
+  setEditText(error_state,m_source->zrm_error_text(err_code),0)  ;
   bResetError->setVisible(err_code);
 }
 
@@ -139,8 +140,8 @@ void  ZrmMainDisplay::channel_param_changed(unsigned channel, const zrm::params_
             switch(param.first)
             {
             case zrm::PARAM_STATE        : update_state(param.second.udword); break;
-            case zrm::PARAM_WTIME        : lb_work_time ->setText(value.toString()); break;
-            case zrm::PARAM_LTIME        : edTimeLimit->setText(value.toString()); break;
+            case zrm::PARAM_WTIME        : setEditText(lb_work_time,value.toString(),0); break;
+            case zrm::PARAM_LTIME        : setEditText(edTimeLimit,value.toString(),0); break;
             case zrm::PARAM_CUR          : lbCurr->setValue(value.toDouble()); break;
             case zrm::PARAM_LCUR         : sbCurrLimit->setValue(value.toDouble()); break;
             case zrm::PARAM_VOLT         : lbVolt->setValue(value.toDouble()); break;
@@ -155,12 +156,12 @@ void  ZrmMainDisplay::channel_param_changed(unsigned channel, const zrm::params_
             case zrm::PARAM_DOUT         : if (param.second.uword & 0x0001)
                 {
                     bRupreht = true;
-                    edMode->setText(QString("Брак батареи, этап %1").arg(m_source->param_get(m_channel, zrm::PARAM_STG_NUM).toInt()));
+                    setEditText(edMode,QString("Брак батареи, этап %1").arg(m_source->param_get(m_channel, zrm::PARAM_STG_NUM).toInt()),0);
                 }
                 break;
             case zrm::PARAM_ZRMMODE      : if (!bRupreht) edMode->setText(m_source->zrm_mode_text(param.second.udword)); break;
 #else
-            case zrm::PARAM_ZRMMODE      :edMode->setText(m_source->zrm_mode_text(param.second.udword)); break;
+            case zrm::PARAM_ZRMMODE      : setEditText(edMode,m_source->zrm_mode_text(param.second.udword),0); break;
 #endif
             case zrm::PARAM_METHOD_STAGES: setup_method();break;
 
@@ -246,14 +247,17 @@ void  ZrmMainDisplay::setup_method()
     else
         method_name = QString("%1:%2").arg(m_model_name).arg(to_utf(method.m_method.m_name, sizeof(method.m_method.m_name)));
 
-    edMethodName->setText(method_name.remove('\u0000'));
+    method_name = method_name.remove('\u0000');
+
+    setEditText(edMethodName,method_name,0);
+
 
     //set_number_value(lbStageTotal, int(method.stages_count()), 2, infinity_symbol);
     lbStageTotal->setValue(int(method.stages_count()));
     sbCycleTotal->setValue(method.m_method.m_cycles_count);
 
     QString time_limit_string = zrm_method_duration_text(method);
-    edTimeLimit->setText(time_limit_string);
+    setEditText(edTimeLimit,time_limit_string,0);
     auto param = m_source->param_get(m_channel, zrm::PARAM_STG_NUM);
     //set_number_value(lbStageNum, param.toInt(), 2);
     lbStageNum->setValue(param.toInt());
@@ -273,7 +277,7 @@ void ZrmMainDisplay::update_state    (uint32_t state)
     if (bRupreht && !stopped && bLastStop)
     {
         bRupreht = false;
-        edMode->setText(m_source->zrm_mode_text(m_source->param_get(m_channel, zrm::PARAM_ZRMMODE).toUInt()));
+        setEditText(edMode,m_source->zrm_mode_text(m_source->param_get(m_channel, zrm::PARAM_ZRMMODE).toUInt()),0);
     }
     bLastStop = stopped;
 #endif
@@ -499,12 +503,12 @@ void ZrmMainDisplay::manual_method()
 
 void    ZrmMainDisplay::on_connected         (bool con_state)
 {
-  edMode->setText(con_state ? QString() : tr("Нет связи"));
+  setEditText(edMode,con_state ? QString() : tr("Нет связи"),0);
 }
 
 void    ZrmMainDisplay::on_ioerror           (const QString & error_string)
 {
-   edMode->setText(error_string);
+   setEditText(edMode,error_string,0);
 }
 
 void ZrmMainDisplay::start()
@@ -538,6 +542,7 @@ void ZrmMainDisplay::select_method(bool bAbstract)
     zrm::zrm_work_mode_t wm = m_source->channel_work_mode(m_channel);
     dlg.set_mode(wm);
     dlg.setAbstract(bAbstract);
+    dlg.adjustSize();
     if (QDialog::Accepted == dlg.exec())
     {
         zrm::zrm_method_t method;

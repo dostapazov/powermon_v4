@@ -25,15 +25,36 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
+     <property name="handleWidth">
+      <number>8</number>
+     </property>
      <widget class="QSplitter" name="splitter">
+      <property name="lineWidth">
+       <number>2</number>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="handleWidth">
+       <number>8</number>
       </property>
       <widget class="QGroupBox" name="groupBoxMainDisplay">
        <property name="title">
         <string>Параметры</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="ZrmMainDisplay" name="zrm_display" native="true">
           <property name="sizePolicy">
@@ -51,6 +72,18 @@
         <string>Метод</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="ZrmMethodBase" name="zrm_method" native="true">
           <property name="sizePolicy">
@@ -67,6 +100,9 @@
      <widget class="QSplitter" name="splitter_2">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="handleWidth">
+       <number>8</number>
       </property>
       <widget class="QGroupBox" name="groupBoxLogerChart">
        <property name="title">
@@ -112,6 +148,18 @@
         <string>Подключенные устройства</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="ZrmReadySlaveWidget" name="zrm_ready" native="true"/>
         </item>

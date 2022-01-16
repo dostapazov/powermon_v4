@@ -24,6 +24,7 @@ ZrmLogerChart::ZrmLogerChart(QWidget *parent) :
 
 void ZrmLogerChart::on_connected(bool con_state)
 {
+    Q_UNUSED(con_state);
     //buttonSetSettings->setEnabled(con_state);
 }
 
@@ -46,6 +47,8 @@ void ZrmLogerChart::clear_controls()
 
 void ZrmLogerChart::channel_recv_packet(unsigned channel, const zrm::recv_header_t *recv_data)
 {
+    Q_UNUSED(channel)
+    Q_UNUSED(recv_data)
     /*if (m_source && channel == m_channel)
     {
         if (zrm::packet_types_t::PT_DATAREAD == recv_data->proto_hdr.type)

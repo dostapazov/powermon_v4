@@ -18,8 +18,6 @@ public:
 signals:
     void channel_activated(zrm::ZrmConnectivity * conn, unsigned channel);
 
-private:
-    QList<int> splitterSizes;
 };
 
 #endif // ZRMWIDGET_H

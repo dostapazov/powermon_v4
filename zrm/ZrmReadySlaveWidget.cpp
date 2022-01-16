@@ -53,10 +53,12 @@ void  ZrmReadySlaveWidget::set_layout_count(int count)
         if (ready_count > count)
         {
             --ready_count;
-            auto litem = m_ready_layout->takeAt(ready_count);
-            auto w = litem->widget();
+            QLayoutItem * litem = m_ready_layout->takeAt(ready_count);
+            QWidget * w = litem->widget();
             if (m_current == w)
+            {
                 m_current = nullptr;
+            }
             w->disconnect();
             delete w;
             delete litem;
@@ -89,9 +91,9 @@ void ZrmReadySlaveWidget::update_ready()
     int ch_count = zrm::ZrmConnectivity::channels_total();
     set_layout_count(ch_count);
     int idx = 0;
-    for (auto conn : zrm::ZrmConnectivity::connectivities())
+    for (auto && conn : zrm::ZrmConnectivity::connectivities())
     {
-        for (auto chan : conn->channels())
+        for (auto && chan : conn->channels())
         {
             auto litem = m_ready_layout->itemAt(idx++);
             ZrmChannel * w = dynamic_cast<ZrmChannel*>(litem->widget());

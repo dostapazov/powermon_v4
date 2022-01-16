@@ -14,14 +14,19 @@ QLabel
     color: white;
 }
 
+
 QGroupBox
 {
     background-color: rgb(70, 130, 180);
-    border: 2px solid black;
-    border-radius: 10px;
-    margin-top: 1em;
-    padding: 1.3em 5px 5px 5px;
+    border: 1px solid black;
+    border-radius: 5px;
+
+    margin-top: 0.3em;
+    padding: 0.3em 1px 1px 1px;
+
 }
+
+
 
 QGroupBox::title
 {
@@ -29,9 +34,10 @@ QGroupBox::title
     subcontrol-position: top center;
     padding: 1px;
     border: 1px solid black;
-    border-radius: 5px;
+    border-radius: 3px;
     background-color: rgb(135, 206, 235);
 }
+
 
 QPushButton,
 QToolButton
@@ -39,8 +45,8 @@ QToolButton
     background-color: rgb(70, 130, 180);
     color: white;
     border: 2px solid black;
-    border-radius: 10px;
-    min-height: 35px;
+    border-radius: 5px;
+    min-height: 25px;
 }
 
 QPushButton:hover,
@@ -127,7 +133,7 @@ QTabWidget::pane
 
 QTabWidget::tab-bar
 {
-    left: 10px;
+    left: 5px;
 }
 
 QTabBar::tab
@@ -152,7 +158,7 @@ QLineEdit
     color: black;
     border: 2px solid black;
     border-radius: 10px;
-    min-height: 25px;
+    /*min-height: 25px;*/
 }
 
 QLineEdit:read-only
@@ -193,7 +199,7 @@ QDoubleSpinBox:!enabled
 QComboBox
 {
     border: 2px solid black;
-    min-height: 25px;
+    /*min-height: 25px;*/
     background-color: white;
     color: black;
 }
@@ -236,12 +242,6 @@ QMessageBox
     background-color: rgb(70, 130, 180);
 }
 
-QLabel#labelMenuStart
-{
-    min-width: 150;
-    min-height: 90;
-    background: url(:icons/icons/logo.png) no-repeat;
-}
 
 QFrame#frameMenu
 {
@@ -378,7 +378,7 @@ QToolButton#buttonReadyView[error-state = "blue"]
     color: white;
     border: 2px solid black;
     border-radius: 10px;
-    min-height: 35px;
+    /*min-height: 35px;*/
 }
 
 QToolButton:hover#buttonReadyView[error-state = "blue"]
@@ -397,7 +397,7 @@ QToolButton#buttonReadyView[error-state = "red"]
     color: white;
     border: 2px solid black;
     border-radius: 10px;
-    min-height: 35px;
+    /*min-height: 35px;*/
 }
 
 QToolButton:hover#buttonReadyView[error-state = "red"]
@@ -416,7 +416,7 @@ QToolButton#buttonReadyView[error-state = "yellow"]
     color: white;
     border: 2px solid black;
     border-radius: 10px;
-    min-height: 35px;
+    /*min-height: 35px;*/
 }
 
 QToolButton:hover#buttonReadyView[error-state = "yellow"]
@@ -435,7 +435,7 @@ QToolButton#buttonReadyView[error-state = "green"]
     color: white;
     border: 2px solid black;
     border-radius: 10px;
-    min-height: 35px;
+    /*min-height: 35px;*/
 }
 
 QToolButton:hover#buttonReadyView[error-state = "green"]
@@ -447,3 +447,13 @@ QToolButton:checked#buttonReadyView[error-state = "green"]
 {
     background-color: rgb(60, 128, 60);
 }
+
+/*
+QLabel#labelMenuStart
+{
+    min-width: 150;
+    min-height: 90;
+    background: url(:icons/icons/logo.png) no-repeat;
+}
+*/
+
