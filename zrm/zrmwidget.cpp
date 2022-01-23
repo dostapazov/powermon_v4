@@ -1,4 +1,5 @@
 #include "zrmwidget.h"
+#include "ui_constraints.hpp"
 
 ZrmWidget::ZrmWidget(QWidget *parent) :
     ZrmGroupWidget (parent)
@@ -7,7 +8,7 @@ ZrmWidget::ZrmWidget(QWidget *parent) :
     splitter_3->setStretchFactor(0,1);
     splitter_3->setStretchFactor(1,2);
 #ifdef Q_OS_ANDROID
-    groupBoxMethod->setVisible(false);
+    //groupBoxMethod->setVisible(false);
     groupBoxLogerChart->setVisible(false);
     groupBoxDevice->setVisible(false);
 #else
@@ -17,15 +18,27 @@ ZrmWidget::ZrmWidget(QWidget *parent) :
 #endif
 }
 
+void ZrmWidget::update_ui()
+{
+  ZrmGroupWidget::update_ui();
+#ifdef Q_OS_ANDROID
+  for (auto && splitter : findChildren<QSplitter*>())
+  {
+      splitter->setHandleWidth(SPLITTER_HADNLE_WIDTH);
+  }
+#endif
+}
+
+
+
 void ZrmWidget::bind(zrm::ZrmConnectivity* src, uint16_t chan, bool _connect_signals)
 {
     zrm_display->bind(src, chan, _connect_signals);
+    zrm_method->bind(src, chan, _connect_signals);
 #ifdef Q_OS_ANDROID
     zrm_display->bind(src, chan, _connect_signals);
 #else
 
-    zrm_method->bind(src, chan, _connect_signals);
-    zrm_display->bind(src, chan, _connect_signals);
     tabChart->bind(src, chan, _connect_signals);
     tabCell->bind(src, chan, _connect_signals);
     zrm_ready->bind(src, chan, _connect_signals);

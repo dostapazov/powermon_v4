@@ -109,6 +109,7 @@ HEADERS += \
     zrm/ZrmReportViewDialog.h \
     zrm/ZrmReports.h \
     zrm/ZrmTCPSettings.h \
+    zrm/ui_constraints.hpp \
         zrm/zrm_connectivity.hpp \
     zrm/zrmcalibrate.h \
     zrm/zrmcellview.h \

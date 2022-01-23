@@ -43,6 +43,7 @@ public:
     virtual      ~ZrmBaseWidget() ;
     zrm::ZrmConnectivity* connectivity(){return  m_source;}
     virtual void          bind(zrm::ZrmConnectivity   * src, uint16_t chan, bool _connect_signals = true);
+    virtual void          update_ui(){};
             bool          load_ui(const QString & ui_file);
             uint16_t      channel() {return m_channel;}
             QString       channel_name(uint16_t channel);
@@ -120,6 +121,7 @@ class ZrmGroupWidget : public ZrmBaseWidget
   ZrmGroupWidget(QWidget * parent):ZrmBaseWidget(parent){}
   virtual  void  bind(zrm::ZrmConnectivity   * src,uint16_t chan, bool _connect_signals = true) override;
   QList<ZrmBaseWidget*>   zrm_widgets(){if(!m_widgets.count()){zrm_widgets_make();} return m_widgets;}
+  void          update_ui() override;
  protected:
   virtual void  channel_recv_packet  (unsigned channel, const zrm::recv_header_t * recv_data) override;
   virtual void  channel_send_packet  (unsigned channel, const zrm::send_header_t * send_data) override;

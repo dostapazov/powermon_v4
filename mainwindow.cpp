@@ -19,6 +19,7 @@
 #include <qjsonobject.h>
 #include <qjsonarray.h>
 #include <qscreen.h>
+#include <ui_constraints.hpp>
 
 
 enum actions_id_t {act_unknown, act_ready_view, act_zrm_view, act_method_editor, act_configure, act_style,
@@ -34,6 +35,7 @@ void MainWindow::msg_handler   (QtMsgType msg_type, const QMessageLogContext & m
   #endif
 }
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
@@ -41,16 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //setLocale(QLocale::C);
     setupUi(this);
 
-    buttonReadyView->setDefaultAction(actReadyView);
-    buttonZrmView->setDefaultAction(actZrmView);
-    buttonMethodEditor->setDefaultAction(actMethod_Editor);
-    buttonConfigure->setDefaultAction(actConfigure);
-    buttonStyle->setDefaultAction(actStyle);
-    buttonExit->setDefaultAction(actExit);
 
-    buttonDevMeth->setDefaultAction(actDevMethod);
-    buttonZrmReport->setDefaultAction(actZrmReport);
-    buttonParams->setDefaultAction(actParams);
 
     QScreen * screen = qApp->primaryScreen();
     connect(screen, &QScreen::primaryOrientationChanged, this, &MainWindow::orientation_changed);
@@ -86,6 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QIcon icon(QLatin1String(":/icons/icons/powermon.png"));
     setWindowIcon(icon);
     qApp->setWindowIcon(icon);
+    setupActions();
     setupStyleSheet();
     update_ui();
 }
@@ -101,24 +95,51 @@ MainWindow::~MainWindow()
       delete c;
 }
 
+void MainWindow::setupActions()
+{
+    buttonReadyView->setDefaultAction(actReadyView);
+    buttonZrmView->setDefaultAction(actZrmView);
+    buttonMethodEditor->setDefaultAction(actMethod_Editor);
+    buttonConfigure->setDefaultAction(actConfigure);
+    buttonStyle->setDefaultAction(actStyle);
+    buttonExit->setDefaultAction(actExit);
+
+    buttonDevMeth->setDefaultAction(actDevMethod);
+    buttonZrmReport->setDefaultAction(actZrmReport);
+    buttonParams->setDefaultAction(actParams);
+}
+
+
 #ifdef Q_OS_ANDROID
      void MainWindow::update_android_ui()
      {
          setFixedSize(qApp->desktop()->size());
 
-         for(auto sb : findChildren<QAbstractSpinBox*>())
+         for(auto  && sb : findChildren<QAbstractSpinBox*>())
            sb->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
+
+         QSize icon_size(MAIN_WIDOW_ICON_WIDTH,MAIN_WIDOW_ICON_HEIGHT);
+         QSize btn_size(MAIN_WIDOW_BUTTON_WIDTH,MAIN_WIDOW_BUTTON_HEIGHT);
+         for(auto && btn : frameMenu->findChildren<QToolButton*>())
+         {
+            btn->setIconSize(icon_size);
+            btn->setMinimumSize(btn_size);
+            //btn->setMaximumSize(size);
+            btn->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextUnderIcon);
+         }
+
      }
 #else
     void MainWindow::update_desktop_ui()
     {
 
-        QSize size(42,42);
+        QSize icon_size(DESKTOP_MAIN_WIDOW_ICON_WIDTH,DESKTOP_MAIN_WIDOW_ICON_WIDTH);
+        QSize btn_size (DESKTOP_MAIN_WIDOW_BUTTON_WIDTH,DESKTOP_MAIN_WIDOW_BUTTON_WIDTH);
         for(auto && btn : frameMenu->findChildren<QToolButton*>())
         {
-           btn->setIconSize(size);
-           btn->setMinimumSize(size);
-           btn->setMaximumSize(size);
+           btn->setIconSize(icon_size);
+           btn->setMinimumSize(btn_size);
+           btn->setMaximumSize(btn_size);
         }
 
     }
@@ -132,6 +153,10 @@ MainWindow::~MainWindow()
 #else
       update_desktop_ui();
 #endif
+    for(auto && zrm_widget : findChildren<ZrmBaseWidget*>())
+    {
+      zrm_widget->update_ui();
+    }
       adjustSize();
   }
 
@@ -300,7 +325,6 @@ void MainWindow::set_font_for_edit()
   font_italic->setChecked(font_info.italic());
   font_size->setValue(font_info.pointSize());
   fontComboBox->setCurrentFont(font());
-
 }
 
 
@@ -365,7 +389,7 @@ void MainWindow::write_config       ()
      jobj[cfg_full_screen ]   = isFullScreen();*/
 
      QJsonArray jarr;
-     for (int s : zrm_widget->getSplitterSizes())
+     for (int& s : zrm_widget->getSplitterSizes())
         jarr.append(s);
      jobj[cfg_zrm_splitter] = jarr;
 
@@ -389,13 +413,16 @@ void MainWindow::write_config       ()
      }
 }
 
+void MainWindow::updateFont(const QFont &fnt)
+{
+    qApp->setFont(fnt);
+    setFont(fnt);
+    for(auto w : findChildren<QWidget*>())
+           w->setFont(fnt);
+}
+
 void MainWindow::read_config()
 {
-#ifdef Q_OS_ANDROID
-       constexpr int def_font_size = 20;
-#else
-       constexpr int def_font_size = 12;
-#endif
 
  QString cname = window_param_file_name();
  QFile file(cname);
@@ -411,49 +438,35 @@ void MainWindow::read_config()
          style_select->setCurrentText(style_name);
         }
 
+
      if(jobj.contains(cfg_font_name))
      {
        QFont  fnt(jobj[cfg_font_name].toString());
-       fnt.setPixelSize(jobj[cfg_font_size].toInt(def_font_size));
+       fnt.setPixelSize(jobj[cfg_font_size].toInt( DEFAULT_FONT_SIZE));
        fnt.setBold(jobj[cfg_font_bold   ].toBool(true));
        fnt.setItalic(jobj[cfg_font_italic ].toBool(false));
-       qApp->setFont(fnt);
-       this->setFont(fnt);
-       for(auto w : findChildren<QWidget*>())
-            w->setFont(fnt);
+       updateFont(fnt);
+
      }
 
-/*#ifndef Q_OS_ANDROID
-     if(jobj[cfg_full_screen ].toBool(false))
-        setGeometry(qApp->primaryScreen()->geometry());
-     else
-     {
-         QRect r(
-                  jobj[cfg_xpos].toInt(10)
-                 ,jobj[cfg_ypos].toInt(10)
-                 ,jobj[cfg_width].toInt(300)
-                 ,jobj[cfg_height].toInt(200)
-                );
-         r = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, r.size(), qApp->primaryScreen()->geometry());
-         setGeometry(r);
-     }
-#endif*/
 
      QJsonArray jarr = jobj[cfg_zrm_splitter].toArray();
      QList<int> list;
-     for (QJsonValueRef v : jarr)
+     for (QJsonValueRef&& v : jarr)
          list.append(v.toInt());
      zrm_widget->setSplitterSizes(list);
 
      QJsonArray jarrParams = jobj[cfg_params_splitter].toArray();
      QList<int> listParams;
-     for (QJsonValueRef v : jarrParams)
+
+     for (QJsonValueRef && v : jarrParams)
          listParams.append(v.toInt());
      zrm_params->setSplitterSizes(listParams);
 
      QJsonArray jarrStages = jobj[cfg_stages_splitter].toArray();
      QList<int> listStages;
-     for (QJsonValueRef v : jarrStages)
+
+     for (QJsonValueRef && v : jarrStages)
          listStages.append(v.toInt());
      method_editor->setSplitterSizes(listStages);
 
@@ -467,20 +480,13 @@ void MainWindow::read_config()
 
 void MainWindow::set_default_config()
 {
-#ifdef Q_OS_ANDROID
-       int def_font_size = 6;
-#else
-       int def_font_size = 24;
-#endif
     QFont  fnt = this->font();
-    fnt.setPixelSize(def_font_size);
+    fnt.setPixelSize(DEFAULT_FONT_SIZE);
+    qDebug()<<"PixelSize " << fnt.pixelSize();
     fnt.setBold(true);
     fnt.setItalic(false);
-    qApp->setFont(fnt);
-    this->setFont(fnt);
-    for(auto w : findChildren<QWidget*>())
-         w->setFont(fnt);
     style_select->setCurrentText(QString("Fusion"));
+    updateFont(fnt);
 }
 
 

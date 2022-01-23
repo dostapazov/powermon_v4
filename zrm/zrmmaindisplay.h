@@ -17,6 +17,7 @@ class ZrmMainDisplay : public ZrmChannelWidget, private Ui::ZrmMainDisplay
     Q_OBJECT
 public:
     explicit ZrmMainDisplay(QWidget *parent = nullptr);
+    virtual void update_ui() override;
 
  protected slots:
     void manual_method_changed();
@@ -42,6 +43,11 @@ public:
     void set_method_duration(zrm::zrm_method_t & method,const QString & str);
     void handle_error_state(uint32_t err_code);
     void update_method_controls();
+
+#ifdef Q_OS_ANDROID
+    void update_android_ui();
+#endif
+
 
     bool m_auto_method = false;
     QString m_model_name;
