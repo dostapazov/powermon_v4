@@ -43,16 +43,16 @@
      <number>4</number>
     </property>
     <property name="leftMargin">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="topMargin">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="rightMargin">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="bottomMargin">
-     <number>2</number>
+     <number>0</number>
     </property>
     <item>
      <widget class="QFrame" name="frameMenu">
@@ -115,12 +115,6 @@
            <height>32</height>
           </size>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
-         </property>
          <property name="text">
           <string>...</string>
          </property>
@@ -141,12 +135,6 @@
        <item>
         <widget class="QToolButton" name="buttonZrmView">
          <property name="minimumSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
-         </property>
-         <property name="maximumSize">
           <size>
            <width>32</width>
            <height>32</height>
@@ -178,12 +166,6 @@
           </sizepolicy>
          </property>
          <property name="minimumSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
-         </property>
-         <property name="maximumSize">
           <size>
            <width>32</width>
            <height>32</height>
@@ -242,12 +224,6 @@
            <height>32</height>
           </size>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
-         </property>
          <property name="toolTip">
           <string>Методы на устройстве</string>
          </property>
@@ -280,12 +256,6 @@
           </sizepolicy>
          </property>
          <property name="minimumSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
-         </property>
-         <property name="maximumSize">
           <size>
            <width>32</width>
            <height>32</height>
@@ -338,12 +308,6 @@
            <height>32</height>
           </size>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
-         </property>
          <property name="text">
           <string>...</string>
          </property>
@@ -385,12 +349,6 @@
            <height>32</height>
           </size>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
-         </property>
          <property name="text">
           <string>...</string>
          </property>
@@ -411,12 +369,6 @@
        <item>
         <widget class="QToolButton" name="buttonStyle">
          <property name="minimumSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
-         </property>
-         <property name="maximumSize">
           <size>
            <width>32</width>
            <height>32</height>
@@ -455,12 +407,6 @@
        <item>
         <widget class="QToolButton" name="buttonExit">
          <property name="minimumSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
-         </property>
-         <property name="maximumSize">
           <size>
            <width>32</width>
            <height>32</height>
@@ -519,16 +465,16 @@
          <enum>QLayout::SetMinAndMaxSize</enum>
         </property>
         <property name="leftMargin">
-         <number>4</number>
+         <number>2</number>
         </property>
         <property name="topMargin">
-         <number>4</number>
+         <number>2</number>
         </property>
         <property name="rightMargin">
-         <number>4</number>
+         <number>2</number>
         </property>
         <property name="bottomMargin">
-         <number>4</number>
+         <number>2</number>
         </property>
         <item>
          <widget class="ZrmWidget" name="zrm_widget" native="true">
@@ -572,8 +518,23 @@
       </widget>
       <widget class="QWidget" name="conn_params_page">
        <layout class="QVBoxLayout" name="verticalLayout_6">
+        <property name="spacing">
+         <number>4</number>
+        </property>
         <property name="sizeConstraint">
          <enum>QLayout::SetMinAndMaxSize</enum>
+        </property>
+        <property name="leftMargin">
+         <number>2</number>
+        </property>
+        <property name="topMargin">
+         <number>2</number>
+        </property>
+        <property name="rightMargin">
+         <number>2</number>
+        </property>
+        <property name="bottomMargin">
+         <number>2</number>
         </property>
         <item>
          <widget class="ZrmConnectivityParam" name="conn_params" native="true"/>
@@ -582,6 +543,21 @@
       </widget>
       <widget class="QWidget" name="style_page">
        <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="leftMargin">
+         <number>2</number>
+        </property>
+        <property name="topMargin">
+         <number>2</number>
+        </property>
+        <property name="rightMargin">
+         <number>2</number>
+        </property>
+        <property name="bottomMargin">
+         <number>2</number>
+        </property>
         <item>
          <widget class="QFrame" name="style_frame">
           <property name="frameShape">
@@ -591,6 +567,21 @@
            <enum>QFrame::Raised</enum>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
@@ -625,7 +616,7 @@
                <item row="2" column="1">
                 <widget class="QSpinBox" name="font_size">
                  <property name="minimum">
-                  <number>3</number>
+                  <number>6</number>
                  </property>
                  <property name="maximum">
                   <number>96</number>
@@ -706,6 +697,21 @@
            <enum>QFrame::Raised</enum>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8">
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
            <item>
             <widget class="QGroupBox" name="gb_ctrls">
              <property name="title">
@@ -884,7 +890,7 @@
      <normaloff>:/icons/icons/method_editor.png</normaloff>:/icons/icons/method_editor.png</iconset>
    </property>
    <property name="text">
-    <string>MEditor</string>
+    <string>Правка</string>
    </property>
    <property name="toolTip">
     <string>Редактор методов</string>
@@ -899,7 +905,7 @@
      <normaloff>:/icons/icons/settings.png</normaloff>:/icons/icons/settings.png</iconset>
    </property>
    <property name="text">
-    <string>Настройки соединения</string>
+    <string>Соединения</string>
    </property>
    <property name="toolTip">
     <string>Настройки соединения</string>
@@ -911,7 +917,7 @@
      <normaloff>:/icons/icons/exit.png</normaloff>:/icons/icons/exit.png</iconset>
    </property>
    <property name="text">
-    <string>Завершение</string>
+    <string>Выход</string>
    </property>
    <property name="toolTip">
     <string>Завершить работу(Alt+X)</string>
@@ -932,7 +938,7 @@
      <normaloff>:/icons/icons/param.png</normaloff>:/icons/icons/param.png</iconset>
    </property>
    <property name="text">
-    <string>Управление устройством</string>
+    <string>Устройство</string>
    </property>
    <property name="toolTip">
     <string>Управление устройством</string>
@@ -947,7 +953,7 @@
      <normaloff>:/icons/icons/style.png</normaloff>:/icons/icons/style.png</iconset>
    </property>
    <property name="text">
-    <string>Style</string>
+    <string>Вид</string>
    </property>
    <property name="toolTip">
     <string>Оформление</string>
@@ -962,7 +968,7 @@
      <normaloff>:/icons/icons/zrm_ready.png</normaloff>:/icons/icons/zrm_ready.png</iconset>
    </property>
    <property name="text">
-    <string>ReadyList</string>
+    <string>Все</string>
    </property>
    <property name="toolTip">
     <string>Отображение всех</string>
@@ -977,7 +983,7 @@
      <normaloff>:/icons/icons/methods.png</normaloff>:/icons/icons/methods.png</iconset>
    </property>
    <property name="text">
-    <string>Методы на устройстве</string>
+    <string>Методы</string>
    </property>
    <property name="toolTip">
     <string>Методы на устройстве</string>
@@ -1007,7 +1013,7 @@
      <normaloff>:/icons/icons/params.png</normaloff>:/icons/icons/params.png</iconset>
    </property>
    <property name="text">
-    <string>Настройки устройства</string>
+    <string>Настройки</string>
    </property>
    <property name="toolTip">
     <string>Настройки устройства</string>

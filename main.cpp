@@ -6,8 +6,8 @@
 
 int main(int argc, char *argv[])
 {
+    //QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication a(argc, argv);
-    a.setAttribute(Qt::AA_EnableHighDpiScaling);
     MainWindow w;
 #ifdef Q_OS_ANDROID
     w.showFullScreen();
