@@ -14,19 +14,15 @@ QLabel
     color: white;
 }
 
-
 QGroupBox
 {
     background-color: rgb(70, 130, 180);
     border: 1px solid black;
     border-radius: 5px;
 
-    margin-top: 0.3em;
-    padding: 0.3em 1px 1px 1px;
-
+    margin-top: 0.4em;
+    padding: 0.4em 1px 1px 1px;
 }
-
-
 
 QGroupBox::title
 {
@@ -59,7 +55,6 @@ QToolButton:hover
 QPushButton:checked,
 QToolButton:checked
 {
-    /*background-color: rgb(135, 206, 235);*/
     background-color: rgb(30, 144, 255);
     color: white
 }
@@ -246,9 +241,9 @@ QMessageBox
 QFrame#frameMenu
 {
     background: rgb(70, 130, 180);
-    border: 5px solid;
+    border: 2px solid;
     border-color: rgb(0, 216, 230);
-    border-radius: 10px;
+    border-radius: 5px;
 }
 
 QFrame#frame
@@ -378,7 +373,12 @@ QToolButton#buttonReadyView[error-state = "blue"]
     color: white;
     border: 2px solid black;
     border-radius: 10px;
-    /*min-height: 35px;*/
+    /*
+    min-height: 30px;
+    min-width: 30px;
+    max-height: 30px;
+    max-width: 30px;
+    */
 }
 
 QToolButton:hover#buttonReadyView[error-state = "blue"]
@@ -397,7 +397,6 @@ QToolButton#buttonReadyView[error-state = "red"]
     color: white;
     border: 2px solid black;
     border-radius: 10px;
-    /*min-height: 35px;*/
 }
 
 QToolButton:hover#buttonReadyView[error-state = "red"]

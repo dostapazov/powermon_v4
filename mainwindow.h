@@ -53,7 +53,10 @@ private:
       bool eventFilter(QObject * target,QEvent * event) override;
 #ifdef Q_OS_ANDROID
       void update_android_ui();
+#else
+      void update_desktop_ui();
 #endif
+      void update_ui();
       void setupStyleSheet();
 
       QFile               log_file;

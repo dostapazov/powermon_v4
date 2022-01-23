@@ -252,7 +252,7 @@ bool  ZrmBaseWidget::load_ui(const QString & ui_file)
  {
   QWidget * widget =   loader.load(&file,this);
   init_ui(widget);
-  return widget;
+  return true;
  }
 #else
     Q_UNUSED(ui_file)
@@ -263,7 +263,7 @@ bool  ZrmBaseWidget::load_ui(const QString & ui_file)
 
 void    ZrmGroupWidget::zrm_widgets_clear    ()
 {
-  for(auto c : m_widgets)
+  for(auto && c : m_widgets)
        c->bind(Q_NULLPTR,0);
   m_widgets.clear();
 }
@@ -279,7 +279,7 @@ void  ZrmGroupWidget::bind(zrm::ZrmConnectivity   * src, uint16_t chan, bool _co
 {
    ZrmBaseWidget::bind(src, chan, _connect_signals);
    zrm_widgets_make();
-   for(auto c : findChildren<ZrmBaseWidget*>())
+   for(auto && c : findChildren<ZrmBaseWidget*>())
       {
        c->bind(src, chan, false);
       }
@@ -288,19 +288,19 @@ void  ZrmGroupWidget::bind(zrm::ZrmConnectivity   * src, uint16_t chan, bool _co
 
 void ZrmGroupWidget::channel_recv_packet  (unsigned channel, const zrm::recv_header_t * recv_data)
 {
-  for(auto widget : m_widgets)
+  for(auto && widget : m_widgets)
       widget->channel_recv_packet(channel, recv_data);
 }
 
 void ZrmGroupWidget::channel_send_packet  (unsigned channel, const zrm::send_header_t * send_data)
 {
-    for(auto widget : m_widgets)
+    for(auto && widget : m_widgets)
         widget->channel_send_packet(channel, send_data);
 }
 
 void ZrmGroupWidget::channel_param_changed(unsigned channel, const zrm::params_list_t & params_list  )
 {
-    for(auto widget : m_widgets)
+    for(auto && widget : m_widgets)
         widget->channel_param_changed(channel, params_list);
     ZrmBaseWidget::channel_param_changed(channel, params_list);
 }
@@ -308,19 +308,19 @@ void ZrmGroupWidget::channel_param_changed(unsigned channel, const zrm::params_l
 
 void  ZrmGroupWidget::on_connected         (bool con_state)
 {
-    for(auto widget : m_widgets)
+    for(auto && widget : m_widgets)
         widget->on_connected(con_state);
 }
 
 void  ZrmGroupWidget::on_ioerror           (const QString & error_string)
 {
-    for(auto widget : m_widgets)
+    for(auto && widget : m_widgets)
         widget->on_ioerror(error_string);
 }
 
 void  ZrmGroupWidget::source_destroyed     (zrm::ZrmConnectivity * src)
 {
-    for(auto widget : m_widgets)
+    for(auto && widget : m_widgets)
         widget->source_destroyed(src);
     ZrmBaseWidget::source_destroyed(src);
 
@@ -328,14 +328,14 @@ void  ZrmGroupWidget::source_destroyed     (zrm::ZrmConnectivity * src)
 
 void  ZrmGroupWidget::clear_controls       ()
 {
-    for(auto widget : m_widgets)
+    for(auto && widget : m_widgets)
         widget->clear_controls();
     ZrmBaseWidget::clear_controls();
 }
 
 void  ZrmGroupWidget::update_controls ()
 {
-    for(auto widget : m_widgets)
+    for(auto && widget : m_widgets)
         widget->update_controls();
   ZrmBaseWidget::update_controls();
 }

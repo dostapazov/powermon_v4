@@ -75,9 +75,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     init_slots();
     install_event_filers();
-#ifdef Q_OS_ANDROID
-    update_android_ui();
-#endif
+
     zrm_ready->update_ready();
     zrm_ready->ready_accum()->setButton(buttonReadyView);
     zrm_widget->update_ready();
@@ -89,6 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowIcon(icon);
     qApp->setWindowIcon(icon);
     setupStyleSheet();
+    update_ui();
 }
 
 MainWindow::~MainWindow()
@@ -103,14 +102,38 @@ MainWindow::~MainWindow()
 }
 
 #ifdef Q_OS_ANDROID
-  void MainWindow::update_android_ui()
-  {
-      setFixedSize(qApp->desktop()->size());
+     void MainWindow::update_android_ui()
+     {
+         setFixedSize(qApp->desktop()->size());
 
-      for(auto sb : findChildren<QAbstractSpinBox*>())
-            sb->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
-  }
+         for(auto sb : findChildren<QAbstractSpinBox*>())
+           sb->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
+     }
+#else
+    void MainWindow::update_desktop_ui()
+    {
+
+        QSize size(42,42);
+        for(auto && btn : frameMenu->findChildren<QToolButton*>())
+        {
+           btn->setIconSize(size);
+           btn->setMinimumSize(size);
+           btn->setMaximumSize(size);
+        }
+
+    }
 #endif
+
+
+  void MainWindow::update_ui()
+  {
+    #ifdef Q_OS_ANDROID
+      update_android_ui();
+#else
+      update_desktop_ui();
+#endif
+      adjustSize();
+  }
 
 void MainWindow::init_actions()
 {
@@ -277,6 +300,7 @@ void MainWindow::set_font_for_edit()
   font_italic->setChecked(font_info.italic());
   font_size->setValue(font_info.pointSize());
   fontComboBox->setCurrentFont(font());
+
 }
 
 
@@ -292,21 +316,18 @@ QFont MainWindow::edit_font(const QFont & f)
 void MainWindow::edit_font_changed_props()
 {
     edit_font_changed(fontComboBox->currentFont());
+    update_ui();
 }
 
 void MainWindow::edit_font_changed(const QFont & font)
 {
     QFont f = edit_font(font);
     gb_ctrls->setFont(f);
-    for(auto w : gb_ctrls->findChildren<QWidget*>())
+    for(auto && w : gb_ctrls->findChildren<QWidget*>())
           w->setFont(f);
     gb_ctrls->layout()->update();
-
+    update_ui();
 }
-
-
-
-
 
 constexpr const char * cfg_style        = "style";
 constexpr const char * cfg_font_name    = "font-name";

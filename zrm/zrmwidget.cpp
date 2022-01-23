@@ -8,7 +8,7 @@ ZrmWidget::ZrmWidget(QWidget *parent) :
     splitter_3->setStretchFactor(1,2);
 #ifdef Q_OS_ANDROID
     groupBoxMethod->setVisible(false);
-    //groupBoxLogerChart->setVisible(false);
+    groupBoxLogerChart->setVisible(false);
     groupBoxDevice->setVisible(false);
 #else
     zrm_method->set_details_enable(false);

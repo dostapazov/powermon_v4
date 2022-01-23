@@ -508,7 +508,8 @@ void    ZrmMainDisplay::on_connected         (bool con_state)
 
 void    ZrmMainDisplay::on_ioerror           (const QString & error_string)
 {
-   setEditText(edMode,error_string,0);
+   if(error_string.length())
+      setEditText(edMode,error_string,0);
 }
 
 void ZrmMainDisplay::start()
