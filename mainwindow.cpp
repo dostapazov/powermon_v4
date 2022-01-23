@@ -106,8 +106,17 @@ MainWindow::~MainWindow()
      {
          setFixedSize(qApp->desktop()->size());
 
-         for(auto sb : findChildren<QAbstractSpinBox*>())
+         for(auto  && sb : findChildren<QAbstractSpinBox*>())
            sb->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
+
+         QSize size(64,64);
+         for(auto && btn : frameMenu->findChildren<QToolButton*>())
+         {
+            btn->setIconSize(size);
+            btn->setMinimumSize(size);
+            btn->setMaximumSize(size);
+         }
+
      }
 #else
     void MainWindow::update_desktop_ui()
@@ -132,6 +141,10 @@ MainWindow::~MainWindow()
 #else
       update_desktop_ui();
 #endif
+    for(auto && zrm_widget : findChildren<ZrmBaseWidget*>())
+    {
+      zrm_widget->update_ui();
+    }
       adjustSize();
   }
 

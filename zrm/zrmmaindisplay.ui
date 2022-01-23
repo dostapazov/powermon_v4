@@ -96,7 +96,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
-      <widget class="QFrame" name="verticalFrame">
+      <widget class="QFrame" name="ctrlButtonFrame">
        <property name="frameShape">
         <enum>QFrame::WinPanel</enum>
        </property>

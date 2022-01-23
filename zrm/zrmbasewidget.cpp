@@ -261,13 +261,19 @@ bool  ZrmBaseWidget::load_ui(const QString & ui_file)
 }
 
 
+
+void    ZrmGroupWidget::update_ui()
+{
+    for(auto && c : m_widgets)
+         c->update_ui();
+}
+
 void    ZrmGroupWidget::zrm_widgets_clear    ()
 {
   for(auto && c : m_widgets)
        c->bind(Q_NULLPTR,0);
   m_widgets.clear();
 }
-
 
 void    ZrmGroupWidget::zrm_widgets_make     ()
 {

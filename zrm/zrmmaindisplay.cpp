@@ -553,3 +553,32 @@ void ZrmMainDisplay::select_method(bool bAbstract)
         }
     }
 }
+
+#ifdef Q_OS_ANDROID
+  void ZrmMainDisplay::update_android_ui()
+  {
+      for (auto && btn : this->ctrlButtonFrame->findChildren<QPushButton*>())
+      {
+          QSize size(64,64);
+          btn->setMinimumSize(size);
+          btn->setMaximumSize(size);
+          btn->setIconSize(size);
+      }
+
+    for (auto && lbl : gridLayout_2->findChildren<QLabel*>() )
+    {
+        QSize size(48,48);
+        lbl->setMaximumSize(size);
+        lbl->setMinimumSize(size);
+    }
+  }
+#endif
+
+
+void ZrmMainDisplay::update_ui()
+{
+    ZrmChannelWidget::update_ui();
+    #ifdef Q_OS_ANDROID
+      update_android_ui();
+    #endif
+}
