@@ -124,8 +124,8 @@ void MainWindow::setupActions()
          {
             btn->setIconSize(icon_size);
             btn->setMinimumSize(btn_size);
-            //btn->setMaximumSize(size);
-            btn->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextUnderIcon);
+            btn->setMaximumSize(btn_size);
+            //btn->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextUnderIcon);
          }
 
      }
