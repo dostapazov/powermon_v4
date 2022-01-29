@@ -12,6 +12,7 @@ class ZrmChannelMimimal : public ZrmGroupWidget, private Ui::ZrmChannelMimimal
 public:
     explicit ZrmChannelMimimal(QWidget *parent = nullptr);
     zrm::zrm_work_mode_t work_mode();
+    virtual void update_ui() override;
     void set_active(bool active);
     void set_method(const zrm::zrm_method_t &method);
     void bind(zrm::ZrmConnectivity * src,uint16_t chan, bool _connect_signals = true) override;

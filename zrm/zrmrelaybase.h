@@ -11,6 +11,7 @@ class ZrmRelayBase : public ZrmChannelWidget, private Ui::ZrmRelayBase
 public:
 
     explicit ZrmRelayBase(QWidget *parent = nullptr);
+    virtual void update_ui() override;
 
 protected slots:
     //void flash(bool flash_on);

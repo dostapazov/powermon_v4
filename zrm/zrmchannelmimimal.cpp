@@ -197,3 +197,12 @@ bool  ZrmChannelMimimal::eventFilter(QObject * target,QEvent * event)
     }
     return ZrmBaseWidget::eventFilter(target, event);
 }
+
+void ZrmChannelMimimal::update_ui()
+{
+#ifdef Q_OS_ANDROID
+    QSize icon_size(42,42);
+    btStop->setIconSize(icon_size);
+    btStop->setMaximumHeight(48);
+#endif
+}

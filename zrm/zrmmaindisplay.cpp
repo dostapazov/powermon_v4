@@ -5,6 +5,7 @@
 #include <qscreen.h>
 #include <QGraphicsDropShadowEffect>
 #include <powermon_utils.h>
+#include "ui_constraints.hpp"
 
 ZrmMainDisplay::ZrmMainDisplay(QWidget *parent) :
     ZrmChannelWidget(parent)
@@ -565,12 +566,27 @@ void ZrmMainDisplay::select_method(bool bAbstract)
           btn->setIconSize(size);
       }
 
-    for (auto && lbl : gridLayout_2->findChildren<QLabel*>() )
+    for (auto && lbl : paramFrame->findChildren<QLabel*>() )
     {
         QSize size(48,48);
         lbl->setMaximumSize(size);
         lbl->setMinimumSize(size);
     }
+
+    for (auto && btn :  stateButtonFrame->findChildren<QAbstractButton*>() )
+    {
+        QSize size(48,48);
+        btn->setMaximumSize(size);
+        btn->setMinimumSize(size);
+        btn->setIconSize(size);
+    }
+
+    bVoltDec->setMinimumWidth(48);
+    bVoltInc->setMinimumWidth(48);
+    bCurrDec->setMinimumWidth(48);
+    bCurrInc->setMinimumWidth(48);
+
+
   }
 #endif
 

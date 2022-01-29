@@ -259,3 +259,14 @@ void ZrmRelayBase::setLabelPix(QLabel * label, const QString icon)
     label->setPixmap(pix);
     label->setProperty("pix", icon);
 }
+
+void ZrmRelayBase::update_ui()
+{
+#ifdef Q_OS_ANDROID
+    for (auto lbl : findChildren<QLabel*>())
+    {
+        lbl->setMinimumHeight(48);
+    }
+#endif
+}
+
