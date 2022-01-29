@@ -3,10 +3,10 @@
 #include <qglobal.h>
 
 #ifdef Q_OS_ANDROID
-constexpr int MAIN_WIDOW_ICON_WIDTH = 42;
-constexpr int MAIN_WIDOW_ICON_HEIGHT = 42;
-constexpr int MAIN_WIDOW_BUTTON_WIDTH = 42;
-constexpr int MAIN_WIDOW_BUTTON_HEIGHT = 42;
+constexpr int MAIN_WIDOW_ICON_WIDTH = 96;
+constexpr int MAIN_WIDOW_ICON_HEIGHT = 96;
+constexpr int MAIN_WIDOW_BUTTON_WIDTH = 96;
+constexpr int MAIN_WIDOW_BUTTON_HEIGHT = 96;
 constexpr int SPLITTER_HADNLE_WIDTH = 16;
 constexpr int DEFAULT_FONT_SIZE = 32;
 
