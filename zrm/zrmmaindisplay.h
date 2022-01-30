@@ -15,6 +15,8 @@
 class ZrmMainDisplay : public ZrmChannelWidget, private Ui::ZrmMainDisplay
 {
     Q_OBJECT
+    void connectSlots();
+
 public:
     explicit ZrmMainDisplay(QWidget *parent = nullptr);
     virtual void update_ui() override;
@@ -22,6 +24,8 @@ public:
  protected slots:
     void manual_method_changed();
     void manual_method();
+    void currLimitChange();
+    void voltLimitChange();
     void start();
     void stop();
     void pause();
@@ -56,6 +60,13 @@ public:
 #ifdef DEF_RUPREHT
     bool bRupreht = false;
 #endif
+private:
+
+    void  set_current_limits();
+    void  set_volt_limits();
+    bool  is_manual() {return m_method_id == zrm::METHOD_MANUAL_ID; }
+
+
 };
 
 #endif // ZRMMAINDISPLAY_H

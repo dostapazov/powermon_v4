@@ -7,6 +7,7 @@
 #include <powermon_utils.h>
 #include "ui_constraints.hpp"
 
+
 ZrmMainDisplay::ZrmMainDisplay(QWidget *parent) :
     ZrmChannelWidget(parent)
 {
@@ -48,18 +49,25 @@ ZrmMainDisplay::ZrmMainDisplay(QWidget *parent) :
     addShadow(bCharge);
     addShadow(bDischarge);
 
+    bind(Q_NULLPTR,0);
+
+    connectSlots();
+}
+
+void ZrmMainDisplay::connectSlots()
+{
     connect(bMethodAuto, &QAbstractButton::clicked, this, [this]() { select_method(false); });
     connect(bMethodAny, &QAbstractButton::clicked, this, [this]() { select_method(true); });
     connect(bMethodManual, &QAbstractButton::clicked, this, &ZrmMainDisplay::manual_method);
-    bind(Q_NULLPTR,0);
+
 
     connect(edTimeLimit , SIGNAL(textChanged(QString)), this, SLOT(manual_method_changed()));
     connect(sbCurrLimit , SIGNAL(valueChanged(double)), this, SLOT(manual_method_changed()));
     connect(sbVoltLimit , SIGNAL(valueChanged(double)), this, SLOT(manual_method_changed()));
-    connect(bCurrDec    , SIGNAL(clicked()), this, SLOT(manual_method_changed()));
-    connect(bCurrInc    , SIGNAL(clicked()), this, SLOT(manual_method_changed()));
-    connect(bVoltDec    , SIGNAL(clicked()), this, SLOT(manual_method_changed()));
-    connect(bVoltInc    , SIGNAL(clicked()), this, SLOT(manual_method_changed()));
+    connect(bCurrDec    , SIGNAL(clicked()), this, SLOT(currLimitChange()));
+    connect(bCurrInc    , SIGNAL(clicked()), this, SLOT(currLimitChange()));
+    connect(bVoltDec    , SIGNAL(clicked()), this, SLOT(voltLimitChange()));
+    connect(bVoltInc    , SIGNAL(clicked()), this, SLOT(voltLimitChange()));
     connect(sbCycleTotal, SIGNAL(valueChanged(int)), this, SLOT(manual_method_changed()));
     connect(bCharge     , SIGNAL(clicked(bool)), this, SLOT(manual_method_changed()));
     connect(bDischarge  , SIGNAL(clicked(bool)), this, SLOT(manual_method_changed()));
@@ -68,6 +76,7 @@ ZrmMainDisplay::ZrmMainDisplay(QWidget *parent) :
     connect(bPause      , &QAbstractButton::clicked, this, &ZrmMainDisplay::pause);
     connect(bResetError , &QAbstractButton::clicked, this, &ZrmMainDisplay::reset_error);
 }
+
 
 /**
  * @brief ZrmMainWidget::update_controls
@@ -299,11 +308,54 @@ void ZrmMainDisplay::update_state    (uint32_t state)
   update_method_controls();
 }
 
+
+void  ZrmMainDisplay::set_current_limits( )
+{
+    double minLimit = 0,maxLimit = 0;
+    if(is_manual() && m_source)
+    {
+
+        if (bCharge->isChecked())
+        {
+            maxLimit = m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble();
+
+        }
+
+        if(bDischarge->isChecked())
+        {
+            maxLimit = m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble();
+        }
+
+        minLimit = -maxLimit;
+
+    }
+    else
+    {
+        minLimit = -100000;
+        maxLimit = 100000;
+    }
+
+   sbVoltLimit->setMinimum(minLimit);
+   sbVoltLimit->setMaximum(maxLimit);
+}
+
+
+
+void  ZrmMainDisplay::set_volt_limits()
+{
+   double limit = 100000;
+   if(is_manual() && m_source )
+     limit =  m_source->param_get(m_channel, zrm::PARAM_MVOLT).toDouble() ;
+
+    sbVoltLimit->setMaximum(limit);
+}
+
 void  ZrmMainDisplay::update_method_controls()
 {
     bool is_stopped = m_source && m_source->channel_is_stopped(m_channel);
     bool enabled = is_stopped & !m_auto_method;
-    bool visible = m_method_id == 0;
+
+
     edTimeLimit->setEnabled(enabled);
     sbCycleTotal->setEnabled(enabled);
     sbVoltLimit->setEnabled(enabled);
@@ -316,47 +368,46 @@ void  ZrmMainDisplay::update_method_controls()
     bDischarge->setEnabled(enabled);
 
     edTimeLimit->setReadOnly(m_auto_method);
-
-    bCurrDec->setVisible(visible);
-    bCurrInc->setVisible(visible);
     sbCurrLimit->setReadOnly(m_auto_method);
-
-    bVoltDec->setVisible(visible);
-    bVoltInc->setVisible(visible);
     sbVoltLimit->setReadOnly(m_auto_method);
-
     sbCycleTotal->setReadOnly(m_auto_method);
 
-    bMethodManual->setChecked(visible);
-    /*if (visible)
-        manual_method();*/
+    bCurrDec->setVisible(is_manual());
+    bCurrInc->setVisible(is_manual());
 
-    if (visible)
-    {
-        sbVoltLimit->setMaximum(m_source->param_get(m_channel, zrm::PARAM_MVOLT).toDouble());
-        if (bCharge->isChecked())
-        {
-            double value = sbCurrLimit->value();
-            sbCurrLimit->setMinimum(-m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble());
-            sbCurrLimit->setMaximum(m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble());
-            if (value < 0)
-                sbCurrLimit->setValue(-value);
-        }
-        else
-        {
-            double value = sbCurrLimit->value();
-            sbCurrLimit->setMinimum(-m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble());
-            sbCurrLimit->setMaximum(m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble());
-            if (value > 0)
-                sbCurrLimit->setValue(-value);
-        }
-    }
-    else
-    {
-        sbVoltLimit->setMaximum(100000.);
-        sbCurrLimit->setMaximum(100000.);
-        sbCurrLimit->setMinimum(-100000.);
-    }
+    bVoltDec->setVisible(is_manual());
+    bVoltInc->setVisible(is_manual());
+    bMethodManual->setChecked(is_manual());
+
+    set_current_limits();
+    set_volt_limits();
+
+//    if (!is_manual())
+//    {
+
+//        if (bCharge->isChecked())
+//        {
+//            double value = sbCurrLimit->value();
+//            sbCurrLimit->setMinimum(-m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble());
+//            sbCurrLimit->setMaximum(m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble());
+//            if (value < 0)
+//                sbCurrLimit->setValue(-value);
+//        }
+//        else
+//        {
+//            double value = sbCurrLimit->value();
+//            sbCurrLimit->setMinimum(-m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble());
+//            sbCurrLimit->setMaximum(m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble());
+//            if (value > 0)
+//                sbCurrLimit->setValue(-value);
+//        }
+//    }
+//    else
+//    {
+//        sbVoltLimit->setMaximum(100000.);
+//        sbCurrLimit->setMaximum(100000.);
+//        sbCurrLimit->setMinimum(-100000.);
+//    }
 }
 
 
@@ -365,7 +416,7 @@ void ZrmMainDisplay::set_method_duration(zrm::zrm_method_t &method, const QStrin
     method.m_method.m_hours = method.m_method.m_minutes = method.m_method.m_secs = 0;
     QStringList sl = str.split(':');
     int i = 0;
-    for(auto text : sl)
+    for(QString & text : sl)
     {
       switch(i)
       {
@@ -379,99 +430,153 @@ void ZrmMainDisplay::set_method_duration(zrm::zrm_method_t &method, const QStrin
 
 }
 
-
-void ZrmMainDisplay::manual_method_changed()
+void ZrmMainDisplay::currLimitChange()
 {
-    auto method = m_source->channel_get_method(m_channel, false);
-    if (method.stages_count())
-    {
-        QObject * src = sender();
-        if(src == edTimeLimit)
-        {
-            set_method_duration(method, edTimeLimit->text());
-        }
+    QDoubleSpinBox * sb = sbCurrLimit;
+    double newValue = sb->value();
+    constexpr double delta = 0.1;
+    if(sender() == bCurrDec)
+        newValue -= delta;
+    else
+        newValue += delta;
+    qDebug()<< newValue <<"Limit "<< sb->maximum();
+    sb->setValue(newValue );
 
-        if (src == bCharge || src == bDischarge)
-        {
-            QString text = tr("Ручной %1").arg((src == bCharge) ? bCharge->text() : bDischarge->text());
-            QByteArray name = codec() ? codec()->fromUnicode(text) : text.toLocal8Bit();
-            zrm::method_t & met = method.m_method ;
-            memset(met.m_name, ' ', sizeof(met.m_name));
-            memcpy(met.m_name, name.constData(), std::min(sizeof(met.m_name), size_t(name.size())));
+}
 
-            method.m_stages[0].m_type = (src == bCharge) ? zrm::stage_type_t::STT_CHARGE : zrm::stage_type_t::STT_DISCHARGE;
+void ZrmMainDisplay::voltLimitChange()
+{
+    QDoubleSpinBox * sb = sbVoltLimit;
+    double newValue = sb->value();
+    constexpr double delta = 0.1;
+    if(sender() == bVoltDec)
+        newValue -= delta;
+    else
+        newValue += delta;
 
-            if (src == bCharge)
-            {
-                bCharge->setChecked(true);
-                bDischarge->setChecked(false);
-            }
-            else
-            {
-                bDischarge->setChecked(true);
-                bCharge->setChecked(false);
-            }
+    sb->setValue(newValue );
 
-            if (bCharge->isChecked())
-            {
-                double value = sbCurrLimit->value();
-                sbCurrLimit->setMinimum(-m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble());
-                sbCurrLimit->setMaximum(m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble());
-                if (value < 0)
-                    sbCurrLimit->setValue(-value);
-            }
-            else
-            {
-                double value = sbCurrLimit->value();
-                sbCurrLimit->setMinimum(-m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble());
-                sbCurrLimit->setMaximum(m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble());
-                if (value > 0)
-                    sbCurrLimit->setValue(-value);
-            }
-        }
-
-        if(src == sbCurrLimit)
-            method.m_method.set_current(sbCurrLimit->value());
-
-        if(src == sbVoltLimit)
-            method.m_method.set_voltage(sbVoltLimit->value());
-
-        if(src == bCurrDec)
-        {
-            sbCurrLimit->setValue(sbCurrLimit->value() - 0.1);
-            method.m_method.set_current(sbCurrLimit->value());
-        }
-
-        if(src == bCurrInc)
-        {
-            sbCurrLimit->setValue(sbCurrLimit->value() + 0.1);
-            method.m_method.set_current(sbCurrLimit->value());
-        }
-
-        if(src == bVoltDec)
-        {
-            sbVoltLimit->setValue(sbVoltLimit->value() - 0.1);
-            method.m_method.set_current(sbVoltLimit->value());
-        }
-
-        if(src == bVoltInc)
-        {
-            sbVoltLimit->setValue(sbVoltLimit->value() + 0.1);
-            method.m_method.set_current(sbVoltLimit->value());
-        }
-
-        if(src == sbCycleTotal)
-            method.m_method.m_cycles_count = uint8_t(sbCycleTotal->value());
-        m_source->channel_set_method(m_channel, method);
-    }
 }
 
 void ZrmMainDisplay::manual_method()
 {
     bMethodManual->setChecked(true);
 
-    zrm::zrm_method_t method;
+    double  currLimit = m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble();
+    double  voltLimit = m_source->param_get(m_channel, zrm::PARAM_MVOLT).toDouble();
 
+#ifdef QT_DEBUG
+        if(!m_source->is_connected() )
+        {
+            currLimit = 5;
+            voltLimit = 12;
+        }
+#endif
+
+    sbCurrLimit->setMinimum(-currLimit);
+    sbCurrLimit->setMaximum(currLimit);
+
+
+    sbVoltLimit->setMinimum(0);
+    sbVoltLimit->setMaximum(voltLimit);
+    bCharge->setEnabled(true);
+    bDischarge->setEnabled(true);
+
+    if(bCharge->isChecked() || bDischarge->isChecked())
+        manual_method_changed();
+
+}
+
+
+void ZrmMainDisplay::manual_method_changed()
+{
+//    auto method = m_source->channel_get_method(m_channel, false);
+//    if (method.stages_count())
+//    {
+//        QObject * src = sender();
+//        if(src == edTimeLimit)
+//        {
+//            set_method_duration(method, edTimeLimit->text());
+//        }
+
+//        if (src == bCharge || src == bDischarge)
+//        {
+//            QString text = tr("Ручной %1").arg((src == bCharge) ? bCharge->text() : bDischarge->text());
+//            QByteArray name = codec() ? codec()->fromUnicode(text) : text.toLocal8Bit();
+//            zrm::method_t & met = method.m_method ;
+//            memset(met.m_name, ' ', sizeof(met.m_name));
+//            memcpy(met.m_name, name.constData(), std::min(sizeof(met.m_name), size_t(name.size())));
+
+//            method.m_stages[0].m_type = (src == bCharge) ? zrm::stage_type_t::STT_CHARGE : zrm::stage_type_t::STT_DISCHARGE;
+
+//            if (src == bCharge)
+//            {
+//                bCharge->setChecked(true);
+//                bDischarge->setChecked(false);
+//            }
+//            else
+//            {
+//                bDischarge->setChecked(true);
+//                bCharge->setChecked(false);
+//            }
+
+//            if (bCharge->isChecked())
+//            {
+//                double value = sbCurrLimit->value();
+//                sbCurrLimit->setMinimum(-m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble());
+//                sbCurrLimit->setMaximum(m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble());
+//                if (value < 0)
+//                    sbCurrLimit->setValue(-value);
+//            }
+//            else
+//            {
+//                double value = sbCurrLimit->value();
+//                sbCurrLimit->setMinimum(-m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble());
+//                sbCurrLimit->setMaximum(m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble());
+//                if (value > 0)
+//                    sbCurrLimit->setValue(-value);
+//            }
+//        }
+
+//        if(src == sbCurrLimit)
+//            method.m_method.set_current(sbCurrLimit->value());
+
+//        if(src == sbVoltLimit)
+//            method.m_method.set_voltage(sbVoltLimit->value());
+
+//        if(src == bCurrDec)
+//        {
+//            sbCurrLimit->setValue(sbCurrLimit->value() - 0.1);
+//            method.m_method.set_current(sbCurrLimit->value());
+//        }
+
+//        if(src == bCurrInc)
+//        {
+//            sbCurrLimit->setValue(sbCurrLimit->value() + 0.1);
+//            method.m_method.set_current(sbCurrLimit->value());
+//        }
+
+//        if(src == bVoltDec)
+//        {
+//            sbVoltLimit->setValue(sbVoltLimit->value() - 0.1);
+//            method.m_method.set_current(sbVoltLimit->value());
+//        }
+
+//        if(src == bVoltInc)
+//        {
+//            sbVoltLimit->setValue(sbVoltLimit->value() + 0.1);
+//            method.m_method.set_current(sbVoltLimit->value());
+//        }
+
+//        if(src == sbCycleTotal)
+//            method.m_method.m_cycles_count = uint8_t(sbCycleTotal->value());
+//        m_source->channel_set_method(m_channel, method);
+//    }
+
+    QSignalBlocker b1(sbVoltLimit);
+    QSignalBlocker b2(sbCurrLimit);
+
+    zrm::zrm_method_t method;
     QString text = tr("Ручной %1").arg(bCharge->isChecked() ? bCharge->text() : bDischarge->text());
     QByteArray name = codec() ? codec()->fromUnicode(text) : text.toLocal8Bit();
     zrm::method_t  & met = method.m_method ;
@@ -493,14 +598,17 @@ void ZrmMainDisplay::manual_method()
     zrm::stage_t st;
     st.m_number = 1;
     st.m_type   = (bCharge->isChecked()) ? zrm::stage_type_t::STT_CHARGE : zrm::stage_type_t::STT_DISCHARGE;
-    st.set_charge_volt   (1.0, 1.0);
-    st.set_charge_curr   (1.0, 1.0);
-    st.set_discharge_volt(1.0, 1.0);
-    st.set_discharge_curr(1.0, 1.0);
+    st.set_charge_volt   (sbVoltLimit->value(), 1.0);
+    st.set_charge_curr   (sbCurrLimit->value(), 1.0);
+    st.set_discharge_volt(sbVoltLimit->value(), 1.0);
+    st.set_discharge_curr(sbCurrLimit->value(), 1.0);
     method.m_stages.at(0) = st;
 
     m_source->channel_set_method(m_channel, method);
+
+
 }
+
 
 void    ZrmMainDisplay::on_connected         (bool con_state)
 {
