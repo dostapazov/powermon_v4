@@ -208,7 +208,12 @@ void ZrmReport::save_report_pdf (const QString & file_name)
 {
     QPrinter printer(QPrinter::ScreenResolution);
     printer.setOutputFormat(QPrinter::PdfFormat);
+
+#if QT_VERSION < QT_VERSION_CHECK(5,15,0)
     printer.setOrientation(QPrinter::Orientation::Landscape);
+#else
+    printer.setPageOrientation(QPageLayout::Landscape);
+#endif
     printer.setOutputFileName(file_name);
     //result_text->print(&printer);
 

@@ -19,6 +19,7 @@ ZrmTCPSettings::ZrmTCPSettings(QWidget *parent) :
 
 void ZrmTCPSettings::on_connected(bool con_state)
 {
+    Q_UNUSED(con_state)
     //buttonSetSettings->setEnabled(con_state);
 }
 
