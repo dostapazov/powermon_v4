@@ -156,6 +156,7 @@ QLineEdit
     min-height: 25px;
 }
 
+
 QLineEdit:read-only
 {
     background-color: gray;
@@ -258,6 +259,14 @@ QPushButton#bStart
     background-color: transparent;
     border: none;
     image: url(:zrm/icons/start_pressed.png);
+}
+
+QLineEdit#methodLabel,
+QLineEdit#stateLabel,
+QLineEdit#errorLabel
+{
+  background-color : transparent;
+  border : none;
 }
 
 QPushButton#bStart[start = "false"]

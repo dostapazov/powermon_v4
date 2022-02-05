@@ -369,23 +369,24 @@ void  ZrmMainDisplay::set_volt_limits()
 void  ZrmMainDisplay::update_method_controls()
 {
     bool is_stopped = m_source && m_source->channel_is_stopped(m_channel);
-    bool enabled = is_stopped & !m_auto_method;
+    bool enabled = is_stopped && is_manual();
 
 
     edTimeLimit->setEnabled(enabled);
     sbCycleTotal->setEnabled(enabled);
     sbVoltLimit->setEnabled(enabled);
     sbCurrLimit->setEnabled(enabled);
+
     bCurrDec->setEnabled(enabled);
     bCurrInc->setEnabled(enabled);
     bVoltDec->setEnabled(enabled);
     bVoltInc->setEnabled(enabled);
 
 
-    edTimeLimit->setReadOnly(m_auto_method);
-    sbCurrLimit->setReadOnly(m_auto_method);
-    sbVoltLimit->setReadOnly(m_auto_method);
-    sbCycleTotal->setReadOnly(m_auto_method);
+//    edTimeLimit->setReadOnly(m_auto_method);
+//    sbCurrLimit->setReadOnly(m_auto_method);
+//    sbVoltLimit->setReadOnly(m_auto_method);
+//    sbCycleTotal->setReadOnly(m_auto_method);
 
     bCurrDec->setVisible(is_manual());
     bCurrInc->setVisible(is_manual());
@@ -526,9 +527,12 @@ void ZrmMainDisplay::manual_method_changed()
     set_method_duration(method, edTimeLimit->text());
     met.set_cycles(sbCycleTotal->value());
 
-    met.set_capacity(sbCurrLimit->value());
-    met.set_voltage(sbVoltLimit->value());
-    met.set_current(sbCurrLimit->value());
+//    met.set_capacity(sbCurrLimit->value());
+//    met.set_voltage(sbVoltLimit->value());
+//    met.set_current(sbCurrLimit->value());
+    met.set_capacity(100.0);
+    met.set_voltage(1.0);
+    met.set_current(100.0);
 
 
     if(bCharge->isChecked() || bDischarge->isChecked())
@@ -536,6 +540,7 @@ void ZrmMainDisplay::manual_method_changed()
         zrm::stage_t st;
         st.m_number = 1;
         st.m_type   = (bCharge->isChecked()) ? zrm::stage_type_t::STT_CHARGE :  zrm::stage_type_t::STT_DISCHARGE;
+
         st.set_charge_volt   (sbVoltLimit->value(), 1.0);
         st.set_charge_curr   (sbCurrLimit->value(), 1.0);
         st.set_discharge_volt(sbVoltLimit->value(), 1.0);
