@@ -194,7 +194,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="layoutWidget1">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QStackedWidget" name="conn_stacked">
@@ -211,7 +211,7 @@
           <enum>QFrame::Raised</enum>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="conn_page">
           <layout class="QVBoxLayout" name="verticalLayout">

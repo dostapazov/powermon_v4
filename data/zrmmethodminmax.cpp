@@ -40,12 +40,12 @@ ZrmMethodMinmax::mmidx ZrmMethodMinmax::get_minmax_idx(const qvarvect &vec)
          if(min_idx<0)  { min_idx = number; minValue = val; }
          else
          {
-           if(minValue > val){ minValue = val; min_idx = number; }
+           if(minValue.toDouble() > val.toDouble()){ minValue = val; min_idx = number; }
          }
          if(max_idx<0)  { max_idx = number; maxValue = val; }
          else
          {
-             if(maxValue < val){ maxValue = val; max_idx = number; }
+             if(maxValue.toDouble() < val.toDouble()){ maxValue = val; max_idx = number; }
          }
      }
     ++number;

@@ -12,7 +12,7 @@ ZrmWidget::ZrmWidget(QWidget *parent) :
     groupBoxLogerChart->setVisible(false);
     groupBoxDevice->setVisible(false);
 #else
-    zrm_method->set_details_enable(false);
+    //zrm_method->set_details_enable(false);
 
     connect(zrm_ready, SIGNAL(channel_activated(zrm::ZrmConnectivity *, unsigned)), this, SIGNAL(channel_activated(zrm::ZrmConnectivity *, unsigned)));
 #endif

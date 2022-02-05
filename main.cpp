@@ -12,8 +12,12 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_ANDROID
     w.showFullScreen();
 #else
+#ifdef QT_DEBUG
+    w.showMaximized();
+#else
     w.showFullScreen();
-    //w.showMaximized();
+ #endif
+
 #endif
 
     return a.exec();

@@ -258,8 +258,9 @@ using  lp_stage_exec_result_t = stage_exec_result_t* ;
 using  method_exec_results_t  = std::vector<stage_exec_result_t>;
 using  method_exec_results_sensors_t  = std::vector<stage_exec_result_sensors_t>;
 
-const int METHOD_NAME_SIZE=33;
-const uint16_t METHOD_UNKNOWN_ID = uint16_t(-1);
+constexpr int METHOD_NAME_SIZE=33;
+constexpr uint16_t METHOD_UNKNOWN_ID = uint16_t(-1);
+constexpr uint16_t METHOD_MANUAL_ID = 0;
 using method_hms = std::tuple<uint8_t,uint8_t,uint8_t>;
 
 enum  method_kind_t { method_kind_unknown ,method_kind_manual, method_kind_automatic };

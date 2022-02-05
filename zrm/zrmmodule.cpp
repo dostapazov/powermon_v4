@@ -272,6 +272,7 @@ uint16_t  ZrmModule::handle_results (uint16_t data_size, const uint8_t * beg, co
 
 uint16_t  ZrmModule::handle_results_sensor(uint16_t data_size, const uint8_t *beg, const uint8_t *end)
 {
+
     uint8_t stage = 0, count = 0;
     memcpy(&stage, beg, 1);
     memcpy(&count, beg + 1, 1);

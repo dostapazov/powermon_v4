@@ -77,7 +77,7 @@ void ReportCommon::init_actions()
    bUserApply  ->setDefaultAction(actUserApply);
    bUserRevert ->setDefaultAction(actUserRevert);
    bUserMarkDel->setDefaultAction(actUserMarkDel);
-   for(auto tb : fr_users_btn->findChildren<QAbstractButton*>())
+   for(auto && tb : fr_users_btn->findChildren<QAbstractButton*>())
            connect(tb, &QAbstractButton::clicked, this, &ReportCommon::users_btn_clicked);
 
 
@@ -86,7 +86,7 @@ void ReportCommon::init_actions()
    bTypesRevert   ->setDefaultAction(actTypeRevert);
    bTypesMarkDel  ->setDefaultAction(actTypeMarkDel);
 
-   for(auto tb : fr_types_btn->findChildren<QAbstractButton*>())
+   for(auto && tb : fr_types_btn->findChildren<QAbstractButton*>())
            connect(tb, &QAbstractButton::clicked, this, &ReportCommon::types_btn_clicked);
 
 
@@ -95,7 +95,7 @@ void ReportCommon::init_actions()
    bNumbersRevert ->setDefaultAction(actNumberRevert);
    bNumbersMarkDel->setDefaultAction(actNumberMarkDel);
 
-   for(auto tb : fr_numbers_btn->findChildren<QAbstractButton*>())
+   for(auto && tb : fr_numbers_btn->findChildren<QAbstractButton*>())
            connect(tb, &QAbstractButton::clicked, this, &ReportCommon::numbers_btn_clicked);
 }
 
@@ -259,9 +259,10 @@ void ReportCommon::report_query_bind_values(QSqlQuery & query)
     query.bindValue(":id_battery",number_id);
     if(!bAllTimes->isChecked())
     {
-     QDateTime dtm(dtm_beg->date());
+     QTime time(0,0,0);
+     QDateTime dtm(dtm_beg->date(),time);
      query.bindValue(":dtm_beg",dtm);
-     dtm = QDateTime(dtm_end->date()).addDays(1);
+     dtm = QDateTime(dtm_end->date(),time).addDays(1);
      query.bindValue(":dtm_end", dtm);
     }
 
