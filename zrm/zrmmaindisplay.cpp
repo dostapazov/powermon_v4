@@ -225,7 +225,7 @@ void  ZrmMainDisplay::setup_method()
         m_model_name = QString();
         m_method_id = method.m_method.m_id;
 
-
+        manualButtonsFrame->setVisible(is_manual());
         if (is_manual())
         {
             bool charge = true;
@@ -254,9 +254,13 @@ void  ZrmMainDisplay::setup_method()
 
     QString method_name;
     if(m_model_name.isEmpty())
+    {
         method_name = to_utf(method.m_method.m_name, sizeof(method.m_method.m_name));
+    }
     else
+    {
         method_name = QString("%1:%2").arg(m_model_name).arg(to_utf(method.m_method.m_name, sizeof(method.m_method.m_name)));
+    }
 
     method_name = method_name.remove('\u0000');
 
@@ -490,8 +494,11 @@ void ZrmMainDisplay::manual_method()
     sbVoltLimit->setMaximum(voltLimit);
     m_method_id = zrm::METHOD_MANUAL_ID;
     update_method_controls();
+    bMethodAuto->setChecked(false);
+    bMethodAny->setChecked(false);
 
-    if(bCharge->isChecked() || bDischarge->isChecked())
+
+    //if(bCharge->isChecked() || bDischarge->isChecked())
         manual_method_changed();
 
 }
@@ -503,30 +510,40 @@ void ZrmMainDisplay::manual_method_changed()
     QSignalBlocker b2(sbCurrLimit);
 
     zrm::zrm_method_t method;
-    QString text = tr("Ручной %1").arg(bCharge->isChecked() ? bCharge->text() : bDischarge->text());
+    QString text = tr("Ручной ");
+    if(bCharge->isChecked())
+        text +=bCharge->text() ;
+    if(bDischarge->isChecked())
+        text +=bDischarge->text() ;
+
     QByteArray name = codec() ? codec()->fromUnicode(text) : text.toLocal8Bit();
     zrm::method_t  & met = method.m_method ;
     met = zrm::method_t();
     met.m_id = 0;
+
     memcpy(met.m_name, name.constData(), std::min(sizeof(met.m_name), size_t(name.size())));
+
+    set_method_duration(method, edTimeLimit->text());
+    met.set_cycles(sbCycleTotal->value());
 
     met.set_capacity(sbCurrLimit->value());
     met.set_voltage(sbVoltLimit->value());
     met.set_current(sbCurrLimit->value());
 
-    set_method_duration(method, edTimeLimit->text());
-    met.set_cycles(sbCycleTotal->value());
-    met.m_stages  = 1;
-    method.m_stages.resize(1);
 
-    zrm::stage_t st;
-    st.m_number = 1;
-    st.m_type   = (bCharge->isChecked()) ? zrm::stage_type_t::STT_CHARGE : zrm::stage_type_t::STT_DISCHARGE;
-    st.set_charge_volt   (sbVoltLimit->value(), 1.0);
-    st.set_charge_curr   (sbCurrLimit->value(), 1.0);
-    st.set_discharge_volt(sbVoltLimit->value(), 1.0);
-    st.set_discharge_curr(sbCurrLimit->value(), 1.0);
-    method.m_stages.at(0) = st;
+    if(bCharge->isChecked() || bDischarge->isChecked())
+    {
+        zrm::stage_t st;
+        st.m_number = 1;
+        st.m_type   = (bCharge->isChecked()) ? zrm::stage_type_t::STT_CHARGE :  zrm::stage_type_t::STT_DISCHARGE;
+        st.set_charge_volt   (sbVoltLimit->value(), 1.0);
+        st.set_charge_curr   (sbCurrLimit->value(), 1.0);
+        st.set_discharge_volt(sbVoltLimit->value(), 1.0);
+        st.set_discharge_curr(sbCurrLimit->value(), 1.0);
+        met.m_stages  = 1;
+        method.m_stages.resize(1);
+        method.m_stages.at(0) = st;
+    }
 
     m_manual_change = true;
     m_source->channel_set_method(m_channel, method);
@@ -578,6 +595,10 @@ void ZrmMainDisplay::select_method(bool bAbstract)
     dlg.adjustSize();
     if (QDialog::Accepted == dlg.exec())
     {
+        bMethodManual->setChecked(false);
+        bMethodAuto->setChecked(!bAbstract);
+        bMethodAny->setChecked(bAbstract);
+
         zrm::zrm_method_t method;
         if (dlg.get_method(method, codec(), nullptr))
         {

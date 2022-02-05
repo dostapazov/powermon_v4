@@ -153,7 +153,7 @@ QLineEdit
     color: black;
     border: 2px solid black;
     /*border-radius: 10px;*/
-    /*min-height: 25px;*/
+    min-height: 25px;
 }
 
 QLineEdit:read-only
