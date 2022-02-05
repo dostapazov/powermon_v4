@@ -56,6 +56,7 @@ public:
     bool m_auto_method = false;
     QString m_model_name;
     uint16_t m_method_id = zrm::METHOD_UNKNOWN_ID;
+    bool m_manual_change = false;
 
 #ifdef DEF_RUPREHT
     bool bRupreht = false;

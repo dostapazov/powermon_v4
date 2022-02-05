@@ -152,7 +152,7 @@ QLineEdit
     background-color: white;
     color: black;
     border: 2px solid black;
-    border-radius: 10px;
+    /*border-radius: 10px;*/
     /*min-height: 25px;*/
 }
 

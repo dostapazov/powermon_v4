@@ -216,6 +216,7 @@ void  ZrmMainDisplay::make_request  ()
 
 void  ZrmMainDisplay::setup_method()
 {
+
     SignalBlocker sb(findChildren<QWidget*>());
     auto method = m_source->channel_get_method(m_channel, false);
     if(method.m_method.m_id != m_method_id)
@@ -224,8 +225,8 @@ void  ZrmMainDisplay::setup_method()
         m_model_name = QString();
         m_method_id = method.m_method.m_id;
 
-        bool bManual = (0 == m_method_id);
-        if (bManual)
+
+        if (is_manual())
         {
             bool charge = true;
             if (method.stages_count() > 0)
@@ -240,10 +241,10 @@ void  ZrmMainDisplay::setup_method()
                 bCharge->setChecked(false);
                 bDischarge->setChecked(true);
             }
-            bMethodManual->setChecked(bManual);
+            bMethodManual->setChecked(is_manual());
         }
 
-        update_method_controls();
+        //update_method_controls();
     }
     else
     {
@@ -266,11 +267,18 @@ void  ZrmMainDisplay::setup_method()
     lbStageTotal->setValue(int(method.stages_count()));
     sbCycleTotal->setValue(method.m_method.m_cycles_count);
 
-    QString time_limit_string = zrm_method_duration_text(method);
-    setEditText(edTimeLimit,time_limit_string,0);
+    if(!m_manual_change)
+    {
+        QString time_limit_string = zrm_method_duration_text(method);
+        setEditText(edTimeLimit,time_limit_string,0);
+    }
+
     auto param = m_source->param_get(m_channel, zrm::PARAM_STG_NUM);
     //set_number_value(lbStageNum, param.toInt(), 2);
     lbStageNum->setValue(param.toInt());
+    update_method_controls();
+    m_manual_change = false;
+
 }
 
 void ZrmMainDisplay::update_state    (uint32_t state)
@@ -312,6 +320,7 @@ void ZrmMainDisplay::update_state    (uint32_t state)
 void  ZrmMainDisplay::set_current_limits( )
 {
     double minLimit = 0,maxLimit = 0;
+#ifndef QT_DEBUG
     if(is_manual() && m_source)
     {
 
@@ -330,13 +339,14 @@ void  ZrmMainDisplay::set_current_limits( )
 
     }
     else
+#endif
     {
         minLimit = -100000;
         maxLimit = 100000;
     }
 
-   sbVoltLimit->setMinimum(minLimit);
-   sbVoltLimit->setMaximum(maxLimit);
+   sbCurrLimit->setMinimum(minLimit);
+   sbCurrLimit->setMaximum(maxLimit);
 }
 
 
@@ -344,8 +354,10 @@ void  ZrmMainDisplay::set_current_limits( )
 void  ZrmMainDisplay::set_volt_limits()
 {
    double limit = 100000;
+#ifndef QT_DEBUG
    if(is_manual() && m_source )
      limit =  m_source->param_get(m_channel, zrm::PARAM_MVOLT).toDouble() ;
+#endif
 
     sbVoltLimit->setMaximum(limit);
 }
@@ -364,8 +376,7 @@ void  ZrmMainDisplay::update_method_controls()
     bCurrInc->setEnabled(enabled);
     bVoltDec->setEnabled(enabled);
     bVoltInc->setEnabled(enabled);
-    bCharge->setEnabled(enabled);
-    bDischarge->setEnabled(enabled);
+
 
     edTimeLimit->setReadOnly(m_auto_method);
     sbCurrLimit->setReadOnly(m_auto_method);
@@ -378,6 +389,14 @@ void  ZrmMainDisplay::update_method_controls()
     bVoltDec->setVisible(is_manual());
     bVoltInc->setVisible(is_manual());
     bMethodManual->setChecked(is_manual());
+    manualButtonsFrame->setVisible(is_manual());
+    if(!is_manual())
+    {
+        manualButtons->setExclusive(false);
+        bCharge->setChecked(false);
+        bDischarge->setChecked(false);
+        manualButtons->setExclusive(true);
+    }
 
     set_current_limits();
     set_volt_limits();
@@ -434,11 +453,10 @@ void ZrmMainDisplay::currLimitChange()
 {
     QDoubleSpinBox * sb = sbCurrLimit;
     double newValue = sb->value();
-    constexpr double delta = 0.1;
-    if(sender() == bCurrDec)
-        newValue -= delta;
+        if(sender() == bCurrDec)
+        newValue -=  sb->singleStep();
     else
-        newValue += delta;
+        newValue +=  sb->singleStep();
     qDebug()<< newValue <<"Limit "<< sb->maximum();
     sb->setValue(newValue );
 
@@ -448,11 +466,10 @@ void ZrmMainDisplay::voltLimitChange()
 {
     QDoubleSpinBox * sb = sbVoltLimit;
     double newValue = sb->value();
-    constexpr double delta = 0.1;
     if(sender() == bVoltDec)
-        newValue -= delta;
+        newValue -=  sb->singleStep();
     else
-        newValue += delta;
+        newValue +=  sb->singleStep();
 
     sb->setValue(newValue );
 
@@ -465,22 +482,14 @@ void ZrmMainDisplay::manual_method()
     double  currLimit = m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble();
     double  voltLimit = m_source->param_get(m_channel, zrm::PARAM_MVOLT).toDouble();
 
-#ifdef QT_DEBUG
-        if(!m_source->is_connected() )
-        {
-            currLimit = 5;
-            voltLimit = 12;
-        }
-#endif
-
     sbCurrLimit->setMinimum(-currLimit);
     sbCurrLimit->setMaximum(currLimit);
 
 
     sbVoltLimit->setMinimum(0);
     sbVoltLimit->setMaximum(voltLimit);
-    bCharge->setEnabled(true);
-    bDischarge->setEnabled(true);
+    m_method_id = zrm::METHOD_MANUAL_ID;
+    update_method_controls();
 
     if(bCharge->isChecked() || bDischarge->isChecked())
         manual_method_changed();
@@ -500,10 +509,6 @@ void ZrmMainDisplay::manual_method_changed()
     met = zrm::method_t();
     met.m_id = 0;
     memcpy(met.m_name, name.constData(), std::min(sizeof(met.m_name), size_t(name.size())));
-    if (0 == sbVoltLimit->value())
-        sbVoltLimit->setValue(1);
-    if (0 == sbCurrLimit->value())
-        sbCurrLimit->setValue(1);
 
     met.set_capacity(sbCurrLimit->value());
     met.set_voltage(sbVoltLimit->value());
@@ -523,9 +528,8 @@ void ZrmMainDisplay::manual_method_changed()
     st.set_discharge_curr(sbCurrLimit->value(), 1.0);
     method.m_stages.at(0) = st;
 
+    m_manual_change = true;
     m_source->channel_set_method(m_channel, method);
-
-
 }
 
 
