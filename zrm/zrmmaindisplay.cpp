@@ -13,28 +13,28 @@ ZrmMainDisplay::ZrmMainDisplay(QWidget *parent) :
 {
     setupUi(this);
 
-    int pixSize = 40;
-    QPixmap pixWorkTime(":zrm/icons/work_time.png");
-    pixWorkTime = pixWorkTime.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
-    labelWorkTime->setPixmap(pixWorkTime);
-    QPixmap pixStageNum(":zrm/icons/stage_num.png");
-    pixStageNum = pixStageNum.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
-    labelStageNum->setPixmap(pixStageNum);
-    QPixmap pixCycleNum(":zrm/icons/cycle_num.png");
-    pixCycleNum = pixCycleNum.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
-    labelCycleNum->setPixmap(pixCycleNum);
-    QPixmap pixVolt(":zrm/icons/voltage.png");
-    pixVolt = pixVolt.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
-    labelVolt->setPixmap(pixVolt);
-    QPixmap pixCurr(":zrm/icons/current.png");
-    pixCurr = pixCurr.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
-    labelCurr->setPixmap(pixCurr);
-    QPixmap pixCapacity(":zrm/icons/capacity.png");
-    pixCapacity = pixCapacity.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
-    labelCapacity->setPixmap(pixCapacity);
-    QPixmap pixT(":zrm/icons/temperature.png");
-    pixT = pixT.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
-    labelTemperature->setPixmap(pixT);
+//    int pixSize = 40;
+//    QPixmap pixWorkTime(":zrm/icons/work_time.png");
+//    pixWorkTime = pixWorkTime.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
+//    labelWorkTime->setPixmap(pixWorkTime);
+//    QPixmap pixStageNum(":zrm/icons/stage_num.png");
+//    pixStageNum = pixStageNum.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
+//    labelStageNum->setPixmap(pixStageNum);
+//    QPixmap pixCycleNum(":zrm/icons/cycle_num.png");
+//    pixCycleNum = pixCycleNum.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
+//    labelCycleNum->setPixmap(pixCycleNum);
+//    QPixmap pixVolt(":zrm/icons/voltage.png");
+//    pixVolt = pixVolt.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
+//    labelVolt->setPixmap(pixVolt);
+//    QPixmap pixCurr(":zrm/icons/current.png");
+//    pixCurr = pixCurr.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
+//    labelCurr->setPixmap(pixCurr);
+//    QPixmap pixCapacity(":zrm/icons/capacity.png");
+//    pixCapacity = pixCapacity.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
+//    labelCapacity->setPixmap(pixCapacity);
+//    QPixmap pixT(":zrm/icons/temperature.png");
+//    pixT = pixT.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
+//    labelTemperature->setPixmap(pixT);
 
     auto addShadow = [](QWidget* w)
     {
