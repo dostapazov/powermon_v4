@@ -543,6 +543,7 @@ struct  zrm_method_t
   zrm_method_t & operator += (const stage_t & stage)
   {
       m_stages.insert(m_stages.end(), stage);
+      m_method.m_stages = stages_count();
       return *this;
   }
 };

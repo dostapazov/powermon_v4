@@ -530,24 +530,32 @@ void ZrmMainDisplay::manual_method_changed()
 //    met.set_capacity(sbCurrLimit->value());
 //    met.set_voltage(sbVoltLimit->value());
 //    met.set_current(sbCurrLimit->value());
-    met.set_capacity(100.0);
-    met.set_voltage(1.0);
-    met.set_current(100.0);
+    double base_value =  100.0;
+    met.set_capacity(base_value);
+    met.set_voltage(base_value);
+    met.set_current(base_value);
 
 
-    if(bCharge->isChecked() || bDischarge->isChecked())
+    zrm::stage_t st;
+    st.m_number = 1;
+
+    if(bCharge->isChecked() )
     {
-        zrm::stage_t st;
-        st.m_number = 1;
-        st.m_type   = (bCharge->isChecked()) ? zrm::stage_type_t::STT_CHARGE :  zrm::stage_type_t::STT_DISCHARGE;
+        st.m_type   =  zrm::stage_type_t::STT_CHARGE ;
+        st.set_charge_volt   (sbVoltLimit->value(), met);
+        st.set_charge_curr   (sbCurrLimit->value(), met);
+    }
 
-        st.set_charge_volt   (sbVoltLimit->value(), 1.0);
-        st.set_charge_curr   (sbCurrLimit->value(), 1.0);
-        st.set_discharge_volt(sbVoltLimit->value(), 1.0);
-        st.set_discharge_curr(sbCurrLimit->value(), 1.0);
-        met.m_stages  = 1;
-        method.m_stages.resize(1);
-        method.m_stages.at(0) = st;
+    if(bDischarge->isChecked())
+    {
+        st.m_type   = zrm::stage_type_t::STT_DISCHARGE;
+        st.set_discharge_volt(sbVoltLimit->value(), met);
+        st.set_discharge_curr(sbCurrLimit->value(), met);
+    }
+
+    if(st.m_type)
+    {
+        method+= st;
     }
 
     m_manual_change = true;
