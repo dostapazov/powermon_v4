@@ -540,6 +540,11 @@ struct  zrm_method_t
       return *this;
   }
   stages_t::size_type stages_count() const {return m_stages.size();}
+  zrm_method_t & operator += (const stage_t & stage)
+  {
+      m_stages.insert(m_stages.end(), stage);
+      return *this;
+  }
 };
 
 #pragma pack(push,1)
