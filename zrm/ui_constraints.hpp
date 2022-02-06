@@ -7,8 +7,11 @@ constexpr int MAIN_WIDOW_ICON_WIDTH = 96;
 constexpr int MAIN_WIDOW_ICON_HEIGHT = 96;
 constexpr int MAIN_WIDOW_BUTTON_WIDTH = 96;
 constexpr int MAIN_WIDOW_BUTTON_HEIGHT = 96;
-constexpr int SPLITTER_HADNLE_WIDTH = 16;
+constexpr int SPLITTER_HADNLE_WIDTH = 32;
 constexpr int DEFAULT_FONT_SIZE = 32;
+
+constexpr int MAIN_DISPLAT_ICON_HEIGHT = 48;
+constexpr int MAIN_DISPLAT_ICON_WIDTH = 48;
 
 #else
 constexpr int DESKTOP_MAIN_WIDOW_ICON_WIDTH = 42;

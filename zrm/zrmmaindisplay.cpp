@@ -383,10 +383,10 @@ void  ZrmMainDisplay::update_method_controls()
     bVoltInc->setEnabled(enabled);
 
 
-//    edTimeLimit->setReadOnly(m_auto_method);
-//    sbCurrLimit->setReadOnly(m_auto_method);
-//    sbVoltLimit->setReadOnly(m_auto_method);
-//    sbCycleTotal->setReadOnly(m_auto_method);
+    edTimeLimit->setReadOnly(!is_manual());
+    sbCurrLimit->setReadOnly(!is_manual());
+    sbVoltLimit->setReadOnly(!is_manual());
+    sbCycleTotal->setReadOnly(!is_manual());
 
     bCurrDec->setVisible(is_manual());
     bCurrInc->setVisible(is_manual());
@@ -530,24 +530,32 @@ void ZrmMainDisplay::manual_method_changed()
 //    met.set_capacity(sbCurrLimit->value());
 //    met.set_voltage(sbVoltLimit->value());
 //    met.set_current(sbCurrLimit->value());
-    met.set_capacity(100.0);
-    met.set_voltage(1.0);
-    met.set_current(100.0);
+    double base_value =  100.0;
+    met.set_capacity(base_value);
+    met.set_voltage(base_value);
+    met.set_current(base_value);
 
 
-    if(bCharge->isChecked() || bDischarge->isChecked())
+    zrm::stage_t st;
+    st.m_number = 1;
+
+    if(bCharge->isChecked() )
     {
-        zrm::stage_t st;
-        st.m_number = 1;
-        st.m_type   = (bCharge->isChecked()) ? zrm::stage_type_t::STT_CHARGE :  zrm::stage_type_t::STT_DISCHARGE;
+        st.m_type   =  zrm::stage_type_t::STT_CHARGE ;
+        st.set_charge_volt   (sbVoltLimit->value(), met);
+        st.set_charge_curr   (sbCurrLimit->value(), met);
+    }
 
-        st.set_charge_volt   (sbVoltLimit->value(), 1.0);
-        st.set_charge_curr   (sbCurrLimit->value(), 1.0);
-        st.set_discharge_volt(sbVoltLimit->value(), 1.0);
-        st.set_discharge_curr(sbCurrLimit->value(), 1.0);
-        met.m_stages  = 1;
-        method.m_stages.resize(1);
-        method.m_stages.at(0) = st;
+    if(bDischarge->isChecked())
+    {
+        st.m_type   = zrm::stage_type_t::STT_DISCHARGE;
+        st.set_discharge_volt(sbVoltLimit->value(), met);
+        st.set_discharge_curr(sbCurrLimit->value(), met);
+    }
+
+    if(st.m_type)
+    {
+        method+= st;
     }
 
     m_manual_change = true;
@@ -623,26 +631,22 @@ void ZrmMainDisplay::select_method(bool bAbstract)
           btn->setIconSize(size);
       }
 
-    for (auto && lbl : paramFrame->findChildren<QLabel*>() )
+   QSize icon_size(MAIN_DISPLAT_ICON_WIDTH,MAIN_DISPLAT_ICON_HEIGHT);
+
+   for (auto && lbl : paramFrame->findChildren<QLabel*>() )
     {
-        QSize size(48,48);
-        lbl->setMaximumSize(size);
-        lbl->setMinimumSize(size);
+
+        lbl->setMaximumSize(icon_size);
+        lbl->setMinimumSize(icon_size);
     }
 
-    for (auto && btn :  stateButtonFrame->findChildren<QAbstractButton*>() )
-    {
-        QSize size(48,48);
-        btn->setMaximumSize(size);
-        btn->setMinimumSize(size);
-        btn->setIconSize(size);
-    }
 
-    bVoltDec->setMinimumWidth(48);
-    bVoltInc->setMinimumWidth(48);
-    bCurrDec->setMinimumWidth(48);
-    bCurrInc->setMinimumWidth(48);
-
+    bVoltDec->setMinimumWidth(MAIN_DISPLAT_ICON_WIDTH);
+    bVoltInc->setMinimumWidth(MAIN_DISPLAT_ICON_WIDTH);
+    bCurrDec->setMinimumWidth(MAIN_DISPLAT_ICON_WIDTH);
+    bCurrInc->setMinimumWidth(MAIN_DISPLAT_ICON_WIDTH);
+    tempButton->setMinimumSize(icon_size);
+    tempButton->setIconSize(icon_size);
 
   }
 #endif
