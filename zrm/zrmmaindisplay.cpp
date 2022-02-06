@@ -383,10 +383,10 @@ void  ZrmMainDisplay::update_method_controls()
     bVoltInc->setEnabled(enabled);
 
 
-//    edTimeLimit->setReadOnly(m_auto_method);
-//    sbCurrLimit->setReadOnly(m_auto_method);
-//    sbVoltLimit->setReadOnly(m_auto_method);
-//    sbCycleTotal->setReadOnly(m_auto_method);
+    edTimeLimit->setReadOnly(!is_manual());
+    sbCurrLimit->setReadOnly(!is_manual());
+    sbVoltLimit->setReadOnly(!is_manual());
+    sbCycleTotal->setReadOnly(!is_manual());
 
     bCurrDec->setVisible(is_manual());
     bCurrInc->setVisible(is_manual());
@@ -623,26 +623,22 @@ void ZrmMainDisplay::select_method(bool bAbstract)
           btn->setIconSize(size);
       }
 
-    for (auto && lbl : paramFrame->findChildren<QLabel*>() )
+   QSize icon_size(MAIN_DISPLAT_ICON_WIDTH,MAIN_DISPLAT_ICON_HEIGHT);
+
+   for (auto && lbl : paramFrame->findChildren<QLabel*>() )
     {
-        QSize size(48,48);
-        lbl->setMaximumSize(size);
-        lbl->setMinimumSize(size);
+
+        lbl->setMaximumSize(icon_size);
+        lbl->setMinimumSize(icon_size);
     }
 
-    for (auto && btn :  stateButtonFrame->findChildren<QAbstractButton*>() )
-    {
-        QSize size(48,48);
-        btn->setMaximumSize(size);
-        btn->setMinimumSize(size);
-        btn->setIconSize(size);
-    }
 
-    bVoltDec->setMinimumWidth(48);
-    bVoltInc->setMinimumWidth(48);
-    bCurrDec->setMinimumWidth(48);
-    bCurrInc->setMinimumWidth(48);
-
+    bVoltDec->setMinimumWidth(MAIN_DISPLAT_ICON_WIDTH);
+    bVoltInc->setMinimumWidth(MAIN_DISPLAT_ICON_WIDTH);
+    bCurrDec->setMinimumWidth(MAIN_DISPLAT_ICON_WIDTH);
+    bCurrInc->setMinimumWidth(MAIN_DISPLAT_ICON_WIDTH);
+    tempButton->setMinimumSize(icon_size);
+    tempButton->setIconSize(icon_size);
 
   }
 #endif

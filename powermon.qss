@@ -195,7 +195,7 @@ QDoubleSpinBox:!enabled
 QComboBox
 {
     border: 2px solid black;
-    /*min-height: 25px;*/
+    min-height: 25px;
     background-color: white;
     color: black;
 }
@@ -266,6 +266,11 @@ QLineEdit#stateLabel,
 QLineEdit#errorLabel
 {
   background-color : transparent;
+  border : none;
+}
+
+QToolButton#tempButton
+{
   border : none;
 }
 
