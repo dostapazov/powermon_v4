@@ -105,7 +105,7 @@ void ZrmStagesEditor::init_controls()
     connect(this->tbStageMoveUp  , &QAbstractButton::clicked, this, &ZrmStagesEditor::sl_stage_move);
     connect(this->tbStageMoveDown, &QAbstractButton::clicked, this, &ZrmStagesEditor::sl_stage_move);
 
-    connect(splitter, &QSplitter::splitterMoved, [this](){ splitterSizes = splitter->sizes(); });
+    //connect(splitter, &QSplitter::splitterMoved, [this](){ splitterSizes = splitter->sizes(); });
 }
 
 
@@ -1028,8 +1028,8 @@ void ZrmStagesEditor::setSplitterSizes(const QList<int> &list)
 {
     if (list.size() < 2)
         return;
-    splitter->setSizes(QList<int>() << list[0] << list[1]);
+//    splitter->setSizes(QList<int>() << list[0] << list[1]);
 
-    splitterSizes.clear();
-    splitterSizes << list[0] << list[1];
+//    splitterSizes.clear();
+//    splitterSizes << list[0] << list[1];
 }
