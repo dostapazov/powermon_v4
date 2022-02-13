@@ -53,6 +53,7 @@ SOURCES += \
     data/ZrmTabMethodEditor.cpp \
     data/reportcommon.cpp \
     data/zrmdatabase.cpp \
+    data/zrmmethodexportimport.cpp \
     data/zrmmethodminmax.cpp \
     data/zrmreportdatabase.cpp \
     data/zrmstageseditor.cpp \
@@ -96,6 +97,7 @@ HEADERS += \
     data/ZrmTabMethodEditor.h \
     data/reportcommon.h \
     data/zrmdatabase.h \
+    data/zrmmethodexportimport.h \
     data/zrmmethodminmax.h \
     data/zrmreportdatabase.h \
     data/zrmstageseditor.h \
@@ -138,6 +140,7 @@ HEADERS += \
 FORMS += \
     data/ZrmTabMethodEditor.ui \
     data/reportcommon.ui \
+    data/zrmmethodexportimport.ui \
     data/zrmmethodminmax.ui \
     data/zrmstageseditor.ui \
         mainwindow.ui \

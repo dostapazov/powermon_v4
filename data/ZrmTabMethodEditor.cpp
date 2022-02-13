@@ -14,8 +14,8 @@ void ZrmTabMethodEditor::open_db(zrm::zrm_work_mode_t as_charger)
 {
     tabAKB->open_db(as_charger, false);
     tabMethods->open_db(as_charger, true);
-    tabAKB->setAllMethods(false);
-    tabMethods->setAllMethods(true);
+//    tabAKB->setAllMethods(false);
+//    tabMethods->setAllMethods(true);
 }
 
 void ZrmTabMethodEditor::save_user_values()
