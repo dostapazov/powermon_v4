@@ -543,7 +543,7 @@ void MainWindow::action_toggled(bool checked)
         if (checked)
         {
             stackedWidget->setCurrentWidget(method_editor_page);
-            method_editor->open_db(zrm_ready->current_ready()->work_mode());//, false);
+            method_editor->setWorkMode(zrm_ready->current_ready()->work_mode());//, false);
         }
         else
         {

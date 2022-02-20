@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="ZrmMethodEditor" name="tabAKB">
       <attribute name="title">
@@ -29,6 +29,11 @@
        <string>Методы (профили)</string>
       </attribute>
      </widget>
+     <widget class="ZrmMethodExportImport" name="tabExportImport">
+      <attribute name="title">
+       <string>Импорт/Export</string>
+      </attribute>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -38,6 +43,12 @@
    <class>ZrmMethodEditor</class>
    <extends>QWidget</extends>
    <header>zrmmethodeditor.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZrmMethodExportImport</class>
+   <extends>QWidget</extends>
+   <header>zrmmethodexportimport.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

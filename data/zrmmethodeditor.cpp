@@ -32,10 +32,42 @@ ZrmMethodEditor::ZrmMethodEditor(QWidget *parent) :
 }
 
 
-bool    ZrmMethodEditor::open_db(zrm::zrm_work_mode_t as_charger, bool all_methods)
+bool     ZrmMethodEditor::setAbstract(bool abstract)
 {
-    bool   ret =  methods_tree->open_database(as_charger, all_methods);
+    setAllMethods(abstract);
+    return methods_tree->setAbstract(abstract);
+}
+
+bool     ZrmMethodEditor::isAbstract()
+{
+  return methods_tree->isAbstract();
+}
+
+bool     ZrmMethodEditor::setWorkMode(zrm::zrm_work_mode_t mode)
+{
+ return methods_tree->setWorkMode(mode);
+}
+
+zrm::zrm_work_mode_t ZrmMethodEditor::getWorkMode()
+{
+  return methods_tree->getWorkMode();
+}
+
+
+bool    ZrmMethodEditor::open_db()
+{
+  return methods_tree->open_database();
+}
+
+bool    ZrmMethodEditor::open_db(zrm::zrm_work_mode_t mode, bool all_methods)
+{
+    bool   ret =  methods_tree->open_database(mode, all_methods);
     return ret;
+}
+
+void     ZrmMethodEditor::close_db()
+{
+    methods_tree->close_database();
 }
 
 void ZrmMethodEditor::connect_signals()
@@ -71,7 +103,7 @@ void ZrmMethodEditor::setup_android_ui()
 
 void ZrmMethodEditor::act_all_methods(bool checked)
 {
-    open_db(methods_tree->open_as(), checked);
+    open_db(methods_tree->opened_as(), checked);
     QTreeWidgetItem * item = methods_tree->topLevelItemCount() ? methods_tree->topLevelItem(0) : nullptr;
     methods_tree->setCurrentItem(item);
     actLink->setEnabled(!checked && !actApply->isEnabled());
@@ -394,7 +426,7 @@ void ZrmMethodEditor::on_actLink_toggled(bool checked)
     frameAbstract->setVisible(checked);
     if(checked)
     {
-        methods_abstract->open_database(methods_tree->open_as(), true);
+        methods_abstract->open_database(methods_tree->opened_as(), true);
         actMethodEdit->setChecked(false);
     }
     else
@@ -670,13 +702,13 @@ void    ZrmMethodEditor::save_user_values()
 
 void ZrmMethodEditor::unload()
 {
-    zrm::zrm_work_mode_t m_work_mode = methods_tree->open_as();
+    zrm::zrm_work_mode_t m_work_mode = methods_tree->opened_as();
     ZrmDataSource::unload(m_work_mode);
 }
 
 void ZrmMethodEditor::load()
 {
-    zrm::zrm_work_mode_t m_work_mode = methods_tree->open_as();
+    zrm::zrm_work_mode_t m_work_mode = methods_tree->opened_as();
     ZrmDataSource::load(m_work_mode);
     open_db(m_work_mode, actAllMethods->isChecked());
     if (actLink->isChecked())
@@ -708,10 +740,10 @@ void ZrmMethodEditor::setAllMethods(bool all_methods)
 void ZrmMethodEditor::refresh()
 {
     methods_tree->close_database();
-    open_db(methods_tree->open_as(), actAllMethods->isChecked());
+    open_db(methods_tree->opened_as(), actAllMethods->isChecked());
     QTreeWidgetItem * item = methods_tree->topLevelItemCount() ? methods_tree->topLevelItem(0) : nullptr;
     methods_tree->setCurrentItem(item);
 
     methods_abstract->close_database();
-    methods_abstract->open_database(methods_tree->open_as(), true);
+    methods_abstract->open_database(methods_tree->opened_as(), true);
 }

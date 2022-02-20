@@ -149,6 +149,33 @@ bool            ZrmMethodsTree::item_edit_enable(const QModelIndex &index)
  return v.toInt();
 }
 
+bool ZrmMethodsTree::setAbstract(bool abstract)
+{
+  if(isAbstract() != abstract)
+  {
+     if( isOpen())
+         return open_database(getWorkMode(), abstract);
+     else
+         m_abstract_methods = abstract;
+
+  }
+  return true;
+}
+
+
+bool ZrmMethodsTree::setWorkMode(zrm::zrm_work_mode_t wm)
+{
+   if(getWorkMode() != wm)
+   {
+     if(isOpen())
+         return open_database(wm, this->isAbstract());
+     else
+         m_work_mode = wm;
+   }
+   return true;
+}
+
+
 void ZrmMethodsTree::close_database()
 {
     save_user_values();
@@ -163,7 +190,7 @@ bool ZrmMethodsTree::open_database(zrm::zrm_work_mode_t work_mode, bool _abstrac
     {
         close_database();
         headerItem()->setText(column_capacity, work_mode ? tr("Ёмкость") : tr("Ток"));
-        m_work_mode = zrm::zrm_work_mode_t(work_mode );
+        m_work_mode = work_mode ;
         m_abstract_methods = _abstract_methods;
         db = ZrmDataSource::method_database(work_mode);
         headerItem()->setText(2, work_mode ? tr("Ёмкость") : tr("Ток"));
@@ -176,6 +203,11 @@ bool ZrmMethodsTree::open_database(zrm::zrm_work_mode_t work_mode, bool _abstrac
         fill_tree();
     emit database_open(db.isOpen());
     return db.isOpen();
+}
+
+bool ZrmMethodsTree::open_database()
+{
+  return open_database(m_work_mode, m_abstract_methods);
 }
 
 void ZrmMethodsTree::save_user_values()
@@ -208,7 +240,7 @@ void      ZrmMethodsTree::remove_children   (QTreeWidgetItem * parent, bool one_
   QSignalBlocker sb(parent->treeWidget());
   auto list = parent->takeChildren();
   int count = 0;
-  for(auto item : list  )
+  for(auto&& item : list  )
   {
     if(one_retain && ++count>= list.size())
         {
