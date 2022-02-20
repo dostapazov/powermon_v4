@@ -12,7 +12,7 @@ class ZrmTabMethodEditor : public ZrmGroupWidget, private Ui::ZrmTabMethodEditor
 public:
     explicit ZrmTabMethodEditor(QWidget *parent = nullptr);
 
-    void open_db(zrm::zrm_work_mode_t as_charger);
+    void open_db(zrm::zrm_work_mode_t mode);
     void save_user_values();
     inline bool isEdit() { return (tabAKB->isEdit() || tabMethods->isEdit()); }
 

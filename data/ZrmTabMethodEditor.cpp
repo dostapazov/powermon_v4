@@ -10,10 +10,16 @@ ZrmTabMethodEditor::ZrmTabMethodEditor(QWidget *parent) :
     connect(tabMethods, SIGNAL(editChanged(bool)), this, SLOT(editChanged()));
 }
 
-void ZrmTabMethodEditor::open_db(zrm::zrm_work_mode_t as_charger)
+void ZrmTabMethodEditor::open_db(zrm::zrm_work_mode_t mode)
 {
-    tabAKB->open_db(as_charger, false);
-    tabMethods->open_db(as_charger, true);
+//    tabAKB->setAbstract(false);
+//    tabAKB->setWorkMode(mode);
+//    tabMethods->setAbstract(true);
+//    tabMethods->setWorkMode(mode);
+
+    tabAKB->open_db(mode, false);
+    tabMethods->open_db(mode, true);
+
 //    tabAKB->setAllMethods(false);
 //    tabMethods->setAllMethods(true);
 }
