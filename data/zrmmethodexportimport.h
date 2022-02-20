@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <zrm_connectivity.hpp>
+#include <zrmbasewidget.h>
 
 namespace Ui {
 class ZrmMethodExportImport;
@@ -19,8 +20,11 @@ public:
     zrm::zrm_work_mode_t getWorkMode();
     bool open_db();
     void close_db();
-
+private slots :
+    void importMethod();
+    void exportMethod();
 private:
+    void initSlost();
     Ui::ZrmMethodExportImport *ui;
 };
 

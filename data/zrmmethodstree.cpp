@@ -612,7 +612,11 @@ bool ZrmMethodsTree::get_method(zrm::zrm_method_t & zrm_method, QTextCodec * cod
     return get_method(item, zrm_method, codec, model_name);
 }
 
-bool      ZrmMethodsTree::get_method(QTreeWidgetItem * item, zrm::zrm_method_t &zrm_method , QTextCodec *codec, QString * pmodel_name)
+bool      ZrmMethodsTree::get_method
+            (
+                QTreeWidgetItem * item, zrm::zrm_method_t &zrm_method ,
+                QTextCodec *codec, QString * pmodel_name
+            )
 {
  zrm::method_t  method;
  if(item && item->data(column_name,role_table).toInt() == table_method)
