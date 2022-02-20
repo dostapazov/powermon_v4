@@ -91,13 +91,13 @@ void ZrmStagesEditor::init_controls()
     cbFinishVoltage      ->setProperty(STAGE_CTRL_TAG, zrm::stage_end_flags_t::stage_end_voltage);
     cbFinishTime         ->setProperty(STAGE_CTRL_TAG, zrm::stage_end_flags_t::stage_end_time);
 
-    for(auto cb : stage_finish->findChildren<QAbstractButton*>())
+    for(auto&& cb : stage_finish->findChildren<QAbstractButton*>())
         connect(cb, QOverload<bool>::of(&QAbstractButton::toggled), this, &ZrmStagesEditor::sl_stage_finish_flags_changed);
 
-    for(auto sb : stage_finish->findChildren<QDoubleSpinBox*>())
+    for(auto&& sb : stage_finish->findChildren<QDoubleSpinBox*>())
         connect(sb, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ZrmStagesEditor::sl_stage_finish_changed);
 
-    for(auto sb : stage_finish->findChildren<QSpinBox*>())
+    for(auto&& sb : stage_finish->findChildren<QSpinBox*>())
         connect(sb, QOverload<int>::of(&QSpinBox::valueChanged), this, &ZrmStagesEditor::sl_stage_finish_changed);
 
     connect(this->tbStageAdd     , &QAbstractButton::clicked, this, &ZrmStagesEditor::sl_stage_add);
@@ -113,19 +113,19 @@ void ZrmStagesEditor::clear_controls    ()
 {
  ChildrenSignalBlocker<QWidget> sb(this);
 
- for(auto sb :findChildren<QSpinBox*>())
+ for(auto&& sb :findChildren<QSpinBox*>())
        sb->setValue(0);
 
- for(auto sb :findChildren<QDoubleSpinBox*>())
+ for(auto&& sb :findChildren<QDoubleSpinBox*>())
        sb->setValue(.0);
 
- for(auto cb : stage_finish->findChildren<QAbstractButton*>())
+ for(auto&& cb : stage_finish->findChildren<QAbstractButton*>())
        cb->setChecked(Qt::Unchecked);
 
- for(auto cb : stage_flags->findChildren<QAbstractButton*>())
+ for(auto&& cb : stage_flags->findChildren<QAbstractButton*>())
        cb->setChecked(Qt::Unchecked);
 
- for(auto ed :findChildren<QLineEdit*>())
+ for(auto&& ed :findChildren<QLineEdit*>())
        ed->setText(QString());
 }
 
