@@ -23,6 +23,7 @@ public:
 private slots :
     void importMethod();
     void exportMethod();
+    void selectFolder();
 private:
     void initSlost();
     Ui::ZrmMethodExportImport *ui;

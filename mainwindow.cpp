@@ -394,12 +394,12 @@ void MainWindow::write_config       ()
      jobj[cfg_zrm_splitter] = jarr;
 
      QJsonArray jarrParams;
-     for (int s : zrm_params->getSplitterSizes())
+     for (int& s : zrm_params->getSplitterSizes())
         jarrParams.append(s);
      jobj[cfg_params_splitter] = jarrParams;
 
      QJsonArray jarrStages;
-     for (int s : method_editor->getSplitterSizes())
+     for (int& s : method_editor->getSplitterSizes())
         jarrStages.append(s);
      jobj[cfg_stages_splitter] = jarrStages;
 
