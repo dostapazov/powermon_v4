@@ -34,6 +34,7 @@ ZrmMethodEditor::ZrmMethodEditor(QWidget *parent) :
 
 bool     ZrmMethodEditor::setAbstract(bool abstract)
 {
+    setAllMethods(abstract);
     return methods_tree->setAbstract(abstract);
 }
 

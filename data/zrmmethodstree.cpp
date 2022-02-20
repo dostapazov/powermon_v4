@@ -240,7 +240,7 @@ void      ZrmMethodsTree::remove_children   (QTreeWidgetItem * parent, bool one_
   QSignalBlocker sb(parent->treeWidget());
   auto list = parent->takeChildren();
   int count = 0;
-  for(auto item : list  )
+  for(auto&& item : list  )
   {
     if(one_retain && ++count>= list.size())
         {

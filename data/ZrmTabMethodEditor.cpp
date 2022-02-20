@@ -5,23 +5,22 @@ ZrmTabMethodEditor::ZrmTabMethodEditor(QWidget *parent) :
 {
     setupUi(this);
     setSplitterSizes(QList<int>() << 10000 << 10000);
-
     connect(tabAKB, SIGNAL(editChanged(bool)), this, SLOT(editChanged()));
     connect(tabMethods, SIGNAL(editChanged(bool)), this, SLOT(editChanged()));
+    tabAKB->setAbstract(false);
+    tabMethods->setAbstract(true);
+    tabWidget->setCurrentIndex(TAB_AKB);
 }
 
-void ZrmTabMethodEditor::open_db(zrm::zrm_work_mode_t mode)
+void ZrmTabMethodEditor::setWorkMode(zrm::zrm_work_mode_t mode)
 {
-//    tabAKB->setAbstract(false);
-//    tabAKB->setWorkMode(mode);
-//    tabMethods->setAbstract(true);
-//    tabMethods->setWorkMode(mode);
+    tabAKB->setWorkMode(mode);
+    tabMethods->setWorkMode(mode);
+    tabExportImport->setWorkMode(mode);
 
-    tabAKB->open_db(mode, false);
-    tabMethods->open_db(mode, true);
-
-//    tabAKB->setAllMethods(false);
-//    tabMethods->setAllMethods(true);
+//    tabAKB->open_db();
+//    tabMethods->open_db();
+//    tabExportImport->open_db();
 }
 
 void ZrmTabMethodEditor::save_user_values()
@@ -43,14 +42,15 @@ void ZrmTabMethodEditor::setSplitterSizes(const QList<int> &list)
 
 void ZrmTabMethodEditor::editChanged()
 {
-    if (0 != tabWidget->currentIndex())
-        tabWidget->setTabEnabled(0, !isEdit());
-    if (1 != tabWidget->currentIndex())
-        tabWidget->setTabEnabled(1, !isEdit());
+//    if (0 != tabWidget->currentIndex())
+//        tabWidget->setTabEnabled(0, !isEdit());
+//    if (1 != tabWidget->currentIndex())
+//        tabWidget->setTabEnabled(1, !isEdit());
 }
 
 void ZrmTabMethodEditor::on_tabWidget_currentChanged(int index)
 {
+    qDebug()<<Q_FUNC_INFO;
     if (0 == index)
     {
         tabMethods->save_user_values();
@@ -61,4 +61,42 @@ void ZrmTabMethodEditor::on_tabWidget_currentChanged(int index)
         tabAKB->save_user_values();
         tabMethods->refresh();
     }
+
+    switch(index)
+    {
+     case TAB_AKB:
+        tabAKB->open_db();
+        break;
+     case TAB_METHODS:
+        tabMethods->open_db();
+        break;
+     case TAB_EXPORT_IMPORT:
+        tabExportImport->open_db();
+        break;
+    default:
+        break;
+    }
+
 }
+
+void ZrmTabMethodEditor::on_tabWidget_tabBarClicked(int index)
+{
+    qDebug()<<Q_FUNC_INFO<<" index "<<index << "old index "<< tabWidget->currentIndex() ;
+    switch(tabWidget->currentIndex())
+    {
+     case TAB_AKB:
+        tabAKB->save_user_values();
+        tabAKB->close_db();
+        break;
+     case TAB_METHODS:
+        tabMethods->save_user_values();
+        tabMethods->close_db();
+        break;
+     case TAB_EXPORT_IMPORT:
+        tabExportImport->close_db();
+        break;
+    default:
+        break;
+    }
+}
+
