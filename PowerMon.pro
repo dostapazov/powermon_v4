@@ -51,6 +51,7 @@ INCLUDEPATH += $$PWD/utils
 
 SOURCES += \
     data/ZrmTabMethodEditor.cpp \
+    data/methodjsonconverter.cpp \
     data/reportcommon.cpp \
     data/zrmdatabase.cpp \
     data/zrmmethodexportimport.cpp \
@@ -95,6 +96,7 @@ SOURCES += \
 
 HEADERS += \
     data/ZrmTabMethodEditor.h \
+    data/methodjsonconverter.h \
     data/reportcommon.h \
     data/zrmdatabase.h \
     data/zrmmethodexportimport.h \

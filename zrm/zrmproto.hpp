@@ -300,16 +300,18 @@ struct method_t
       m_signature = APS_METHOD;
       return *this;
     }
-    size_t   name_length() {return m_name[METHOD_NAME_SIZE-1] ? METHOD_NAME_SIZE : strlen(m_name);}
+    void     set_name(const char * name,size_t len)
+    { if(len<METHOD_NAME_SIZE) {strcpy(m_name,name);} else {memcpy(m_name,name,METHOD_NAME_SIZE);} }
+    size_t   name_length() const {return m_name[METHOD_NAME_SIZE-1] ? METHOD_NAME_SIZE : strlen(m_name);}
     bool     operator    <  (method_t & other) const {return m_id < other.m_id;}
     bool     operator    == (method_t & other) const {return m_id == other.m_id;}
     double   current        () const         { return m_current ; }
     double   voltage        () const         { return m_voltage ; }
     double   capacity       () const         { return m_capacity; }
 
-    void     set_current    (double value)   { m_current  = value >= 0 ? value : -value; }
+    void     set_current    (double value)   { m_current  = value < 0 ? -value : value; }
     void     set_voltage    (double value)   { m_voltage  = value; }
-    void     set_capacity   (double value)   { m_capacity = value >= 0 ? value : -value; }
+    void     set_capacity   (double value)   { m_capacity = value < 0 ? -value : value; }
     double   current_ratio  (bool in_percent) const { return  (in_percent ? 100.0 : 1.0) * m_current / m_capacity; }
     uint32_t duration       ()const          { return uint32_t(m_hours)*3600 + uint32_t(m_minutes)*60 + uint32_t(m_secs);  }
     void     set_duration   (uint32_t value);

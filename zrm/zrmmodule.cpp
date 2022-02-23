@@ -273,9 +273,8 @@ uint16_t  ZrmModule::handle_results (uint16_t data_size, const uint8_t * beg, co
 uint16_t  ZrmModule::handle_results_sensor(uint16_t data_size, const uint8_t *beg, const uint8_t *end)
 {
 
-    uint8_t stage = 0, count = 0;
-    memcpy(&stage, beg, 1);
-    memcpy(&count, beg + 1, 1);
+    uint8_t stage = beg[0], count = beg[1];
+
     if (m_exec_results_sensor.size() >= stage)
         return data_size;
     stage_exec_result_sensors_t res;
