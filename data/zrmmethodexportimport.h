@@ -24,8 +24,10 @@ private slots :
     void importMethod();
     void exportMethod();
     void selectFolder();
+    void folderChanged(const QString & folder);
 private:
     void initSlost();
+    void scanFolder(const QString & folderName);
     Ui::ZrmMethodExportImport *ui;
 };
 
