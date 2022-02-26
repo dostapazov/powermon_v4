@@ -1,7 +1,7 @@
 #include "zrmmethodexportimport.h"
 #include "ui_zrmmethodexportimport.h"
 #include <QFileDialog>
-#include <methodjsonconverter.h>
+
 
 ZrmMethodExportImport::ZrmMethodExportImport(QWidget *parent) :
     QWidget(parent),
@@ -60,13 +60,28 @@ void ZrmMethodExportImport::importMethod()
 
 void ZrmMethodExportImport::exportMethod()
 {
-    zrm::zrm_method_t method;
-    ui->zrmMethods->get_method(method, ZrmBaseWidget::codec());
-    QListWidgetItem * item = new QListWidgetItem;
-    QString methodName = ZrmBaseWidget::codec()->toUnicode(QByteArray(method.m_method.m_name,method.m_method.name_length()));
-    item->setText(methodName);
-    item->setData(Qt::UserRole,method.m_method.m_id);
-    ui->methodsList->addItem(item);
+    IMethodConverter * converter = getConverter();
+    if(converter)
+    {
+        zrm::zrm_method_t method;
+        ui->zrmMethods->get_method(method, ZrmBaseWidget::codec());
+        QString methodName = ZrmBaseWidget::codec()->toUnicode(QByteArray(method.m_method.m_name,method.m_method.name_length()));
+
+        QByteArray data = converter->toByteArray(method);
+        if(data.size())
+        {
+            QDir dir(ui->pathToFolder->text());
+            QString fileName = dir.absoluteFilePath(getMethodFileName(methodName));
+            QFile file (fileName);
+            if(file.open(QFile::OpenModeFlag::WriteOnly))
+            {
+                file.resize(0);
+                file.write(data);
+                file.close();
+                addMethodToList(fileName, method.m_method.m_id);
+            }
+        }
+    }
 }
 
 void ZrmMethodExportImport::selectFolder()
@@ -78,29 +93,36 @@ void ZrmMethodExportImport::selectFolder()
     }
 }
 
-QString ZrmMethodExportImport::getMethodFileName(const QString & name, zrm::zrm_work_mode_t mode)
+QString ZrmMethodExportImport::getMethodFileName(const QString & name)
 {
-    return name + ((mode == zrm::zrm_work_mode_t::as_charger) ? CHARGE_EXTENSION : POWER_EXTENSION);
+    return name + ((ui->zrmMethods->opened_as() == zrm::zrm_work_mode_t::as_charger) ? CHARGE_EXTENSION : POWER_EXTENSION);
 }
 
 void ZrmMethodExportImport::scanFolder(const QString & folderName)
 {
  ui->methodsList->clear();
     QDir dir(folderName);
- dir.setNameFilters(QStringList()<<getMethodFileName("*",ui->zrmMethods->opened_as()));
+ dir.setNameFilters(QStringList()<<getMethodFileName("*"));
  for( const QString & fileName : dir.entryList(QDir::Filter::Files|QDir::Filter::Readable))
  {
    addMethodToList(dir.absoluteFilePath(fileName));
  }
 }
 
-void ZrmMethodExportImport::addMethodToList(const QString & fileName)
+void ZrmMethodExportImport::addMethodToList(const QString & fileName, const QVariant & mId )
 {
   QFileInfo fInfo(fileName);
   QListWidgetItem * item = new QListWidgetItem;
   item->setText(fInfo.baseName());
   item->setData(FILE_NAME_ROLE,fileName);
+  item->setData(METHOD_ID_ROLE,mId);
   ui->methodsList->addItem(item);
+}
+
+IMethodConverter * ZrmMethodExportImport::getConverter()
+{
+  static  MethodJsonConverter jcvt;
+  return &jcvt;
 }
 
 

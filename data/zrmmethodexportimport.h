@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <zrmproto.hpp>
+#include <methodjsonconverter.h>
 #include <zrmbasewidget.h>
 
 namespace Ui {
@@ -35,12 +36,14 @@ private slots :
 private:
     void initSlost();
     void scanFolder(const QString & folderName);
-    static QString getMethodFileName(const QString & name, zrm::zrm_work_mode_t mode);
+    QString getMethodFileName(const QString & name);
     /**
      * @brief addMethodToList append fileName to methodList
      * @param fileName - fullNamePath
+     * @param methodId - database method id
      */
-    void addMethodToList(const QString & fileName);
+    void addMethodToList(const QString & fileName, const QVariant & mId = QVariant());
+    static IMethodConverter * getConverter();
     Ui::ZrmMethodExportImport *ui;
     static constexpr const char * CHARGE_EXTENSION = ".cmt";
     static constexpr const char * POWER_EXTENSION = ".pmt";
