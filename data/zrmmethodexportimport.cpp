@@ -73,12 +73,34 @@ void ZrmMethodExportImport::selectFolder()
 {
     QString folder = QFileDialog::getExistingDirectory(this,"Выбор каталога");
     if(!folder.isEmpty())
+    {
         ui->pathToFolder->setText(folder);
+    }
+}
+
+QString ZrmMethodExportImport::getMethodFileName(const QString & name, zrm::zrm_work_mode_t mode)
+{
+    return name + ((mode == zrm::zrm_work_mode_t::as_charger) ? CHARGE_EXTENSION : POWER_EXTENSION);
 }
 
 void ZrmMethodExportImport::scanFolder(const QString & folderName)
 {
+ ui->methodsList->clear();
+    QDir dir(folderName);
+ dir.setNameFilters(QStringList()<<getMethodFileName("*",ui->zrmMethods->opened_as()));
+ for( const QString & fileName : dir.entryList(QDir::Filter::Files|QDir::Filter::Readable))
+ {
+   addMethodToList(dir.absoluteFilePath(fileName));
+ }
+}
 
+void ZrmMethodExportImport::addMethodToList(const QString & fileName)
+{
+  QFileInfo fInfo(fileName);
+  QListWidgetItem * item = new QListWidgetItem;
+  item->setText(fInfo.baseName());
+  item->setData(FILE_NAME_ROLE,fileName);
+  ui->methodsList->addItem(item);
 }
 
 
