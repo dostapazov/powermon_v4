@@ -56,6 +56,13 @@ void ZrmMethodExportImport::folderChanged(const QString & folder)
 
 void ZrmMethodExportImport::importMethod()
 {
+    QListWidgetItem * item = ui->methodsList->currentItem();
+    QString methodName = item->text();
+    QList<QTreeWidgetItem*> list = ui->zrmMethods->findItems(methodName,Qt::MatchFlag::MatchExactly );
+    if(list.size())
+    {
+
+    }
 }
 
 void ZrmMethodExportImport::exportMethod()
@@ -95,8 +102,36 @@ void ZrmMethodExportImport::selectFolder()
 
 QString ZrmMethodExportImport::getMethodFileName(const QString & name)
 {
-    return name + ((ui->zrmMethods->opened_as() == zrm::zrm_work_mode_t::as_charger) ? CHARGE_EXTENSION : POWER_EXTENSION);
+    QString decoratedName = name;
+    QString templ = QString("\%%1\%");
+    QChar c1('/');
+    QChar c2('\\');
+    decoratedName.replace(c1,QString(templ).arg(int(c1.toLatin1())));
+    decoratedName.replace(c2,QString(templ).arg(int(c2.toLatin1())));
+    return decoratedName + ((ui->zrmMethods->opened_as() == zrm::zrm_work_mode_t::as_charger) ? CHARGE_EXTENSION : POWER_EXTENSION);
 }
+
+QString ZrmMethodExportImport::getMethodNameFromFilrName(const QString & fileName)
+{
+    QChar c1('/');
+    QChar c2('\\');
+    QString methodName;
+
+    QStringList sl = fileName.split(QChar('%'),Qt::SplitBehaviorFlags::SkipEmptyParts);
+    for(const QString & text : sl)
+    {
+        bool isNumber(false);
+        QChar ch = QChar::fromLatin1(char(text.toInt(&isNumber)));
+        if(isNumber && (ch == c1 || ch == c2))
+        {
+            methodName  += ch;
+        }
+        else
+            methodName += text;
+    }
+    return methodName;
+}
+
 
 void ZrmMethodExportImport::scanFolder(const QString & folderName)
 {
@@ -113,7 +148,7 @@ void ZrmMethodExportImport::addMethodToList(const QString & fileName, const QVar
 {
   QFileInfo fInfo(fileName);
   QListWidgetItem * item = new QListWidgetItem;
-  item->setText(fInfo.baseName());
+  item->setText(getMethodNameFromFilrName(fInfo.baseName()));
   item->setData(FILE_NAME_ROLE,fileName);
   item->setData(METHOD_ID_ROLE,mId);
   ui->methodsList->addItem(item);

@@ -37,6 +37,7 @@ private:
     void initSlost();
     void scanFolder(const QString & folderName);
     QString getMethodFileName(const QString & name);
+    QString getMethodNameFromFilrName(const QString & fileName);
     /**
      * @brief addMethodToList append fileName to methodList
      * @param fileName - fullNamePath
