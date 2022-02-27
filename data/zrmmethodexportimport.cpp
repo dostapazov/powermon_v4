@@ -63,12 +63,33 @@ void ZrmMethodExportImport::scanFolder(const QString & folder)
 
 }
 
+void ZrmMethodExportImport::rightMethodSelected()
+{
+
+  QListWidgetItem * item = ui->methodsList->currentItem();
+  QVariant id = item->data(METHOD_ID_ROLE);
+  if(id.isValid())
+  {
+    ui->tbOverwrite->setEnabled(true);
+    ui->tbImport->setEnabled(false);
+
+  }
+  else
+  {
+      ui->tbOverwrite->setEnabled(false);
+      ui->tbImport->setEnabled(true);
+
+  }
+
+}
+
+
 void ZrmMethodExportImport::importMethod()
 {
     QListWidgetItem * item = ui->methodsList->currentItem();
+    QVariant id = item->data(METHOD_ID_ROLE);
     QString methodName = item->text();
     QString fileName = item->data(FILE_NAME_ROLE).toString();
-    QVariant id = item->data(METHOD_ID_ROLE);
     qDebug()<<id << fileName;
     QList<QTreeWidgetItem*> list = ui->zrmMethods->findItems(methodName,Qt::MatchFlag::MatchExactly );
 
@@ -148,11 +169,6 @@ void ZrmMethodExportImport::addMethodToList(const QString & fileName, const QVar
   item->setData(FILE_NAME_ROLE,fileName);
   item->setData(METHOD_ID_ROLE,mId);
   ui->methodsList->addItem(item);
-}
-
-void ZrmMethodExportImport::rightMethodSelected()
-{
-  ui->tbImport->setEnabled(ui->methodsList->currentItem());
 }
 
 IMethodConverter * ZrmMethodExportImport::getConverter()
