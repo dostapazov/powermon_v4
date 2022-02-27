@@ -9,6 +9,7 @@ ZrmMethodExportImport::ZrmMethodExportImport(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->zrmMethods->setAbstract(true);
+    ui->zrmMethods->show_method_params(false);
     initSlost();
 }
 
@@ -23,7 +24,8 @@ void ZrmMethodExportImport::initSlost()
   connect(ui->tbExport, &QAbstractButton::clicked,this, &ZrmMethodExportImport::exportMethod);
   connect(ui->tbImport, &QAbstractButton::clicked,this, &ZrmMethodExportImport::importMethod);
   connect(ui->bSelectPath, &QAbstractButton::clicked, this, &ZrmMethodExportImport::selectFolder);
-  connect(ui->pathToFolder, &QLineEdit::textChanged, this, &ZrmMethodExportImport::folderChanged);
+  connect(ui->pathToFolder, &QLineEdit::textChanged, this, &ZrmMethodExportImport::scanFolder);
+  connect(ui->methodsList, &QListWidget::itemSelectionChanged, this, &ZrmMethodExportImport::rightMethodSelected);
 }
 
 
@@ -47,18 +49,29 @@ void ZrmMethodExportImport::close_db()
  ui->zrmMethods->close_database();
 }
 
-void ZrmMethodExportImport::folderChanged(const QString & folder)
+
+void ZrmMethodExportImport::scanFolder(const QString & folder)
 {
   ui->methodsList->clear();
   ui->tbExport->setDisabled(folder.isEmpty());
-  scanFolder(folder);
+  QDir dir(folder);
+  dir.setNameFilters(QStringList()<<getMethodFileName("*"));
+  for( const QString & fileName : dir.entryList(QDir::Filter::Files|QDir::Filter::Readable))
+  {
+    addMethodToList(dir.absoluteFilePath(fileName));
+  }
+
 }
 
 void ZrmMethodExportImport::importMethod()
 {
     QListWidgetItem * item = ui->methodsList->currentItem();
     QString methodName = item->text();
+    QString fileName = item->data(FILE_NAME_ROLE).toString();
+    QVariant id = item->data(METHOD_ID_ROLE);
+    qDebug()<<id << fileName;
     QList<QTreeWidgetItem*> list = ui->zrmMethods->findItems(methodName,Qt::MatchFlag::MatchExactly );
+
     if(list.size())
     {
 
@@ -103,29 +116,22 @@ void ZrmMethodExportImport::selectFolder()
 QString ZrmMethodExportImport::getMethodFileName(const QString & name)
 {
     QString decoratedName = name;
-    QString templ = QString("\%%1\%");
-    QChar c1('/');
-    QChar c2('\\');
-    decoratedName.replace(c1,QString(templ).arg(int(c1.toLatin1())));
-    decoratedName.replace(c2,QString(templ).arg(int(c2.toLatin1())));
+    constexpr const char * templ = "\%%1\%";
+    decoratedName.replace(QChar(slash),QString(templ).arg(int(slash)));
+    decoratedName.replace(QChar(back_slash),QString(templ).arg(int(back_slash)));
     return decoratedName + ((ui->zrmMethods->opened_as() == zrm::zrm_work_mode_t::as_charger) ? CHARGE_EXTENSION : POWER_EXTENSION);
 }
 
 QString ZrmMethodExportImport::getMethodNameFromFilrName(const QString & fileName)
 {
-    QChar c1('/');
-    QChar c2('\\');
     QString methodName;
-
     QStringList sl = fileName.split(QChar('%'),Qt::SplitBehaviorFlags::SkipEmptyParts);
     for(const QString & text : sl)
     {
         bool isNumber(false);
         QChar ch = QChar::fromLatin1(char(text.toInt(&isNumber)));
-        if(isNumber && (ch == c1 || ch == c2))
-        {
+        if(isNumber && (ch == QChar(slash) || ch == QChar(back_slash)))
             methodName  += ch;
-        }
         else
             methodName += text;
     }
@@ -133,16 +139,6 @@ QString ZrmMethodExportImport::getMethodNameFromFilrName(const QString & fileNam
 }
 
 
-void ZrmMethodExportImport::scanFolder(const QString & folderName)
-{
- ui->methodsList->clear();
-    QDir dir(folderName);
- dir.setNameFilters(QStringList()<<getMethodFileName("*"));
- for( const QString & fileName : dir.entryList(QDir::Filter::Files|QDir::Filter::Readable))
- {
-   addMethodToList(dir.absoluteFilePath(fileName));
- }
-}
 
 void ZrmMethodExportImport::addMethodToList(const QString & fileName, const QVariant & mId )
 {
@@ -152,6 +148,11 @@ void ZrmMethodExportImport::addMethodToList(const QString & fileName, const QVar
   item->setData(FILE_NAME_ROLE,fileName);
   item->setData(METHOD_ID_ROLE,mId);
   ui->methodsList->addItem(item);
+}
+
+void ZrmMethodExportImport::rightMethodSelected()
+{
+  ui->tbImport->setEnabled(ui->methodsList->currentItem());
 }
 
 IMethodConverter * ZrmMethodExportImport::getConverter()

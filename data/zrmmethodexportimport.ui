@@ -46,12 +46,25 @@
     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,0,1">
      <item>
       <widget class="QGroupBox" name="verticalGroupBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="title">
         <string>Методы в базе</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="ZrmMethodsTree" name="zrmMethods" native="true"/>
+         <widget class="ZrmMethodsTree" name="zrmMethods" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

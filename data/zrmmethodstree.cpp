@@ -46,6 +46,7 @@ QWidget *mtree_item_delegate::createEditor(QWidget *parent,
         if(column == ZrmMethodsTree::column_voltage || column == ZrmMethodsTree::column_capacity)
            {
             auto sb = new QDoubleSpinBox(parent);
+
             //sb->setLocale(m_methods_tree->parentWidget()->parentWidget()->locale());
             sb->setSingleStep(zrm::method_t::value_step());
             sb->setDecimals(1);
@@ -110,14 +111,14 @@ void mtree_item_delegate::setModelData(QWidget *editor, QAbstractItemModel *mode
 ZrmMethodsTree::ZrmMethodsTree(QWidget *parent) :
     QTreeWidget(parent)
 {
-    setColumnCount(3);
-    setHeaderLabels(QStringList() << "Наименование" << "Напряжение" << "Ёмкость");
+
+    QStringList columns =  QStringList() << "Наименование" << "Напряжение" << "Ёмкость";
+    setColumnCount(columns.count());
+    setHeaderLabels(columns);
     setAlternatingRowColors(true);
     setSelectionBehavior(SelectItems);
     setSortingEnabled(true);
     sortItems(0, Qt::AscendingOrder);
-    header()->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
-    header()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
     setItemDelegate(create_delegate());
     connect(this, &QTreeWidget::itemExpanded      , this, &ZrmMethodsTree::slot_item_expanded );
     connect(this, &QTreeWidget::itemCollapsed     , this, &ZrmMethodsTree::slot_item_collapsed);
@@ -127,14 +128,15 @@ ZrmMethodsTree::ZrmMethodsTree(QWidget *parent) :
     connect(this, &QTreeWidget::itemChanged       , this, &ZrmMethodsTree::onItemChanged);
     setFont(font());
     setStyleSheet("selection-background-color: steelblue;");
+
+    header()->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
+    header()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
 }
 
 ZrmMethodsTree::~ZrmMethodsTree()
 {
   close_database();
 }
-
-
 
 QItemDelegate * ZrmMethodsTree::create_delegate()
 {

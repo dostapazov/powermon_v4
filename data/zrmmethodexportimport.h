@@ -32,10 +32,15 @@ private slots :
     void importMethod();
     void exportMethod();
     void selectFolder();
-    void folderChanged(const QString & folder);
+    /**
+     * @brief scanFolder make methods list
+     * @param folder path to folder
+     */
+    void scanFolder(const QString & folder);
+    void rightMethodSelected();
 private:
     void initSlost();
-    void scanFolder(const QString & folderName);
+
     QString getMethodFileName(const QString & name);
     QString getMethodNameFromFilrName(const QString & fileName);
     /**
@@ -50,6 +55,9 @@ private:
     static constexpr const char * POWER_EXTENSION = ".pmt";
     static constexpr int METHOD_ID_ROLE = Qt::UserRole;
     static constexpr int FILE_NAME_ROLE = Qt::UserRole+1;
+    static constexpr char slash = '/';
+    static constexpr char back_slash = '\\';
+
 
 };
 
