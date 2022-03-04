@@ -125,7 +125,12 @@ QString ZrmMethodExportImport::getMethodFileName(const QString & name)
 QString ZrmMethodExportImport::getMethodNameFromFilrName(const QString & fileName)
 {
     QString methodName;
-    QStringList sl = fileName.split(QChar('%'),QString::SplitBehavior::SkipEmptyParts);
+#if QT_VERSION < QT_VERSION_CHECK(5,15,0)
+    auto splitMode = QString::SplitBehavior::SkipEmptyParts;
+#else
+    auto splitMode = Qt::SplitBehaviorFlags::SkipEmptyParts;
+#endif
+    QStringList sl = fileName.split(QChar('%'),splitMode);
     for(const QString & text : sl)
     {
         bool isNumber(false);
