@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(screen, &QScreen::primaryOrientationChanged, this, &MainWindow::orientation_changed);
 
     write_log(QtInfoMsg, "Application started");
-    QCoreApplication::setApplicationVersion(QString("4.5"));
+    QCoreApplication::setApplicationVersion(QString("4.7"));
     QString wtitle = QString("%1  v:%2").arg(qApp->applicationName()).arg(qApp->applicationVersion());
 #ifdef QT_DEBUG
     wtitle+= QString(" [debug version]");

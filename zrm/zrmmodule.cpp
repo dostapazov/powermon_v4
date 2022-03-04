@@ -163,8 +163,10 @@ void ZrmModule::handle_data(const uint8_t * data_ptr, size_t data_size)
 {
     if (!data_ptr || !data_size) return;
     auto data_end = data_ptr + data_size;
+#ifndef PROTOCOL_PT_LINE
     uint8_t state = *data_ptr++;
     (void)(state);
+#endif
 
     //locker_t l(m_mut);
 

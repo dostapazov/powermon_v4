@@ -26,6 +26,5 @@
         <file>icons/new_group.png</file>
         <file>icons/copy_method.png</file>
         <file>icons/report.png</file>
-        <file>icons/overwrite.png</file>
     </qresource>
 </RCC>

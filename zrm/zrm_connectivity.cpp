@@ -184,7 +184,11 @@ void ZrmConnectivity::handle_recv   (const QByteArray & recv_data)
   {
       auto proto   = m_recv_buffer();
       auto crc_ptr = proto->last_byte_as<recv_buffer_t::crc_type>();
+#ifndef PROTOCOL_PT_LINE
       if(crcunit::CRC::crc32(proto, proto->size()) == *crc_ptr)
+#else
+      if (crcunit::CRC::crc8_1wire(proto, proto->size()) == *crc_ptr)
+#endif
       {
         recv_check_sequence(proto->proto_hdr.packet_number);
         if(is_sig_connected)
@@ -710,6 +714,7 @@ void              ZrmConnectivity::channel_start       (uint16_t ch_num)
     channel_write_method(ch_num);
 
     auto state = mod->get_state();
+    state.state = 0;
     state.state_bits.start_pause = 0;
     state.state_bits.auto_on     = 1;
     devproto::storage_t data;
@@ -736,6 +741,7 @@ void              ZrmConnectivity::channel_stop        (uint16_t ch_num)
        if(!mod->is_stopped())
        {
         auto state = mod->get_state();
+        state.state = 0;
         state.state_bits.start_pause = 0;
         state.state_bits.auto_on     = 0;
         channel_write_param(ch_num,WM_PROCESS,PARAM_STATE, &state, sizeof(state));
@@ -759,6 +765,7 @@ void              ZrmConnectivity::channel_pause       (uint16_t ch_num)
    if(mod.data() && mod->is_executing())
    {
        auto state = mod->get_state();
+       state.state = 0;
        state.state_bits.start_pause = 1;
        state.state_bits.auto_on     = 0;
        channel_write_param(ch_num, WM_PROCESS ,PARAM_STATE, &state , sizeof(state));
