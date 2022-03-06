@@ -102,7 +102,7 @@ QHeaderView
     font-weight: bold;
 }
 
-QTreeWidget, QTextEdit, QTextViewer, QTableView
+QTreeWidget, QTextEdit, QTextViewer, QTableView,QListWidget
 {
     background-color: lightgray;
     selection-background-color: steelblue;

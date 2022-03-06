@@ -41,8 +41,18 @@ private slots :
 private:
     void initSlost();
 
+    /**
+     * @brief getMethodFileName replace symbols \, / to %char_number%
+     * @param name
+     * @return decorated file name
+     */
     QString getMethodFileName(const QString & name);
-    QString getMethodNameFromFilrName(const QString & fileName);
+    /**
+     * @brief getMethodNameFromFileName replace %char_number% back to \ or / symbols
+     * @param fileName
+     * @return method name
+     */
+    QString getMethodNameFromFileName(const QString & fileName);
     /**
      * @brief addMethodToList append fileName to methodList
      * @param fileName - fullNamePath

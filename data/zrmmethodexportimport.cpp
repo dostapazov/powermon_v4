@@ -122,7 +122,7 @@ QString ZrmMethodExportImport::getMethodFileName(const QString & name)
     return decoratedName + ((ui->zrmMethods->opened_as() == zrm::zrm_work_mode_t::as_charger) ? CHARGE_EXTENSION : POWER_EXTENSION);
 }
 
-QString ZrmMethodExportImport::getMethodNameFromFilrName(const QString & fileName)
+QString ZrmMethodExportImport::getMethodNameFromFileName(const QString & fileName)
 {
     QString methodName;
 #if QT_VERSION < QT_VERSION_CHECK(5,15,0)
@@ -131,7 +131,7 @@ QString ZrmMethodExportImport::getMethodNameFromFilrName(const QString & fileNam
     auto splitMode = Qt::SplitBehaviorFlags::SkipEmptyParts;
 #endif
     QStringList sl = fileName.split(QChar('%'),splitMode);
-    for(const QString & text : sl)
+    for( QString & text : sl)
     {
         bool isNumber(false);
         QChar ch = QChar::fromLatin1(char(text.toInt(&isNumber)));
@@ -143,15 +143,18 @@ QString ZrmMethodExportImport::getMethodNameFromFilrName(const QString & fileNam
     return methodName;
 }
 
-
-
 void ZrmMethodExportImport::addMethodToList(const QString & fileName, const QVariant & mId )
 {
   QFileInfo fInfo(fileName);
   QListWidgetItem * item = new QListWidgetItem;
-  item->setText(getMethodNameFromFilrName(fInfo.baseName()));
+  item->setText(getMethodNameFromFileName(fInfo.baseName()));
   item->setData(FILE_NAME_ROLE,fileName);
   item->setData(METHOD_ID_ROLE,mId);
+  if(!mId.isValid())
+  {
+    item->setData(Qt::ForegroundRole,QBrush(QColor(Qt::GlobalColor::darkGreen)));
+  }
+
   ui->methodsList->addItem(item);
 }
 
