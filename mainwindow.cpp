@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(screen, &QScreen::primaryOrientationChanged, this, &MainWindow::orientation_changed);
 
     write_log(QtInfoMsg, "Application started");
-    QCoreApplication::setApplicationVersion(QString("4.5"));
+    QCoreApplication::setApplicationVersion(QString("4.7"));
     QString wtitle = QString("%1  v:%2").arg(qApp->applicationName()).arg(qApp->applicationVersion());
 #ifdef QT_DEBUG
     wtitle+= QString(" [debug version]");
@@ -394,12 +394,12 @@ void MainWindow::write_config       ()
      jobj[cfg_zrm_splitter] = jarr;
 
      QJsonArray jarrParams;
-     for (int s : zrm_params->getSplitterSizes())
+     for (int& s : zrm_params->getSplitterSizes())
         jarrParams.append(s);
      jobj[cfg_params_splitter] = jarrParams;
 
      QJsonArray jarrStages;
-     for (int s : method_editor->getSplitterSizes())
+     for (int& s : method_editor->getSplitterSizes())
         jarrStages.append(s);
      jobj[cfg_stages_splitter] = jarrStages;
 
@@ -543,7 +543,7 @@ void MainWindow::action_toggled(bool checked)
         if (checked)
         {
             stackedWidget->setCurrentWidget(method_editor_page);
-            method_editor->open_db(zrm_ready->current_ready()->work_mode());//, false);
+            method_editor->setWorkMode(zrm_ready->current_ready()->work_mode());//, false);
         }
         else
         {

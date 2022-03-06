@@ -3,7 +3,6 @@
 #include <qscreen.h>
 #include <qdesktopwidget.h>
 
-
 int main(int argc, char *argv[])
 {
     //QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -15,7 +14,8 @@ int main(int argc, char *argv[])
 #ifdef QT_DEBUG
     w.showMaximized();
 #else
-    w.showFullScreen();
+    //w.showFullScreen();
+    w.showMaximized();
  #endif
 
 #endif

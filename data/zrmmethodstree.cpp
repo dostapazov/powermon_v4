@@ -46,6 +46,7 @@ QWidget *mtree_item_delegate::createEditor(QWidget *parent,
         if(column == ZrmMethodsTree::column_voltage || column == ZrmMethodsTree::column_capacity)
            {
             auto sb = new QDoubleSpinBox(parent);
+
             //sb->setLocale(m_methods_tree->parentWidget()->parentWidget()->locale());
             sb->setSingleStep(zrm::method_t::value_step());
             sb->setDecimals(1);
@@ -110,14 +111,14 @@ void mtree_item_delegate::setModelData(QWidget *editor, QAbstractItemModel *mode
 ZrmMethodsTree::ZrmMethodsTree(QWidget *parent) :
     QTreeWidget(parent)
 {
-    setColumnCount(3);
-    setHeaderLabels(QStringList() << "Наименование" << "Напряжение" << "Ёмкость");
+
+    QStringList columns =  QStringList() << "Наименование" << "Напряжение" << "Ёмкость";
+    setColumnCount(columns.count());
+    setHeaderLabels(columns);
     setAlternatingRowColors(true);
     setSelectionBehavior(SelectItems);
     setSortingEnabled(true);
     sortItems(0, Qt::AscendingOrder);
-    header()->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
-    header()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
     setItemDelegate(create_delegate());
     connect(this, &QTreeWidget::itemExpanded      , this, &ZrmMethodsTree::slot_item_expanded );
     connect(this, &QTreeWidget::itemCollapsed     , this, &ZrmMethodsTree::slot_item_collapsed);
@@ -127,14 +128,15 @@ ZrmMethodsTree::ZrmMethodsTree(QWidget *parent) :
     connect(this, &QTreeWidget::itemChanged       , this, &ZrmMethodsTree::onItemChanged);
     setFont(font());
     setStyleSheet("selection-background-color: steelblue;");
+
+    header()->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
+    header()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
 }
 
 ZrmMethodsTree::~ZrmMethodsTree()
 {
   close_database();
 }
-
-
 
 QItemDelegate * ZrmMethodsTree::create_delegate()
 {
@@ -148,6 +150,33 @@ bool            ZrmMethodsTree::item_edit_enable(const QModelIndex &index)
  //qDebug()<<QString("%1  edit_enable %2").arg(index.data().toString()).arg(v.toInt());
  return v.toInt();
 }
+
+bool ZrmMethodsTree::setAbstract(bool abstract)
+{
+  if(isAbstract() != abstract)
+  {
+     if( isOpen())
+         return open_database(getWorkMode(), abstract);
+     else
+         m_abstract_methods = abstract;
+
+  }
+  return true;
+}
+
+
+bool ZrmMethodsTree::setWorkMode(zrm::zrm_work_mode_t wm)
+{
+   if(getWorkMode() != wm)
+   {
+     if(isOpen())
+         return open_database(wm, this->isAbstract());
+     else
+         m_work_mode = wm;
+   }
+   return true;
+}
+
 
 void ZrmMethodsTree::close_database()
 {
@@ -163,7 +192,7 @@ bool ZrmMethodsTree::open_database(zrm::zrm_work_mode_t work_mode, bool _abstrac
     {
         close_database();
         headerItem()->setText(column_capacity, work_mode ? tr("Ёмкость") : tr("Ток"));
-        m_work_mode = zrm::zrm_work_mode_t(work_mode );
+        m_work_mode = work_mode ;
         m_abstract_methods = _abstract_methods;
         db = ZrmDataSource::method_database(work_mode);
         headerItem()->setText(2, work_mode ? tr("Ёмкость") : tr("Ток"));
@@ -176,6 +205,11 @@ bool ZrmMethodsTree::open_database(zrm::zrm_work_mode_t work_mode, bool _abstrac
         fill_tree();
     emit database_open(db.isOpen());
     return db.isOpen();
+}
+
+bool ZrmMethodsTree::open_database()
+{
+  return open_database(m_work_mode, m_abstract_methods);
 }
 
 void ZrmMethodsTree::save_user_values()
@@ -208,7 +242,7 @@ void      ZrmMethodsTree::remove_children   (QTreeWidgetItem * parent, bool one_
   QSignalBlocker sb(parent->treeWidget());
   auto list = parent->takeChildren();
   int count = 0;
-  for(auto item : list  )
+  for(auto&& item : list  )
   {
     if(one_retain && ++count>= list.size())
         {
@@ -580,7 +614,11 @@ bool ZrmMethodsTree::get_method(zrm::zrm_method_t & zrm_method, QTextCodec * cod
     return get_method(item, zrm_method, codec, model_name);
 }
 
-bool      ZrmMethodsTree::get_method(QTreeWidgetItem * item, zrm::zrm_method_t &zrm_method , QTextCodec *codec, QString * pmodel_name)
+bool      ZrmMethodsTree::get_method
+            (
+                QTreeWidgetItem * item, zrm::zrm_method_t &zrm_method ,
+                QTextCodec *codec, QString * pmodel_name
+            )
 {
  zrm::method_t  method;
  if(item && item->data(column_name,role_table).toInt() == table_method)

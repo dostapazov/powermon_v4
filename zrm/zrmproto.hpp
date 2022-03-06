@@ -24,7 +24,7 @@ enum   sync_types_t
     PS_PC = 0xa5  // pc -> cu
    ,PS_CU = 0x5a  // cu -> pc
 };
-
+#ifndef PROTOCOL_PT_LINE
 enum packet_types_t
 {
     PT_DATAREQ   = 0x0A // Запрос данных
@@ -35,6 +35,18 @@ enum packet_types_t
    ,PT_CONREQ    = 0x10
    ,PT_CONCONF   = 0x11
 };
+#else
+enum packet_types_t
+{
+    PT_DATAREQ   = 0x07 // Запрос данных
+   ,PT_DATAREAD  = 0x12 // Чтение данных
+   ,PT_DATAWRITE = 0x09 // Запись данных
+   ,PT_DIAG      = 0x0D // Диагностика
+   ,PT_DEBUG     = 0x0F
+   ,PT_CONREQ    = 0x10
+   ,PT_CONCONF   = 0x11
+};
+#endif
 
 enum param_write_mode_t
 {
@@ -163,6 +175,7 @@ constexpr int MAX_CHANNEL_NUMBER = 255;
 typedef struct {uint8_t sync_byte =  PS_PC;} pc_prolog_t;
 typedef struct {uint8_t sync_byte =  PS_CU;} cu_prolog_t;
 
+#ifndef PROTOCOL_PT_LINE
 struct proto_header
 {
   uint16_t session_id;
@@ -174,7 +187,19 @@ struct proto_header
   size_t   operator()() const {return size_t(data_size);}
   void     operator()(size_t _dsz) { data_size = uint16_t(_dsz);}
 };
-
+#else
+struct proto_header
+{
+    uint8_t channel;
+    uint8_t session_id;
+    uint8_t packet_number;
+    uint8_t type;
+    uint16_t data_size;
+    proto_header(uint8_t _channel, uint8_t _session_id, uint8_t _number , uint8_t _type);
+    size_t operator()() const { return size_t(data_size); }
+    void operator()(size_t _dsz) { data_size = uint16_t(_dsz); }
+};
+#endif
 union session_t
 {
  struct
@@ -300,16 +325,18 @@ struct method_t
       m_signature = APS_METHOD;
       return *this;
     }
-    size_t   name_length() {return m_name[METHOD_NAME_SIZE-1] ? METHOD_NAME_SIZE : strlen(m_name);}
+    void     set_name(const char * name,size_t len)
+    { if(len<METHOD_NAME_SIZE) {strcpy(m_name,name);} else {memcpy(m_name,name,METHOD_NAME_SIZE);} }
+    size_t   name_length() const {return m_name[METHOD_NAME_SIZE-1] ? METHOD_NAME_SIZE : strlen(m_name);}
     bool     operator    <  (method_t & other) const {return m_id < other.m_id;}
     bool     operator    == (method_t & other) const {return m_id == other.m_id;}
     double   current        () const         { return m_current ; }
     double   voltage        () const         { return m_voltage ; }
     double   capacity       () const         { return m_capacity; }
 
-    void     set_current    (double value)   { m_current  = value >= 0 ? value : -value; }
+    void     set_current    (double value)   { m_current  = value < 0 ? -value : value; }
     void     set_voltage    (double value)   { m_voltage  = value; }
-    void     set_capacity   (double value)   { m_capacity = value >= 0 ? value : -value; }
+    void     set_capacity   (double value)   { m_capacity = value < 0 ? -value : value; }
     double   current_ratio  (bool in_percent) const { return  (in_percent ? 100.0 : 1.0) * m_current / m_capacity; }
     uint32_t duration       ()const          { return uint32_t(m_hours)*3600 + uint32_t(m_minutes)*60 + uint32_t(m_secs);  }
     void     set_duration   (uint32_t value);
@@ -569,8 +596,13 @@ typedef std::vector<zrm_cell_t> zrm_cells_t;
 
 typedef devproto::t_hdr<pc_prolog_t,proto_header, uint16_t> send_header_t, *lpsend_header_t;
 typedef devproto::t_hdr<cu_prolog_t,proto_header, uint16_t> recv_header_t, *lprecv_header_t;
+#ifndef PROTOCOL_PT_LINE
 typedef devproto::proto_buffer<recv_header_t,uint32_t>      recv_buffer_t;
 typedef devproto::proto_buffer<send_header_t,uint32_t>      _send_buffer_t;
+#else
+typedef devproto::proto_buffer<recv_header_t, uint8_t> recv_buffer_t;
+typedef devproto::proto_buffer<send_header_t, uint8_t> _send_buffer_t;
+#endif
 
 typedef devproto::storage_t                   params_t;
 
@@ -697,14 +729,21 @@ inline void     send_buffer_t::set_packet_number(uint16_t pn)
 {
   m_packet_number =    pn;
 }
-
+#ifndef PROTOCOL_PT_LINE
 inline proto_header::proto_header(uint16_t _session_id, uint16_t _number ,uint16_t _channel, uint8_t _type)
                     :session_id   (_session_id)
                     ,packet_number(_number    )
                     ,channel      (_channel   )
                     ,type         (_type      )
 {}
-
+#else
+inline proto_header::proto_header(uint8_t _channel, uint8_t _session_id, uint8_t _number ,uint8_t _type)
+                    :channel      (_channel   )
+                    ,session_id   (_session_id)
+                    ,packet_number(_number    )
+                    ,type         (_type      )
+{}
+#endif
 template <typename _Type>
 void  send_buffer_t::params_add(devproto::storage_t & data, param_write_mode_t wm, zrm_param_t  param, _Type value)
 {

@@ -91,13 +91,13 @@ void ZrmStagesEditor::init_controls()
     cbFinishVoltage      ->setProperty(STAGE_CTRL_TAG, zrm::stage_end_flags_t::stage_end_voltage);
     cbFinishTime         ->setProperty(STAGE_CTRL_TAG, zrm::stage_end_flags_t::stage_end_time);
 
-    for(auto cb : stage_finish->findChildren<QAbstractButton*>())
+    for(auto&& cb : stage_finish->findChildren<QAbstractButton*>())
         connect(cb, QOverload<bool>::of(&QAbstractButton::toggled), this, &ZrmStagesEditor::sl_stage_finish_flags_changed);
 
-    for(auto sb : stage_finish->findChildren<QDoubleSpinBox*>())
+    for(auto&& sb : stage_finish->findChildren<QDoubleSpinBox*>())
         connect(sb, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ZrmStagesEditor::sl_stage_finish_changed);
 
-    for(auto sb : stage_finish->findChildren<QSpinBox*>())
+    for(auto&& sb : stage_finish->findChildren<QSpinBox*>())
         connect(sb, QOverload<int>::of(&QSpinBox::valueChanged), this, &ZrmStagesEditor::sl_stage_finish_changed);
 
     connect(this->tbStageAdd     , &QAbstractButton::clicked, this, &ZrmStagesEditor::sl_stage_add);
@@ -105,7 +105,7 @@ void ZrmStagesEditor::init_controls()
     connect(this->tbStageMoveUp  , &QAbstractButton::clicked, this, &ZrmStagesEditor::sl_stage_move);
     connect(this->tbStageMoveDown, &QAbstractButton::clicked, this, &ZrmStagesEditor::sl_stage_move);
 
-    connect(splitter, &QSplitter::splitterMoved, [this](){ splitterSizes = splitter->sizes(); });
+    //connect(splitter, &QSplitter::splitterMoved, [this](){ splitterSizes = splitter->sizes(); });
 }
 
 
@@ -113,19 +113,19 @@ void ZrmStagesEditor::clear_controls    ()
 {
  ChildrenSignalBlocker<QWidget> sb(this);
 
- for(auto sb :findChildren<QSpinBox*>())
+ for(auto&& sb :findChildren<QSpinBox*>())
        sb->setValue(0);
 
- for(auto sb :findChildren<QDoubleSpinBox*>())
+ for(auto&& sb :findChildren<QDoubleSpinBox*>())
        sb->setValue(.0);
 
- for(auto cb : stage_finish->findChildren<QAbstractButton*>())
+ for(auto&& cb : stage_finish->findChildren<QAbstractButton*>())
        cb->setChecked(Qt::Unchecked);
 
- for(auto cb : stage_flags->findChildren<QAbstractButton*>())
+ for(auto&& cb : stage_flags->findChildren<QAbstractButton*>())
        cb->setChecked(Qt::Unchecked);
 
- for(auto ed :findChildren<QLineEdit*>())
+ for(auto&& ed :findChildren<QLineEdit*>())
        ed->setText(QString());
 }
 
@@ -175,7 +175,7 @@ void ZrmStagesEditor::on_stages_changed ()
         {
             st = zrm::STT_CHARGE;
             QTreeWidgetItem * sitem = new QTreeWidgetItem;
-            sitem->setText(STAGE_TYPE_COLUMN, tr(zrm::stage_t::stage_type_name(m_methods_tree->open_as(), zrm::STT_CHARGE)));
+            sitem->setText(STAGE_TYPE_COLUMN, tr(zrm::stage_t::stage_type_name(m_methods_tree->opened_as(), zrm::STT_CHARGE)));
             QString text = tr("U=%1 В, I=%2 А").arg(edChargeVoltage->value(), 0, 'f', 2).arg(edChargeCurrent->value(), 0,'f', 2);
             sitem->setText(STAGE_FINISH_COLUMN, text);
             sub_items << sitem;
@@ -185,7 +185,7 @@ void ZrmStagesEditor::on_stages_changed ()
         {
             st = zrm::STT_DISCHARGE;
             QTreeWidgetItem * sitem = new QTreeWidgetItem;
-            sitem->setText(STAGE_TYPE_COLUMN, tr(zrm::stage_t::stage_type_name(m_methods_tree->open_as(), zrm::STT_DISCHARGE)));
+            sitem->setText(STAGE_TYPE_COLUMN, tr(zrm::stage_t::stage_type_name(m_methods_tree->opened_as(), zrm::STT_DISCHARGE)));
             QString text = tr("U=%1 В, I=%2 А").arg(edDischargeVoltage->value(), 0, 'f', 2).arg(edDischargeCurrent->value(), 0, 'f', 2);
             sitem->setText(STAGE_FINISH_COLUMN, text);
             sub_items << sitem;
@@ -195,7 +195,7 @@ void ZrmStagesEditor::on_stages_changed ()
         {
             st = zrm::STT_IMPULSE;
             QTreeWidgetItem * sitem = new QTreeWidgetItem;
-            sitem->setText(STAGE_TYPE_COLUMN, tr(zrm::stage_t::stage_type_name(m_methods_tree->open_as(), zrm::STT_CHARGE)));
+            sitem->setText(STAGE_TYPE_COLUMN, tr(zrm::stage_t::stage_type_name(m_methods_tree->opened_as(), zrm::STT_CHARGE)));
             QString text = tr("U=%1 В, I=%2 А").arg(edChargeVoltage->value(), 0, 'f', 2).arg(edChargeCurrent->value(), 0,'f', 2);
             sitem->setText(STAGE_FINISH_COLUMN, text);
             sub_items << sitem;
@@ -206,7 +206,7 @@ void ZrmStagesEditor::on_stages_changed ()
             sub_items << sitem;
 
             sitem = new QTreeWidgetItem;
-            sitem->setText(STAGE_TYPE_COLUMN, tr(zrm::stage_t::stage_type_name(m_methods_tree->open_as(), zrm::STT_DISCHARGE)));
+            sitem->setText(STAGE_TYPE_COLUMN, tr(zrm::stage_t::stage_type_name(m_methods_tree->opened_as(), zrm::STT_DISCHARGE)));
             text = tr("U=%1 В, I=%2 А").arg(edDischargeVoltage->value(), 0, 'f', 2).arg(edDischargeCurrent->value(), 0, 'f', 2);
             sitem->setText(STAGE_FINISH_COLUMN, text);
             sub_items << sitem;
@@ -308,7 +308,7 @@ void             ZrmStagesEditor::set_methods_tree     (ZrmMethodsTree * mtree)
 void ZrmStagesEditor::sl_database_open(bool success)
 {
    Q_UNUSED(success)
-   auto wm = m_methods_tree->open_as();
+   auto wm = m_methods_tree->opened_as();
    tbCharge   ->setText( zrm::stage_t::stage_type_name(wm, zrm::STT_CHARGE    ));
    tbDischarge->setText( zrm::stage_t::stage_type_name(wm, zrm::STT_DISCHARGE ));
 
@@ -478,7 +478,7 @@ void ZrmStagesEditor::stage_assign(QTreeWidgetItem * stage_item, const zrm::stag
     stage_item->setText(stage_number_column,QString::number(uint(st.m_number)));
     stage_item->setData(stage_number_column,ZrmMethodsTree::role_id,st.m_id_method);
     stage_item->setData(stage_number_column,ZrmMethodsTree::role_table,ZrmMethodsTree::table_stages);
-    stage_item->setText(stage_type_column , tr(zrm::stage_t::stage_type_name(m_methods_tree->open_as(),zrm::stage_type_t(st.m_type))));
+    stage_item->setText(stage_type_column , tr(zrm::stage_t::stage_type_name(m_methods_tree->opened_as(),zrm::stage_type_t(st.m_type))));
     stage_item->setText(stage_descr_column, descr);
 
     for (int i = stage_item->childCount() - 1; i >= 0; i--)
@@ -494,7 +494,7 @@ void ZrmStagesEditor::stage_assign(QTreeWidgetItem * stage_item, const zrm::stag
     if (st.m_type & zrm::STT_CHARGE)
     {
         QTreeWidgetItem * sitem = new QTreeWidgetItem;
-        sitem->setText(STAGE_TYPE_COLUMN, tr(zrm::stage_t::stage_type_name(m_methods_tree->open_as(), zrm::STT_CHARGE)));
+        sitem->setText(STAGE_TYPE_COLUMN, tr(zrm::stage_t::stage_type_name(m_methods_tree->opened_as(), zrm::STT_CHARGE)));
         QString text = tr("U=%1 В, I=%2 А").arg(st.charge_volt(m_current_method.m_method), 0, 'f', 2).arg(st.charge_curr(m_current_method.m_method), 0,'f', 2);
         sitem->setText(STAGE_FINISH_COLUMN, text);
         sub_items << sitem;
@@ -511,7 +511,7 @@ void ZrmStagesEditor::stage_assign(QTreeWidgetItem * stage_item, const zrm::stag
     if (st.m_type & zrm::STT_DISCHARGE)
     {
         QTreeWidgetItem * sitem = new QTreeWidgetItem;
-        sitem->setText(STAGE_TYPE_COLUMN, tr(zrm::stage_t::stage_type_name(m_methods_tree->open_as(), zrm::STT_DISCHARGE)));
+        sitem->setText(STAGE_TYPE_COLUMN, tr(zrm::stage_t::stage_type_name(m_methods_tree->opened_as(), zrm::STT_DISCHARGE)));
         QString text = tr("U=%1 В, I=%2 А").arg(st.discharge_volt(m_current_method.m_method), 0, 'f', 2).arg(st.discharge_curr(m_current_method.m_method), 0, 'f', 2);
         sitem->setText(STAGE_FINISH_COLUMN, text);
         sub_items << sitem;
@@ -843,7 +843,7 @@ void ZrmStagesEditor::sl_stage_type_changed()
     st.m_type = uint8_t(src->property(STAGE_CTRL_TAG).toUInt());
     if(idx>-1)
     {
-      stages_list->topLevelItem(idx)->setText(stage_type_column , tr(zrm::stage_t::stage_type_name(m_methods_tree->open_as(),zrm::stage_type_t(st.m_type))));
+      stages_list->topLevelItem(idx)->setText(stage_type_column , tr(zrm::stage_t::stage_type_name(m_methods_tree->opened_as(),zrm::stage_type_t(st.m_type))));
       on_stages_changed();
     }
 
@@ -1028,8 +1028,8 @@ void ZrmStagesEditor::setSplitterSizes(const QList<int> &list)
 {
     if (list.size() < 2)
         return;
-    splitter->setSizes(QList<int>() << list[0] << list[1]);
+//    splitter->setSizes(QList<int>() << list[0] << list[1]);
 
-    splitterSizes.clear();
-    splitterSizes << list[0] << list[1];
+//    splitterSizes.clear();
+//    splitterSizes << list[0] << list[1];
 }

@@ -23,8 +23,13 @@ size_t   send_buffer_t::queue_packet         (uint16_t channel, uint8_t packet_t
   size_t old_size = m_storage.size();
   m_storage.resize(old_size+sz);
   auto phdr = header_from_offset(old_size);
+#ifndef PROTOCOL_PT_LINE
    phdr->init(proto_header(m_session_id, ++m_packet_number, channel, packet_type), data_size,data);
   *phdr->last_byte_as<crc_type>() = crcunit::CRC::crc32(phdr, phdr->size());
+#else
+  phdr->init(proto_header(channel, m_session_id, ++m_packet_number, packet_type), data_size,data);
+ *phdr->last_byte_as<crc_type>() = crcunit::CRC::crc8_1wire(phdr, phdr->size());
+#endif
   return sz;
 }
 
@@ -55,9 +60,11 @@ void  send_buffer_t::params_add(devproto::storage_t & data, param_write_mode_t w
     devproto::storage_t::pointer ptr;
 
     ptr = &data.at(0); //Указать параметры записи
+#ifndef PROTOCOL_PT_LINE
    *ptr = devproto::storage_t::value_type(wm);
 
     ptr = &data.at(sz);
+#endif
    *ptr++ = devproto::storage_t::value_type(param);
    *ptr++ = devproto::storage_t::value_type(std::min(val_sz,size_t(UCHAR_MAX)));
 

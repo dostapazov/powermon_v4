@@ -198,8 +198,11 @@ protected slots:
    virtual void     read (const QJsonObject &jobj);
 
 
-
+#ifndef PROTOCOL_PT_LINE
   unsigned long   m_send_period = 10;
+#else
+  unsigned long   m_send_period = 100;
+#endif
   bool            m_enable_send = false;
   uint32_t        m_recv_kadr_number;
   recv_buffer_t   m_recv_buffer;

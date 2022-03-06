@@ -12,7 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TEMPLATE = app
 
-VERSION=4.5
+VERSION=4.7
 
 TARGET = powermon
 
@@ -38,6 +38,8 @@ include(../qtshared/text_viewer_widget/text_view_widget.pri)
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
+# протокол для ЗУ серии PT, PL, PM-line
+#DEFINES += PROTOCOL_PT_LINE
 
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -51,8 +53,10 @@ INCLUDEPATH += $$PWD/utils
 
 SOURCES += \
     data/ZrmTabMethodEditor.cpp \
+    data/methodjsonconverter.cpp \
     data/reportcommon.cpp \
     data/zrmdatabase.cpp \
+    data/zrmmethodexportimport.cpp \
     data/zrmmethodminmax.cpp \
     data/zrmreportdatabase.cpp \
     data/zrmstageseditor.cpp \
@@ -94,8 +98,10 @@ SOURCES += \
 
 HEADERS += \
     data/ZrmTabMethodEditor.h \
+    data/methodjsonconverter.h \
     data/reportcommon.h \
     data/zrmdatabase.h \
+    data/zrmmethodexportimport.h \
     data/zrmmethodminmax.h \
     data/zrmreportdatabase.h \
     data/zrmstageseditor.h \
@@ -138,6 +144,7 @@ HEADERS += \
 FORMS += \
     data/ZrmTabMethodEditor.ui \
     data/reportcommon.ui \
+    data/zrmmethodexportimport.ui \
     data/zrmmethodminmax.ui \
     data/zrmstageseditor.ui \
         mainwindow.ui \
