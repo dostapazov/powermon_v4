@@ -9,7 +9,7 @@
 #include <QValueAxis>
 #include <QDateTime>
 
-constexpr int CHART_UPDATE_PREIOD = 150;
+constexpr int CHART_UPDATE_PREIOD = 200;
 
 ZrmLogerChartUI::ZrmLogerChartUI(QWidget* parent) :
     ZrmChannelWidget(parent)
@@ -28,7 +28,6 @@ void ZrmLogerChartUI::update_controls()
     if (m_source && m_channel )
         channel_param_changed(m_channel, m_source->channel_params(m_channel));
 
-    timerChart.start();
 }
 
 void ZrmLogerChartUI::clear_controls()
@@ -50,6 +49,15 @@ void  ZrmLogerChartUI::channel_param_changed(unsigned channel, const zrm::params
             //QVariant value = m_source->param_get(m_channel, param.first);
             switch (param.first)
             {
+                case zrm::PARAM_STATE        :
+                    if (is_stopped())
+                        timerChart.stop();
+                    else
+                    {
+                        if (!timerChart.isActive())
+                            timerChart.start();
+                    }
+                    break;
                 case zrm::PARAM_MCUR :
                 case zrm::PARAM_MCURD :
                     m_chart->axes(Qt::Vertical, i_series)[0]->setRange(-m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble(), m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble());
@@ -126,6 +134,7 @@ void ZrmLogerChartUI::updateChart()
         u_series->removePoints(0, count_to_remove);
     }
 
-    m_chart->axes(Qt::Horizontal, u_series)[0]->setRange(begRange, endRange);
+    QtCharts::QAbstractAxis* axis = m_chart->axes(Qt::Horizontal, u_series).at(0);
+    axis->setRange(begRange, endRange);
     this->setUpdatesEnabled(true);
 }

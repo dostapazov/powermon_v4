@@ -199,7 +199,7 @@ protected:
 
 
 #ifndef PROTOCOL_PT_LINE
-    unsigned long   m_send_period = 100;
+    unsigned long   m_send_period = 20;
 #else
     unsigned long   m_send_period = 100;
 #endif
