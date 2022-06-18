@@ -9,7 +9,7 @@
 #include <QValueAxis>
 #include <QDateTime>
 
-ZrmLogerChartUI::ZrmLogerChartUI(QWidget *parent) :
+ZrmLogerChartUI::ZrmLogerChartUI(QWidget* parent) :
     ZrmChannelWidget(parent)
 {
     setupUi(this);
@@ -24,7 +24,7 @@ void ZrmLogerChartUI::update_controls()
 {
     clear_controls();
 
-    if(m_source && m_channel )
+    if (m_source && m_channel )
         channel_param_changed(m_channel, m_source->channel_params(m_channel));
 
     timerChart.start();
@@ -39,15 +39,15 @@ void ZrmLogerChartUI::clear_controls()
         i_series->clear();
 }
 
-void  ZrmLogerChartUI::channel_param_changed(unsigned channel, const zrm::params_list_t & params_list  )
+void  ZrmLogerChartUI::channel_param_changed(unsigned channel, const zrm::params_list_t& params_list  )
 {
     SignalBlocker sb(findChildren<QWidget*>());
     if (channel == m_channel && m_source)
     {
-        for(auto param : params_list)
+        for (auto param : params_list)
         {
-            QVariant value = m_source->param_get(m_channel, param.first);
-            switch(param.first)
+            //QVariant value = m_source->param_get(m_channel, param.first);
+            switch (param.first)
             {
                 case zrm::PARAM_MCUR :
                 case zrm::PARAM_MCURD :
@@ -56,7 +56,8 @@ void  ZrmLogerChartUI::channel_param_changed(unsigned channel, const zrm::params
                 case zrm::PARAM_MVOLT :
                     m_chart->axes(Qt::Vertical, u_series)[0]->setRange(0, m_source->param_get(m_channel, zrm::PARAM_MVOLT).toDouble());
                     break;
-                default: break;
+                default:
+                    break;
             }
         }
     }
@@ -82,14 +83,14 @@ void ZrmLogerChartUI::init_chart()
     m_chart->addSeries(i_series);
 
     //add axis to the chart
-    QtCharts::QDateTimeAxis *axisX = new QtCharts::QDateTimeAxis;
+    QtCharts::QDateTimeAxis* axisX = new QtCharts::QDateTimeAxis;
     axisX->setTickCount(10);
     axisX->setFormat("hh:mm:ss");
     axisX->setTitleText("Time");
     m_chart->addAxis(axisX, Qt::AlignBottom);
     u_series->attachAxis(axisX);
 
-    QtCharts::QValueAxis *axisY = new QtCharts::QValueAxis;
+    QtCharts::QValueAxis* axisY = new QtCharts::QValueAxis;
     axisY->setLabelFormat("%.1f");
     axisY->setTitleText("U");
     m_chart->addAxis(axisY, Qt::AlignLeft);
@@ -97,7 +98,7 @@ void ZrmLogerChartUI::init_chart()
 
     i_series->attachAxis(axisX);
 
-    QtCharts::QValueAxis *axisYI = new QtCharts::QValueAxis;
+    QtCharts::QValueAxis* axisYI = new QtCharts::QValueAxis;
     axisYI->setLabelFormat("%.1f");
     axisYI->setTitleText("I");
     m_chart->addAxis(axisYI, Qt::AlignLeft);

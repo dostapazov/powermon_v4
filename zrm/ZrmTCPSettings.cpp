@@ -1,6 +1,6 @@
 #include "ZrmTCPSettings.h"
 
-ZrmTCPSettings::ZrmTCPSettings(QWidget *parent) :
+ZrmTCPSettings::ZrmTCPSettings(QWidget* parent) :
     ZrmChannelWidget(parent)
 {
     setupUi(this);
@@ -10,7 +10,7 @@ ZrmTCPSettings::ZrmTCPSettings(QWidget *parent) :
                      + "\\." + ipRange
                      + "\\." + ipRange
                      + "\\." + ipRange + "$");
-    QRegExpValidator *ipValidator = new QRegExpValidator(ipRegex, this);
+    QRegExpValidator* ipValidator = new QRegExpValidator(ipRegex, this);
     leHost->setValidator(ipValidator);
     leMask->setValidator(ipValidator);
 
@@ -26,7 +26,7 @@ void ZrmTCPSettings::on_connected(bool con_state)
 void ZrmTCPSettings::update_controls()
 {
     clear_controls();
-    if(m_source && m_channel )
+    if (m_source && m_channel )
         channel_param_changed(m_channel, m_source->channel_params(m_channel));
 }
 
@@ -39,40 +39,41 @@ void ZrmTCPSettings::clear_controls()
     //buttonSetSettings->setEnabled(false);
 }
 
-void ZrmTCPSettings::channel_param_changed(unsigned channel, const zrm::params_list_t & params_list)
+void ZrmTCPSettings::channel_param_changed(unsigned channel, const zrm::params_list_t& params_list)
 {
     //SignalBlocker sb(findChildren<QWidget*>());
-    if(channel == m_channel && m_source)
+    if (channel == m_channel && m_source)
     {
-        for(auto param : params_list)
+        for (auto param : params_list)
         {
-            QVariant value = m_source->param_get(m_channel, param.first);
-            switch(param.first)
+            //QVariant value = m_source->param_get(m_channel, param.first);
+            switch (param.first)
             {
-            case zrm::PARAM_TCP_SETTINGS :
-            {
-                QString host;
-                for (int i = 0; i < 4; i++)
+                case zrm::PARAM_TCP_SETTINGS :
                 {
-                    if (!host.isEmpty())
-                        host += '.';
-                    host += QString::number(param.second.puchar[i]);
+                    QString host;
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (!host.isEmpty())
+                            host += '.';
+                        host += QString::number(param.second.puchar[i]);
+                    }
+                    leHost->setText(host);
+                    QString mask;
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (!mask.isEmpty())
+                            mask += '.';
+                        mask += QString::number(param.second.puchar[i + 4]);
+                    }
+                    leMask->setText(mask);
+                    quint16 port;
+                    memcpy(&port, param.second.puchar + 8, 2);
+                    sbPort->setValue(port);
+                    break;
                 }
-                leHost->setText(host);
-                QString mask;
-                for (int i = 0; i < 4; i++)
-                {
-                    if (!mask.isEmpty())
-                        mask += '.';
-                    mask += QString::number(param.second.puchar[i + 4]);
-                }
-                leMask->setText(mask);
-                quint16 port;
-                memcpy(&port, param.second.puchar + 8, 2);
-                sbPort->setValue(port);
-                break;
-            }
-            default: break;
+                default:
+                    break;
             }
         }
     }

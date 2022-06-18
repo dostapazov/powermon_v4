@@ -23,20 +23,22 @@
 
 
 enum actions_id_t {act_unknown, act_ready_view, act_zrm_view, act_method_editor, act_configure, act_style,
-                  act_dev_method, act_zrm_report, act_params, act_close};
-constexpr const char * const act_id_prop = "action_id";
+                   act_dev_method, act_zrm_report, act_params, act_close
+                  };
+constexpr const char* const act_id_prop = "action_id";
 
 QtMessageHandler   MainWindow::prev_msg_handler = Q_NULLPTR;
-void MainWindow::msg_handler   (QtMsgType msg_type, const QMessageLogContext & msg_context, const QString & msg_text)
+void MainWindow::msg_handler   (QtMsgType msg_type, const QMessageLogContext& msg_context, const QString& msg_text)
 {
-  if(prev_msg_handler)   prev_msg_handler(msg_type, msg_context, msg_text);
-  #ifdef QT_DEBUG
-  // TODO Add interceptors
-  #endif
+    if (prev_msg_handler)
+        prev_msg_handler(msg_type, msg_context, msg_text);
+#ifdef QT_DEBUG
+    // TODO Add interceptors
+#endif
 }
 
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent)
 {
     prev_msg_handler = qInstallMessageHandler(msg_handler);
@@ -45,14 +47,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 
-    QScreen * screen = qApp->primaryScreen();
+    QScreen* screen = qApp->primaryScreen();
     connect(screen, &QScreen::primaryOrientationChanged, this, &MainWindow::orientation_changed);
 
     write_log(QtInfoMsg, "Application started");
     QCoreApplication::setApplicationVersion(QString("4.7"));
-    QString wtitle = QString("%1  v:%2").arg(qApp->applicationName()).arg(qApp->applicationVersion());
+    QString wtitle = QString("%1  v:%2").arg(qApp->applicationName(), qApp->applicationVersion());
 #ifdef QT_DEBUG
-    wtitle+= QString(" [debug version]");
+    wtitle += QString(" [debug version]");
 #endif
     setWindowTitle(wtitle);
     QStatusBar* sb = QMainWindow::statusBar();
@@ -72,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent) :
     zrm_ready->update_ready();
     zrm_ready->ready_accum()->setButton(buttonReadyView);
     zrm_widget->update_ready();
-    if(zrm::ZrmConnectivity::channels_total() < 2)
+    if (zrm::ZrmConnectivity::channels_total() < 2)
         actZrmView->setChecked(true);
     else
         actReadyView->setChecked (true);
@@ -86,13 +88,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-  write_config();
-  for(auto zrm : findChildren<ZrmBaseWidget*>())
-        zrm->bind(Q_NULLPTR,0);
-  zrm::ZrmConnectivity::stop_all();
-  qApp->processEvents();
-  for(auto c : zrm::ZrmConnectivity::connectivities())
-      delete c;
+    write_config();
+    for (auto&& zrm : findChildren<ZrmBaseWidget*>())
+        zrm->bind(Q_NULLPTR, 0);
+    zrm::ZrmConnectivity::stop_all();
+    qApp->processEvents();
+    for (auto&& c : zrm::ZrmConnectivity::connectivities())
+        delete c;
 }
 
 void MainWindow::setupActions()
@@ -111,60 +113,59 @@ void MainWindow::setupActions()
 
 
 #ifdef Q_OS_ANDROID
-     void MainWindow::update_android_ui()
-     {
-         setFixedSize(qApp->desktop()->size());
+void MainWindow::update_android_ui()
+{
+    setFixedSize(qApp->desktop()->size());
 
-         for(auto  && sb : findChildren<QAbstractSpinBox*>())
-           sb->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
+    for (auto&&   sb : findChildren<QAbstractSpinBox*>())
+        sb->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
 
-         QSize icon_size(MAIN_WIDOW_ICON_WIDTH,MAIN_WIDOW_ICON_HEIGHT);
-         QSize btn_size(MAIN_WIDOW_BUTTON_WIDTH,MAIN_WIDOW_BUTTON_HEIGHT);
-         for(auto && btn : frameMenu->findChildren<QToolButton*>())
-         {
-            btn->setIconSize(icon_size);
-            btn->setMinimumSize(btn_size);
-            btn->setMaximumSize(btn_size);
-            //btn->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextUnderIcon);
-         }
-
-     }
-#else
-    void MainWindow::update_desktop_ui()
+    QSize icon_size(MAIN_WIDOW_ICON_WIDTH, MAIN_WIDOW_ICON_HEIGHT);
+    QSize btn_size(MAIN_WIDOW_BUTTON_WIDTH, MAIN_WIDOW_BUTTON_HEIGHT);
+    for (auto&& btn : frameMenu->findChildren<QToolButton*>())
     {
-
-        QSize icon_size(DESKTOP_MAIN_WIDOW_ICON_WIDTH,DESKTOP_MAIN_WIDOW_ICON_WIDTH);
-        QSize btn_size (DESKTOP_MAIN_WIDOW_BUTTON_WIDTH,DESKTOP_MAIN_WIDOW_BUTTON_WIDTH);
-        for(auto && btn : frameMenu->findChildren<QToolButton*>())
-        {
-           btn->setIconSize(icon_size);
-           btn->setMinimumSize(btn_size);
-           btn->setMaximumSize(btn_size);
-        }
-
+        btn->setIconSize(icon_size);
+        btn->setMinimumSize(btn_size);
+        btn->setMaximumSize(btn_size);
+        //btn->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextUnderIcon);
     }
+
+}
+#else
+void MainWindow::update_desktop_ui()
+{
+
+//    QSize icon_size(DESKTOP_MAIN_WIDOW_ICON_WIDTH, DESKTOP_MAIN_WIDOW_ICON_WIDTH);
+//    QSize btn_size (DESKTOP_MAIN_WIDOW_BUTTON_WIDTH, DESKTOP_MAIN_WIDOW_BUTTON_WIDTH);
+//    for (auto&& btn : frameMenu->findChildren<QToolButton*>())
+//    {
+    // btn->setIconSize(icon_size);
+//        btn->setMinimumSize(btn_size);
+//        btn->setMaximumSize(btn_size);
+//    }
+}
 #endif
 
 
-  void MainWindow::update_ui()
-  {
-    #ifdef Q_OS_ANDROID
-      update_android_ui();
+void MainWindow::update_ui()
+{
+#ifdef Q_OS_ANDROID
+    update_android_ui();
 #else
-      update_desktop_ui();
+    update_desktop_ui();
 #endif
-    for(auto && zrm_widget : findChildren<ZrmBaseWidget*>())
+    for (auto&& zrm_widget : findChildren<ZrmBaseWidget*>())
     {
-      zrm_widget->update_ui();
+        zrm_widget->update_ui();
     }
-      adjustSize();
-  }
+    adjustSize();
+}
 
 void MainWindow::init_actions()
 {
     m_action_grp = new QActionGroup(this);
 
-    auto initAction = [this](QAction* act, actions_id_t id)
+    auto initAction = [this](QAction * act, actions_id_t id)
     {
         act->setProperty(act_id_prop, id);
         connect(act, &QAction::toggled, this, &MainWindow::action_toggled);
@@ -181,7 +182,7 @@ void MainWindow::init_actions()
     initAction(actExit, act_close);
 
     m_action_grp->setExclusive(true);
-    for(auto act : m_action_grp->actions())
+    for (auto&& act : m_action_grp->actions())
     {
         act->setCheckable(true);
         act->setChecked(false );
@@ -190,7 +191,7 @@ void MainWindow::init_actions()
 
 void MainWindow::init_slots  ()
 {
-    connect(zrm_ready, &ZrmReadyWidget::channel_activated , this, &MainWindow::channel_activated);
+    connect(zrm_ready, &ZrmReadyWidget::channel_activated, this, &MainWindow::channel_activated);
 
     connect(style_select, &QComboBox::currentTextChanged, this, &MainWindow::set_style);
     connect(font_bold, &QCheckBox::clicked, this, &MainWindow::edit_font_changed_props);
@@ -198,16 +199,16 @@ void MainWindow::init_slots  ()
     connect(font_size, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::edit_font_changed_props);
     connect(fontComboBox, &QFontComboBox::currentFontChanged, this, &MainWindow::edit_font_changed);
 
-    connect(zrm_widget, &ZrmWidget::channel_activated , zrm_ready, &ZrmReadyWidget::selectChannel);
+    connect(zrm_widget, &ZrmWidget::channel_activated, zrm_ready, &ZrmReadyWidget::selectChannel);
 
     connect(conn_params, SIGNAL(configureApply()), this, SLOT(configure_apply()));
 
 }
 void MainWindow::install_event_filers  ()
 {
-    for(auto sb : findChildren<QDoubleSpinBox*>())
+    for (auto&& sb : findChildren<QDoubleSpinBox*>())
     {
-      sb->installEventFilter(this);
+        sb->installEventFilter(this);
     }
 }
 
@@ -217,57 +218,58 @@ void MainWindow::install_event_filers  ()
 void MainWindow::init_styles()
 {
     QStringList stl = QStyleFactory::keys();
-    foreach(QString st, stl)
+    foreach (QString st, stl)
     {
         style_select->addItem(st);
     }
 }
 
 
-void MainWindow::set_style(const QString & styleName)
+void MainWindow::set_style(const QString& styleName)
 {
-  if (QStyleFactory::keys().contains(styleName))
-  {
-     qApp->setStyle(QStyleFactory::create(styleName));
-  }
+    if (QStyleFactory::keys().contains(styleName))
+    {
+        qApp->setStyle(QStyleFactory::create(styleName));
+    }
 }
 
 
 
 QString MainWindow::connectivity_file_name()
 {
-  return ZrmDataSource::config_file_name(".conn");
+    return ZrmDataSource::config_file_name(".conn");
 }
 
 QString MainWindow::window_param_file_name()
 {
- return ZrmDataSource::config_file_name("-config");
+    return ZrmDataSource::config_file_name("-config");
 }
 
 void MainWindow::write_log(QtMsgType msg_type, QString log_string)
 {
 #ifdef POWERMON_LOG
-    static const char * dtfmt = "yyyy-MM-dd hh::mm:ss.zzz";
-    if(!log_file.isOpen())
+    static const char* dtfmt = "yyyy-MM-dd hh::mm:ss.zzz";
+    if (!log_file.isOpen())
     {
-      log_file.setFileName(qApp->applicationName()+QLatin1String(".log"));
-      if(log_file.open(QFile::ReadWrite | QFile::Append ))
-          {
+        log_file.setFileName(qApp->applicationName() + QLatin1String(".log"));
+        if (log_file.open(QFile::ReadWrite | QFile::Append ))
+        {
             log_stream.setDevice(&log_file);
             write_log(QtMsgType::QtInfoMsg, " open log");
-          }
-          else return;
+        }
+        else
+            return;
     }
-  QString dts = QDateTime::currentDateTime().toString(dtfmt);
-  log_stream<<dts<< QString(" level %1").arg(msg_type) <<" :> " <<log_string;
-  endl(log_stream);
+    QString dts = QDateTime::currentDateTime().toString(dtfmt);
+    log_stream << dts << QString(" level %1").arg(msg_type) << " :> " << log_string;
+    endl(log_stream);
 #else
     Q_UNUSED(msg_type)
     Q_UNUSED(log_string)
 #endif
 }
 
-void MainWindow::slot_dev_error(QString error_string)
+void MainWindow::slot_dev_error(const QString error_string)
 {
     write_log(QtMsgType::QtCriticalMsg, error_string);
 }
@@ -283,18 +285,18 @@ void MainWindow::configure_apply()
     }
 
     QTreeWidgetItem* item = conn_params->current_item();
-    zrm::ZrmConnectivity * conn_obj = nullptr;
+    zrm::ZrmConnectivity* conn_obj = nullptr;
     uint16_t cnumber = 0;
     if (item)
     {
-        QTreeWidgetItem * itemConn = item->parent() ? item->parent() : item;
+        QTreeWidgetItem* itemConn = item->parent() ? item->parent() : item;
         if (itemConn && itemConn->treeWidget())
         {
             QVariant varConn = itemConn->data(0, Qt::UserRole);
             int64_t i = varConn.value<int64_t>();
             conn_obj = reinterpret_cast<zrm::ZrmConnectivity*>(reinterpret_cast<QObject*>(i));
         }
-        QTreeWidgetItem * itemChan = item->childCount() > 0 ? item->child(0) : item;
+        QTreeWidgetItem* itemChan = item->childCount() > 0 ? item->child(0) : item;
         if (itemChan && itemChan->treeWidget())
         {
             QVariant varChan = itemChan->data(1, Qt::UserRole);
@@ -306,29 +308,29 @@ void MainWindow::configure_apply()
 
 void MainWindow::style_apply()
 {
-     qApp->setStyle(QStyleFactory::create(style_select->currentText()));
-     qApp->processEvents();
-     QFont font = edit_font(fontComboBox->currentFont());
-     qApp->setFont(font);
-     setFont(font);
-     for(auto w : findChildren<QWidget*>())
-          w->setFont(font);
-     layout()->update();
+    qApp->setStyle(QStyleFactory::create(style_select->currentText()));
+    qApp->processEvents();
+    QFont font = edit_font(fontComboBox->currentFont());
+    qApp->setFont(font);
+    setFont(font);
+    for (auto&& w : findChildren<QWidget*>())
+        w->setFont(font);
+    layout()->update();
 }
 
 
 void MainWindow::set_font_for_edit()
 {
-  SignalBlocker sb(style_frame->findChildren<QWidget*>());
-  QFontInfo     font_info = fontInfo();
-  font_bold->setChecked  (font_info.bold());
-  font_italic->setChecked(font_info.italic());
-  font_size->setValue(font_info.pointSize());
-  fontComboBox->setCurrentFont(font());
+    SignalBlocker sb(style_frame->findChildren<QWidget*>());
+    QFontInfo     font_info = fontInfo();
+    font_bold->setChecked  (font_info.bold());
+    font_italic->setChecked(font_info.italic());
+    font_size->setValue(font_info.pointSize());
+    fontComboBox->setCurrentFont(font());
 }
 
 
-QFont MainWindow::edit_font(const QFont & f)
+QFont MainWindow::edit_font(const QFont& f)
 {
     QFont font    = f;
     font.setBold   (font_bold->isChecked());
@@ -343,146 +345,146 @@ void MainWindow::edit_font_changed_props()
     update_ui();
 }
 
-void MainWindow::edit_font_changed(const QFont & font)
+void MainWindow::edit_font_changed(const QFont& font)
 {
     QFont f = edit_font(font);
     gb_ctrls->setFont(f);
-    for(auto && w : gb_ctrls->findChildren<QWidget*>())
-          w->setFont(f);
+    for (auto&& w : gb_ctrls->findChildren<QWidget*>())
+        w->setFont(f);
     gb_ctrls->layout()->update();
     update_ui();
 }
 
-constexpr const char * cfg_style        = "style";
-constexpr const char * cfg_font_name    = "font-name";
-constexpr const char * cfg_font_size    = "font-size";
-constexpr const char * cfg_font_bold    = "font-bold";
-constexpr const char * cfg_font_italic  = "font-italic";
+constexpr const char* cfg_style        = "style";
+constexpr const char* cfg_font_name    = "font-name";
+constexpr const char* cfg_font_size    = "font-size";
+constexpr const char* cfg_font_bold    = "font-bold";
+constexpr const char* cfg_font_italic  = "font-italic";
 /*constexpr const char * cfg_xpos         = "x_pos";
 constexpr const char * cfg_ypos         = "y_pos";
 constexpr const char * cfg_width        = "width";
 constexpr const char * cfg_height       = "height";
 constexpr const char * cfg_full_screen  = "full-screen";*/
-constexpr const char * cfg_zrm_splitter = "zrm_splitter_sizes";
-constexpr const char * cfg_params_splitter = "params_splitter_sizes";
-constexpr const char * cfg_stages_splitter = "stages_splitter_sizes";
+constexpr const char* cfg_zrm_splitter = "zrm_splitter_sizes";
+constexpr const char* cfg_params_splitter = "params_splitter_sizes";
+constexpr const char* cfg_stages_splitter = "stages_splitter_sizes";
 
 void MainWindow::write_config       ()
 {
-     QString cname = window_param_file_name();
-     QJsonObject jobj;
-     QFontInfo fi(this->font());
+    QString cname = window_param_file_name();
+    QJsonObject jobj;
+    QFontInfo fi(this->font());
 
 
-     jobj[cfg_style]          = style_select->currentText();
-     jobj[cfg_font_name   ]   = fi.family();
-     jobj[cfg_font_size   ]   = fi.pixelSize();
-     jobj[cfg_font_bold   ]   = fi.bold();
-     jobj[cfg_font_italic ]   = fi.italic();
+    jobj[cfg_style]          = style_select->currentText();
+    jobj[cfg_font_name   ]   = fi.family();
+    jobj[cfg_font_size   ]   = fi.pixelSize();
+    jobj[cfg_font_bold   ]   = fi.bold();
+    jobj[cfg_font_italic ]   = fi.italic();
 
 
-     /*jobj[cfg_xpos        ]   = x();
-     jobj[cfg_ypos        ]   = y();
-     jobj[cfg_width       ]   = width();
-     jobj[cfg_height      ]   = height();
+    /*jobj[cfg_xpos        ]   = x();
+    jobj[cfg_ypos        ]   = y();
+    jobj[cfg_width       ]   = width();
+    jobj[cfg_height      ]   = height();
 
-     jobj[cfg_full_screen ]   = isFullScreen();*/
+    jobj[cfg_full_screen ]   = isFullScreen();*/
 
-     QJsonArray jarr;
-     for (int& s : zrm_widget->getSplitterSizes())
+    QJsonArray jarr;
+    for (int& s : zrm_widget->getSplitterSizes())
         jarr.append(s);
-     jobj[cfg_zrm_splitter] = jarr;
+    jobj[cfg_zrm_splitter] = jarr;
 
-     QJsonArray jarrParams;
-     for (int& s : zrm_params->getSplitterSizes())
+    QJsonArray jarrParams;
+    for (int& s : zrm_params->getSplitterSizes())
         jarrParams.append(s);
-     jobj[cfg_params_splitter] = jarrParams;
+    jobj[cfg_params_splitter] = jarrParams;
 
-     QJsonArray jarrStages;
-     for (int& s : method_editor->getSplitterSizes())
+    QJsonArray jarrStages;
+    for (int& s : method_editor->getSplitterSizes())
         jarrStages.append(s);
-     jobj[cfg_stages_splitter] = jarrStages;
+    jobj[cfg_stages_splitter] = jarrStages;
 
-     QFile file(cname);
-     if(file.open(QFile::WriteOnly|QFile::Truncate))
-     {
+    QFile file(cname);
+    if (file.open(QFile::WriteOnly | QFile::Truncate))
+    {
 
         QJsonDocument jdoc(jobj);
         file.write(jdoc.toJson());
         file.close();
-     }
+    }
 }
 
-void MainWindow::updateFont(const QFont &fnt)
+void MainWindow::updateFont(const QFont& fnt)
 {
     qApp->setFont(fnt);
     setFont(fnt);
-    for(auto w : findChildren<QWidget*>())
-           w->setFont(fnt);
+    for (auto&& w : findChildren<QWidget*>())
+        w->setFont(fnt);
 }
 
 void MainWindow::read_config()
 {
 
- QString cname = window_param_file_name();
- QFile file(cname);
+    QString cname = window_param_file_name();
+    QFile file(cname);
 
- if(file.exists() && file.open(QFile::ReadOnly))
- {
+    if (file.exists() && file.open(QFile::ReadOnly))
+    {
 
-     QJsonDocument jdoc = QJsonDocument::fromJson(file.readAll());
-     QJsonObject jobj(jdoc.object());
-     if(jobj.contains(cfg_style))
+        QJsonDocument jdoc = QJsonDocument::fromJson(file.readAll());
+        QJsonObject jobj(jdoc.object());
+        if (jobj.contains(cfg_style))
         {
-         QString style_name = jobj[cfg_style].toString("Fusion");
-         style_select->setCurrentText(style_name);
+            QString style_name = jobj[cfg_style].toString("Fusion");
+            style_select->setCurrentText(style_name);
         }
 
 
-     if(jobj.contains(cfg_font_name))
-     {
-       QFont  fnt(jobj[cfg_font_name].toString());
-       fnt.setPixelSize(jobj[cfg_font_size].toInt( DEFAULT_FONT_SIZE));
-       fnt.setBold(jobj[cfg_font_bold   ].toBool(true));
-       fnt.setItalic(jobj[cfg_font_italic ].toBool(false));
-       updateFont(fnt);
+        if (jobj.contains(cfg_font_name))
+        {
+            QFont  fnt(jobj[cfg_font_name].toString());
+            fnt.setPixelSize(jobj[cfg_font_size].toInt( DEFAULT_FONT_SIZE));
+            fnt.setBold(jobj[cfg_font_bold   ].toBool(true));
+            fnt.setItalic(jobj[cfg_font_italic ].toBool(false));
+            updateFont(fnt);
 
-     }
+        }
 
 
-     QJsonArray jarr = jobj[cfg_zrm_splitter].toArray();
-     QList<int> list;
-     for (QJsonValueRef&& v : jarr)
-         list.append(v.toInt());
-     zrm_widget->setSplitterSizes(list);
+        QJsonArray jarr = jobj[cfg_zrm_splitter].toArray();
+        QList<int> list;
+        for (QJsonValueRef && v : jarr)
+            list.append(v.toInt());
+        zrm_widget->setSplitterSizes(list);
 
-     QJsonArray jarrParams = jobj[cfg_params_splitter].toArray();
-     QList<int> listParams;
+        QJsonArray jarrParams = jobj[cfg_params_splitter].toArray();
+        QList<int> listParams;
 
-     for (QJsonValueRef && v : jarrParams)
-         listParams.append(v.toInt());
-     zrm_params->setSplitterSizes(listParams);
+        for (QJsonValueRef && v : jarrParams)
+            listParams.append(v.toInt());
+        zrm_params->setSplitterSizes(listParams);
 
-     QJsonArray jarrStages = jobj[cfg_stages_splitter].toArray();
-     QList<int> listStages;
+        QJsonArray jarrStages = jobj[cfg_stages_splitter].toArray();
+        QList<int> listStages;
 
-     for (QJsonValueRef && v : jarrStages)
-         listStages.append(v.toInt());
-     method_editor->setSplitterSizes(listStages);
+        for (QJsonValueRef && v : jarrStages)
+            listStages.append(v.toInt());
+        method_editor->setSplitterSizes(listStages);
 
-     layout()->update();
- }
- else
- {
-   set_default_config();
- }
+        layout()->update();
+    }
+    else
+    {
+        set_default_config();
+    }
 }
 
 void MainWindow::set_default_config()
 {
     QFont  fnt = this->font();
     fnt.setPixelSize(DEFAULT_FONT_SIZE);
-    qDebug()<<"PixelSize " << fnt.pixelSize();
+    qDebug() << "PixelSize " << fnt.pixelSize();
     fnt.setBold(true);
     fnt.setItalic(false);
     style_select->setCurrentText(QString("Fusion"));
@@ -490,38 +492,38 @@ void MainWindow::set_default_config()
 }
 
 
-bool MainWindow::eventFilter(QObject * target,QEvent * event)
+bool MainWindow::eventFilter(QObject* target, QEvent* event)
 {
-  if(event->type() == QEvent::KeyPress)
-  {
-    //Замена точки или запятой в разделителе на соответсвующий в текущей локали
-    QKeyEvent * key_event = dynamic_cast<QKeyEvent*>(event);
-    if(key_event )
+    if (event->type() == QEvent::KeyPress)
     {
-      QChar c(key_event->key());
-      if((c == QChar(',') || c == QChar('.')) && c != locale().decimalPoint())
-      {
-        //qDebug()<<"decimal point is "<<locale().decimalPoint() << "text is "<<c;
-        c = locale().decimalPoint();
-        event = new QKeyEvent (key_event->type(),c.toLatin1() ,key_event->modifiers(),QString(c) );
-        key_event->accept();
-        qApp->postEvent(target,event);
-        return true;
-      }
+        //Замена точки или запятой в разделителе на соответсвующий в текущей локали
+        QKeyEvent* key_event = dynamic_cast<QKeyEvent*>(event);
+        if (key_event )
+        {
+            QChar c(key_event->key());
+            if ((c == QChar(',') || c == QChar('.')) && c != locale().decimalPoint())
+            {
+                //qDebug()<<"decimal point is "<<locale().decimalPoint() << "text is "<<c;
+                c = locale().decimalPoint();
+                event = new QKeyEvent (key_event->type(), c.toLatin1(), key_event->modifiers(), QString(c) );
+                key_event->accept();
+                qApp->postEvent(target, event);
+                return true;
+            }
+        }
     }
-  }
- return QObject::eventFilter(target,event);
+    return QObject::eventFilter(target, event);
 }
 
 
 void MainWindow::orientation_changed(Qt::ScreenOrientation screen_orient)
 {
-      Q_UNUSED(screen_orient)
+    Q_UNUSED(screen_orient)
 }
 
 void MainWindow::action_toggled(bool checked)
 {
-    QObject * src = sender();
+    QObject* src = sender();
     int act_id = src ? src->property(act_id_prop).toInt() : int(actions_id_t::act_unknown);
     if (method_editor->isEdit() && act_id != act_method_editor)
     {
@@ -529,75 +531,75 @@ void MainWindow::action_toggled(bool checked)
         checked = false;
         actMethod_Editor->setChecked(true);
     }
-    switch(act_id)
+    switch (act_id)
     {
-    case act_ready_view:
-        if (checked)
-            stackedWidget->setCurrentWidget(zrm_ready);
-        break;
-    case act_zrm_view:
-        if (checked)
-            stackedWidget->setCurrentWidget(zrm_view);
-        break;
-    case act_method_editor:
-        if (checked)
+        case act_ready_view:
+            if (checked)
+                stackedWidget->setCurrentWidget(zrm_ready);
+            break;
+        case act_zrm_view:
+            if (checked)
+                stackedWidget->setCurrentWidget(zrm_view);
+            break;
+        case act_method_editor:
+            if (checked)
+            {
+                stackedWidget->setCurrentWidget(method_editor_page);
+                method_editor->setWorkMode(zrm_ready->current_ready()->work_mode());//, false);
+            }
+            else
+            {
+                method_editor->save_user_values();
+            }
+            method_editor->setVisible(checked);
+            break;
+        case act_configure:
+            if (checked)
+            {
+                stackedWidget->setCurrentWidget(conn_params_page);
+                ZrmChannelMimimal* chan = zrm_ready->current_ready();
+                if (chan)
+                    conn_params->setCurrentItem(chan->connectivity(), 0 /*chan->channel()*/);
+            }
+            else if (!method_editor->isEdit())
+                configure_apply();
+            break;
+        case act_style:
+            if (checked)
+            {
+                set_font_for_edit();
+                stackedWidget->setCurrentWidget(style_page);
+            }
+            else if (!method_editor->isEdit())
+                style_apply();
+            break;
+        case act_dev_method :
+            if (checked)
+            {
+                stackedWidget->setCurrentWidget(zrm_devmeth);
+                zrm_devmeth->updateData();
+            }
+            break;
+        case act_zrm_report :
+            if (checked)
+                stackedWidget->setCurrentWidget(zrm_report);
+            break;
+        case act_params :
+            if (checked)
+                stackedWidget->setCurrentWidget(zrm_params);
+            break;
+        case act_close :
         {
-            stackedWidget->setCurrentWidget(method_editor_page);
-            method_editor->setWorkMode(zrm_ready->current_ready()->work_mode());//, false);
-        }
-        else
-        {
-            method_editor->save_user_values();
-        }
-        method_editor->setVisible(checked);
-        break;
-    case act_configure:
-        if (checked)
-        {
-            stackedWidget->setCurrentWidget(conn_params_page);
-            ZrmChannelMimimal* chan = zrm_ready->current_ready();
-            if (chan)
-                conn_params->setCurrentItem(chan->connectivity(), 0 /*chan->channel()*/);
-        }
-        else if (!method_editor->isEdit())
             configure_apply();
-        break;
-    case act_style:
-        if (checked)
-        {
-            set_font_for_edit();
-            stackedWidget->setCurrentWidget(style_page);
-        }
-        else if (!method_editor->isEdit())
-            style_apply();
-        break;
-    case act_dev_method :
-        if (checked)
-        {
-            stackedWidget->setCurrentWidget(zrm_devmeth);
-            zrm_devmeth->updateData();
+            close();
         }
         break;
-    case act_zrm_report :
-        if (checked)
-            stackedWidget->setCurrentWidget(zrm_report);
-        break;
-    case act_params :
-        if (checked)
-            stackedWidget->setCurrentWidget(zrm_params);
-        break;
-    case act_close :
-    {
-        configure_apply();
-        close();
-    }
-        break;
-    default:
-           break;
+        default:
+            break;
     }
 }
 
-void MainWindow::channel_activated(ZrmChannelMimimal *cm, bool bSelect)
+void MainWindow::channel_activated(ZrmChannelMimimal* cm, bool bSelect)
 {
     zrm::ZrmConnectivity* conn = nullptr;
     uint16_t channel = 0;
@@ -638,7 +640,7 @@ void MainWindow::setupStyleSheet()
 {
     QFile file(":/powermon.qss");
     QString stylesheet;
-    if(!file.open(QIODevice::ReadOnly))
+    if (!file.open(QIODevice::ReadOnly))
     {
         qDebug() << "Cannot open stylesheet file powermon.qss";
         return;

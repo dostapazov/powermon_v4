@@ -21,7 +21,7 @@ QString ZrmRelayBase::pause_icon;
 QString ZrmRelayBase::empty_icon;
 QString ZrmRelayBase::led_red;
 
-ZrmRelayBase::ZrmRelayBase(QWidget *parent) :
+ZrmRelayBase::ZrmRelayBase(QWidget* parent) :
     ZrmChannelWidget(parent)
 {
     setupUi(this);
@@ -30,12 +30,12 @@ ZrmRelayBase::ZrmRelayBase(QWidget *parent) :
 
 void ZrmRelayBase::init_icons()
 {
-    if(relay_on.isNull())
+    if (relay_on.isNull())
     {
         QString icon_path = QLatin1String(":/zrm/icons/%1");
         relay_off  = icon_path.arg("relay_off.png");
         relay_on   = icon_path.arg("relay_on.png");
-        current_out= icon_path.arg("current_out.png");
+        current_out = icon_path.arg("current_out.png");
         current_in = icon_path.arg("current_in.png");
 
         modeU      = icon_path.arg("modeU.png");
@@ -56,7 +56,7 @@ void ZrmRelayBase::init_icons()
 
 void ZrmRelayBase::update_controls()
 {
-    if(m_source && m_channel)
+    if (m_source && m_channel)
     {
         //qDebug()<<QString("%3 %1 %2").arg(m_source->name()).arg(m_channel).arg(this->objectName());
         QVariant v = param_get(zrm::PARAM_STATE).toUInt();
@@ -67,8 +67,7 @@ void ZrmRelayBase::update_controls()
 
 void ZrmRelayBase::clear_controls()
 {
-    //handle_error_state(0) ;
-    for(auto lb : findChildren<QLabel*>())
+    for (auto&& lb : findChildren<QLabel*>())
         setLabelPix(lb, "");
 }
 
@@ -80,11 +79,11 @@ void ZrmRelayBase::update_state(uint32_t state)
     setLabelPix(lb_error_led, oper_state.state_bits.fault_reset ? led_red : oper_state.state_bits.p_limit ? modeP : "");
     setLabelPix(lb_relay_state, oper_state.state_bits.relay_on ? relay_on : relay_off);
 
-    if(oper_state.state_bits.start_rectifier || oper_state.state_bits.start_load)
+    if (oper_state.state_bits.start_rectifier || oper_state.state_bits.start_load)
     {
         setLabelPix(lb_curr_dir, oper_state.state_bits.start_rectifier ? current_out : current_in);
         QString icon;
-        if(oper_state.state_bits.ctr_stab)
+        if (oper_state.state_bits.ctr_stab)
             icon = oper_state.state_bits.i_stab ? modeIstab : modeUstab;
         else
             icon = oper_state.state_bits.i_stab ? modeI : modeU;
@@ -99,7 +98,7 @@ void ZrmRelayBase::update_state(uint32_t state)
 
 void ZrmRelayBase::on_connected(bool conn_state)
 {
-    if(!conn_state)
+    if (!conn_state)
     {
         setLabelPix(lb_txrx, network_offline);
         setToolTip(tr("Нет связи"));
@@ -109,13 +108,13 @@ void ZrmRelayBase::on_connected(bool conn_state)
     watch_dog_enable(conn_state);
 }
 
-void ZrmRelayBase::on_ioerror(const QString & error_string)
+void ZrmRelayBase::on_ioerror(const QString& error_string)
 {
     on_connected(false);
     setToolTip(error_string);
 }
 
-void ZrmRelayBase::channel_recv_packet(unsigned channel, const zrm::recv_header_t * recv_data)
+void ZrmRelayBase::channel_recv_packet(unsigned channel, const zrm::recv_header_t* recv_data)
 {
     Q_UNUSED(recv_data);
     if (channel == m_channel)
@@ -140,7 +139,7 @@ void ZrmRelayBase::channel_recv_packet(unsigned channel, const zrm::recv_header_
     }
 }
 
-void ZrmRelayBase::channel_send_packet(unsigned channel, const zrm::send_header_t * send_data)
+void ZrmRelayBase::channel_send_packet(unsigned channel, const zrm::send_header_t* send_data)
 {
     Q_UNUSED(send_data);
     if (channel == m_channel)
@@ -151,7 +150,7 @@ void ZrmRelayBase::channel_send_packet(unsigned channel, const zrm::send_header_
     }
 }
 
-void ZrmRelayBase::channel_param_changed(unsigned channel, const zrm::params_list_t & params_list)
+void ZrmRelayBase::channel_param_changed(unsigned channel, const zrm::params_list_t& params_list)
 {
     if (channel == m_channel)
     {
@@ -191,7 +190,7 @@ void ZrmRelayBase::watch_dog_enable(bool enable)
 {
     if (enable)
     {
-        if(!m_watchdog_id)
+        if (!m_watchdog_id)
         {
             m_watchdog_id = startTimer(std::chrono::seconds(1));
             watch_dog_reset();
@@ -204,9 +203,9 @@ void ZrmRelayBase::watch_dog_enable(bool enable)
     }
 }
 
-void ZrmRelayBase::timerEvent(QTimerEvent * timer_event)
+void ZrmRelayBase::timerEvent(QTimerEvent* timer_event)
 {
-    if(timer_event->timerId() == m_watchdog_id)
+    if (timer_event->timerId() == m_watchdog_id)
     {
         timer_event->accept();
         if (!(--m_watchdog_value))
@@ -219,24 +218,24 @@ void ZrmRelayBase::timerEvent(QTimerEvent * timer_event)
         ZrmChannelWidget::timerEvent(timer_event);
 }
 
-void ZrmRelayBase::resizeEvent(QResizeEvent * event)
+void ZrmRelayBase::resizeEvent(QResizeEvent* event)
 {
     ZrmChannelWidget::resizeEvent(event);
     auto labels = findChildren<QLabel*>();
     //int width  = (event->size().width() - labels.count()* layout()->spacing()*2)/labels.count();
     int height = event->size().height() - 2 * layout()->margin();
     int sz = height;
-    for(auto l :labels)
+    for (auto&& l : labels)
     {
-         l->setMaximumSize(sz, sz);
-         QString strPix = l->property("pix").toString();
-         if (!strPix.isEmpty())
-         {
-             QPixmap pix(strPix);
-             if (!pix.isNull())
-                 pix = pix.scaled(l->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-             l->setPixmap(pix);
-         }
+        l->setMaximumSize(sz, sz);
+        QString strPix = l->property("pix").toString();
+        if (!strPix.isEmpty())
+        {
+            QPixmap pix(strPix);
+            if (!pix.isNull())
+                pix = pix.scaled(l->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            l->setPixmap(pix);
+        }
     }
 }
 
@@ -251,7 +250,7 @@ void ZrmRelayBase::channel_session(unsigned ch_num)
     }
 }
 
-void ZrmRelayBase::setLabelPix(QLabel * label, const QString icon)
+void ZrmRelayBase::setLabelPix(QLabel* label, const QString& icon)
 {
     QPixmap pix(icon);
     if (!pix.isNull())

@@ -2,60 +2,63 @@
 
 #include <QMessageBox>
 
-ZrmParamsView::ZrmParamsView(QWidget *parent) :
+ZrmParamsView::ZrmParamsView(QWidget* parent) :
     ZrmChannelWidget (parent)
 {
     setupUi(this);
-    init_params();
-    QHeaderView * hdr = zrm_params->header();
+    QHeaderView* hdr = zrm_params->header();
     hdr->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
     connect(&m_request_timer, &QTimer::timeout, this, &ZrmParamsView::request);
-    zrm_params->sortItems(0,Qt::SortOrder::AscendingOrder);
-
+    init_params();
     connect(pushButtonService, SIGNAL(clicked()), this, SLOT(serviceMode()));
+}
+
+void ZrmParamsView::appendParam(zrm::zrm_param_t param, const QString& text)
+{
+    m_orders.push_back( param );
+    QTreeWidgetItem* item =   new QTreeWidgetItem(zrm_params, QStringList() << text);
+    m_items.insert(param, item );
 }
 
 
 void ZrmParamsView::init_params()
 {
-    m_orders[zrm::PARAM_VRDEV    ] = "Версия блока";
-    m_orders[zrm::PARAM_RVDEV    ] = "Модификация блока";
-    m_orders[zrm::PARAM_RVSW     ] = "Версия ПО";
-    m_orders[zrm::PARAM_SOFT_REV ] = "Модификация ПО";
+    appendParam(zrm::PARAM_VRDEV, "Версия блока");
+    appendParam(zrm::PARAM_RVDEV, "Модификация блока");
+    appendParam(zrm::PARAM_RVSW, "Версия ПО");
+    appendParam(zrm::PARAM_SOFT_REV, "Модификация ПО");
 
-    m_orders[zrm::PARAM_CUR      ] = "Ток";
-    m_orders[zrm::PARAM_LCUR     ] = "Ограничение тока";
-    m_orders[zrm::PARAM_VOLT     ] = "Напряжение";
-    m_orders[zrm::PARAM_LVOLT    ] = "Оганичение напряжения";
-    m_orders[zrm::PARAM_CAP      ] = "Ёмкость";
-    m_orders[zrm::PARAM_STG_NUM  ] = "Номер этапа";
-    m_orders[zrm::PARAM_LOOP_NUM ] = "Номер цикла";
-    m_orders[zrm::PARAM_TRECT    ] = "Температура";
-    m_orders[zrm::PARAM_VOUT     ] = "Напряжение на выходе ЗРМ";
-    m_orders[zrm::PARAM_MVOLT    ] = "Макс. напряжение";
-    m_orders[zrm::PARAM_MCUR     ] = "Макс. ток";
-    m_orders[zrm::PARAM_MCURD    ] = "Макс. ток разряда";
-    m_orders[zrm::PARAM_DPOW     ] = "Макс. мощность разряда";
-    m_orders[zrm::PARAM_MAX_CHP  ] = "Макс. мощность заряда";
+    appendParam(zrm::PARAM_CUR, "Ток");
+    appendParam(zrm::PARAM_LCUR, "Ограничение тока");
+    appendParam(zrm::PARAM_VOLT, "Напряжение");
+    appendParam(zrm::PARAM_LVOLT, "Оганичение напряжения");
+    appendParam(zrm::PARAM_CAP, "Ёмкость");
+    appendParam(zrm::PARAM_STG_NUM, "Номер этапа");
+    appendParam(zrm::PARAM_LOOP_NUM, "Номер цикла");
+    appendParam(zrm::PARAM_TRECT, "Температура");
+    appendParam(zrm::PARAM_VOUT, "Напряжение на выходе ЗРМ");
+    appendParam(zrm::PARAM_MVOLT, "Макс. напряжение");
+    appendParam(zrm::PARAM_MCUR, "Макс. ток");
+    appendParam(zrm::PARAM_MCURD, "Макс. ток разряда");
+    appendParam(zrm::PARAM_DPOW, "Макс. мощность разряда");
+    appendParam(zrm::PARAM_MAX_CHP, "Макс. мощность заряда");
 
-    m_orders[zrm::PARAM_VOUT] = "Напряжение на электролитах";
-    m_orders[zrm::PARAM_CUR_CONSUMPTION] = "Потребляемый ток";
-    m_orders[zrm::PARAM_VOLT_SUPPLY] = "Напряжение питающей сети";
-    m_orders[zrm::PARAM_VOLT_HIGH_VOLT_BUS] = "Напряжение высоковольтной шины";
-    m_orders[zrm::PARAM_FAN_PERCENT] = "Вентиляторы";
+    appendParam(zrm::PARAM_VOUT, "Напряжение на электролитах");
+    appendParam(zrm::PARAM_CUR_CONSUMPTION, "Потребляемый ток");
+    appendParam(zrm::PARAM_VOLT_SUPPLY, "Напряжение питающей сети");
+    appendParam(zrm::PARAM_VOLT_HIGH_VOLT_BUS, "Напряжение высоковольтной шины");
+    appendParam(zrm::PARAM_FAN_PERCENT, "Вентиляторы");
 }
 
 
-void ZrmParamsView::channel_param_changed(unsigned channel, const zrm::params_list_t & params_list)
+void ZrmParamsView::channel_param_changed(unsigned channel, const zrm::params_list_t& params_list)
 {
     if (m_source && m_channel == channel)
     {
         for (auto param : params_list)
         {
             params_items_t::iterator item = m_items.find(zrm::zrm_param_t(param.first));
-            if (item == m_items.end() && is_viewed_param(param.first))
-                item = m_items.insert(param.first, new QTreeWidgetItem(zrm_params, QStringList() << m_orders[param.first]));
-            if (item!= m_items.end())
+            if (item != m_items.end())
             {
                 QVariant value = m_source->param_get(m_channel, param.first);
                 item.value()->setText(column_value, value.toString());
@@ -66,53 +69,40 @@ void ZrmParamsView::channel_param_changed(unsigned channel, const zrm::params_li
 }
 
 
-bool ZrmParamsView::is_viewed_param(zrm::zrm_param_t param)
-{
-   bool ret = m_orders.contains(param);
-   return ret;
-}
-
-
 void    ZrmParamsView::update_controls      ()
 {
-   ZrmChannelWidget::update_controls();
-   if(m_source && m_channel)
-   {
-    channel_session(m_channel);
-    channel_param_changed(m_channel ,m_source->channel_params(m_channel));
-   }
+    ZrmChannelWidget::update_controls();
+    if (m_source && m_channel)
+    {
+        channel_session(m_channel);
+        channel_param_changed(m_channel, m_source->channel_params(m_channel));
+    }
 }
 
 void    ZrmParamsView::clear_controls       ()
 {
-  zrm_params->clear();
-  m_items.clear();
 }
 
 void    ZrmParamsView::channel_session      (unsigned channel)
 {
-    if(m_source && m_channel == channel && m_source->channel_session(m_channel).is_active())
+    if (m_source && m_channel == channel && m_source->channel_session(m_channel).is_active())
     {
-      m_request_timer.start(std::chrono::seconds(1));
-      request();
+        m_request_timer.start(std::chrono::seconds(1));
+        request();
 
     }
     else
     {
-      m_request_timer.stop();
+        m_request_timer.stop();
     }
 }
 
 void    ZrmParamsView::request()
 {
-  if(m_source && m_channel)
-   {
-    zrm::params_t req_params;
-    req_params.resize(zrm::params_t::size_type( m_orders.size() ) );
-    auto keys = m_orders.keys().toVector();
-    std::copy(keys.begin(),keys.end(),req_params.begin());
-    m_source->channel_query_params(m_channel,req_params);
-   }
+    if (m_source && m_channel)
+    {
+        m_source->channel_query_params(m_channel, m_orders);
+    }
 }
 
 void ZrmParamsView::serviceMode()

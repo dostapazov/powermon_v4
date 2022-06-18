@@ -2,7 +2,7 @@
 
 #include <QPainter>
 
-ZrmChannel::ZrmChannel(QWidget *parent) :
+ZrmChannel::ZrmChannel(QWidget* parent) :
     ZrmBaseWidget(parent)
 {
     setMinimumSize(184, 82);
@@ -14,7 +14,7 @@ void ZrmChannel::set_active(bool active)
     repaint();
 }
 
-void ZrmChannel::bind(zrm::ZrmConnectivity * src,uint16_t chan, bool _connect_signals)
+void ZrmChannel::bind(zrm::ZrmConnectivity* src, uint16_t chan, bool _connect_signals)
 {
     if (src == m_source && m_channel == chan)
         update_controls();
@@ -35,19 +35,28 @@ void ZrmChannel::update_controls()
         channel_param_changed(m_channel, m_source->channel_params(m_channel));
 }
 
-void ZrmChannel::channel_param_changed(unsigned channel, const zrm::params_list_t & params_list)
+void ZrmChannel::channel_param_changed(unsigned channel, const zrm::params_list_t& params_list)
 {
     if (channel == m_channel && m_source)
     {
         for (auto param : params_list)
         {
             QVariant value = m_source->param_get(m_channel, param.first);
-            switch(param.first)
+            switch (param.first)
             {
-                case zrm::PARAM_VOLT         : volt = value.toDouble(); repaint(); break;
-                case zrm::PARAM_CUR          : curr = value.toDouble(); repaint(); break;
-                case zrm::PARAM_ERROR_STATE  : handle_error_state(param.second.udword); break;
-                default : break;
+                case zrm::PARAM_VOLT         :
+                    volt = value.toDouble();
+                    repaint();
+                    break;
+                case zrm::PARAM_CUR          :
+                    curr = value.toDouble();
+                    repaint();
+                    break;
+                case zrm::PARAM_ERROR_STATE  :
+                    handle_error_state(param.second.udword);
+                    break;
+                default :
+                    break;
             }
         }
     }
@@ -74,13 +83,13 @@ void ZrmChannel::handle_error_state(unsigned err_code)
     setToolTip(m_source->zrm_error_text(err_code));
 }
 
-void ZrmChannel::mousePressEvent(QMouseEvent *event)
+void ZrmChannel::mousePressEvent(QMouseEvent* event)
 {
     emit clicked();
     ZrmBaseWidget::mousePressEvent(event);
 }
 
-void ZrmChannel::paintEvent(QPaintEvent *event)
+void ZrmChannel::paintEvent(QPaintEvent* event)
 {
     QPainter p(this);
     QFont f = p.font();

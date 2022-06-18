@@ -33,7 +33,7 @@ protected:
     void watch_dog_enable     (bool enable);
     void watch_dog_reset      (){m_watchdog_value = m_watchdog_period;}
 
-    void setLabelPix(QLabel * label, const QString icon);
+    void setLabelPix(QLabel * label, const QString &icon);
 
     static void init_icons();
 

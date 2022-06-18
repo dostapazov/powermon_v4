@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>631</width>
-    <height>297</height>
+    <width>686</width>
+    <height>266</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0">
    <property name="spacing">
     <number>4</number>
    </property>
@@ -270,10 +270,19 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMaximumSize</enum>
+     </property>
+     <property name="topMargin">
+      <number>2</number>
+     </property>
+     <property name="bottomMargin">
+      <number>2</number>
+     </property>
      <item>
       <widget class="QFrame" name="ctrlButtonFrame">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -284,7 +293,13 @@
        <property name="frameShadow">
         <enum>QFrame::Sunken</enum>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
+         <number>6</number>
+        </property>
         <item>
          <widget class="QPushButton" name="bStart">
           <property name="enabled">
@@ -327,17 +342,32 @@
          </widget>
         </item>
         <item>
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+         <widget class="QPushButton" name="bStop">
+          <property name="enabled">
+           <bool>false</bool>
           </property>
-          <property name="sizeHint" stdset="0">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normalon>:/zrm/icons/stop_pressed.png</normalon>
+            <disabledoff>:/zrm/icons/stop.png</disabledoff>
+           </iconset>
+          </property>
+          <property name="iconSize">
            <size>
-            <width>20</width>
-            <height>40</height>
+            <width>32</width>
+            <height>32</height>
            </size>
           </property>
-         </spacer>
+         </widget>
         </item>
         <item>
          <widget class="QPushButton" name="bPause">
@@ -375,47 +405,6 @@
           </property>
           <property name="flat">
            <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="bStop">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normalon>:/zrm/icons/stop_pressed.png</normalon>
-            <disabledoff>:/zrm/icons/stop.png</disabledoff>
-           </iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>32</width>
-            <height>32</height>
-           </size>
           </property>
          </widget>
         </item>
@@ -706,7 +695,7 @@
            <double>0.000000000000000</double>
           </property>
           <property name="maximum">
-           <double>100000.000000000000000</double>
+           <double>1000000.000000000000000</double>
           </property>
           <property name="singleStep">
            <double>0.100000000000000</double>
@@ -915,7 +904,7 @@
         <item row="0" column="3" colspan="3">
          <widget class="QLineEdit" name="edTimeLimit">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1115,29 +1104,6 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="4" colspan="2">
-         <widget class="QToolButton" name="tempButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-          <property name="icon">
-           <iconset resource="zrm_resource.qrc">
-            <normaloff>:/zrm/icons/temperature.png</normaloff>:/zrm/icons/temperature.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>16</width>
-            <height>16</height>
-           </size>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="5">
          <widget class="QPushButton" name="bVoltInc">
           <property name="sizePolicy">
@@ -1278,10 +1244,10 @@
            <number>1</number>
           </property>
           <property name="minimum">
-           <double>-100000.000000000000000</double>
+           <double>0.000000000000000</double>
           </property>
           <property name="maximum">
-           <double>100000.000000000000000</double>
+           <double>1000000.000000000000000</double>
           </property>
           <property name="singleStep">
            <double>0.100000000000000</double>
@@ -1313,6 +1279,37 @@
           </property>
          </widget>
         </item>
+        <item row="6" column="4" colspan="2">
+         <widget class="QLabel" name="labelTemperature">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>24</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>24</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="zrm_resource.qrc">:/zrm/icons/temperature.png</pixmap>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>
@@ -1333,6 +1330,39 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>bMethodAuto</tabstop>
+  <tabstop>bMethodAny</tabstop>
+  <tabstop>bMethodManual</tabstop>
+  <tabstop>bCharge</tabstop>
+  <tabstop>bDischarge</tabstop>
+  <tabstop>bStart</tabstop>
+  <tabstop>bStop</tabstop>
+  <tabstop>bPause</tabstop>
+  <tabstop>lb_work_time</tabstop>
+  <tabstop>edTimeLimit</tabstop>
+  <tabstop>lbStageNum</tabstop>
+  <tabstop>lbStageTotal</tabstop>
+  <tabstop>lbCycleNum</tabstop>
+  <tabstop>sbCycleTotal</tabstop>
+  <tabstop>lbVolt</tabstop>
+  <tabstop>sbVoltLimit</tabstop>
+  <tabstop>bVoltDec</tabstop>
+  <tabstop>bVoltInc</tabstop>
+  <tabstop>lbCurr</tabstop>
+  <tabstop>sbCurrLimit</tabstop>
+  <tabstop>bCurrDec</tabstop>
+  <tabstop>bCurrInc</tabstop>
+  <tabstop>edCapacity</tabstop>
+  <tabstop>sbTemperature</tabstop>
+  <tabstop>methodLabel</tabstop>
+  <tabstop>edMethodName</tabstop>
+  <tabstop>stateLabel</tabstop>
+  <tabstop>edMode</tabstop>
+  <tabstop>errorLabel</tabstop>
+  <tabstop>error_state</tabstop>
+  <tabstop>bResetError</tabstop>
+ </tabstops>
  <resources>
   <include location="zrm_resource.qrc"/>
  </resources>
