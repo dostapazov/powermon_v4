@@ -464,7 +464,7 @@ QString ZrmModule::fan_param(const param_variant& pv)
     memcpy(&fan1, pv.puchar, 1);
     memcpy(&fan2, pv.puchar + 1, 1);
     memcpy(&fan3, pv.puchar + 2, 1);
-    return QString("%1, %2, %3").arg(fan1).arg(fan2).arg(fan3);
+    return QString("%1, %2, %3").arg(fan1, fan2, fan3);
 }
 
 } // namespace zrm

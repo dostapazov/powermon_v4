@@ -375,7 +375,7 @@
        <enum>QFrame::Raised</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>1</number>
       </property>
       <widget class="ZrmReadyWidget" name="zrm_ready"/>
       <widget class="QWidget" name="zrm_view">
