@@ -7,7 +7,7 @@
 class item_delegate : public QItemDelegate
 {
     public:
-        item_delegate(ZrmMethodsThree * mtree):QItemDelegate(mtree),m_methods_tree(mtree){}
+       explicit item_delegate(ZrmMethodsThree * mtree):QItemDelegate(mtree),m_methods_tree(mtree){}
 virtual QWidget *createEditor(QWidget *parent,
                           const QStyleOptionViewItem &option,
                           const QModelIndex &index) const override;

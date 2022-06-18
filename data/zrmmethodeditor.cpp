@@ -5,7 +5,7 @@
 #include <QMessageBox>
 
 
-ZrmMethodEditor::ZrmMethodEditor(QWidget *parent) :
+ZrmMethodEditor::ZrmMethodEditor(QWidget* parent) :
     QWidget(parent)
 {
     setupUi(this);
@@ -40,23 +40,23 @@ bool     ZrmMethodEditor::setAbstract(bool abstract)
 
 bool     ZrmMethodEditor::isAbstract()
 {
-  return methods_tree->isAbstract();
+    return methods_tree->isAbstract();
 }
 
 bool     ZrmMethodEditor::setWorkMode(zrm::zrm_work_mode_t mode)
 {
- return methods_tree->setWorkMode(mode);
+    return methods_tree->setWorkMode(mode);
 }
 
 zrm::zrm_work_mode_t ZrmMethodEditor::getWorkMode()
 {
-  return methods_tree->getWorkMode();
+    return methods_tree->getWorkMode();
 }
 
 
 bool    ZrmMethodEditor::open_db()
 {
-  return methods_tree->open_database();
+    return methods_tree->open_database();
 }
 
 bool    ZrmMethodEditor::open_db(zrm::zrm_work_mode_t mode, bool all_methods)
@@ -72,28 +72,28 @@ void     ZrmMethodEditor::close_db()
 
 void ZrmMethodEditor::connect_signals()
 {
-    connect(actMethodEdit , &QAction::toggled        , this, &ZrmMethodEditor::switch_edit_widget    );
-    connect(actAllMethods , &QAction::toggled        , this, &ZrmMethodEditor::act_all_methods       );
-    connect(actCopyModel  , &QAction::triggered      , this, &ZrmMethodEditor::copy_model            );
-    connect(actCopyMethod , &QAction::triggered      , this, &ZrmMethodEditor::copy_method           );
-    connect(actUnload     , &QAction::triggered      , this, &ZrmMethodEditor::unload                );
-    connect(actLoad       , &QAction::triggered      , this, &ZrmMethodEditor::load                  );
+    connect(actMethodEdit, &QAction::toggled, this, &ZrmMethodEditor::switch_edit_widget    );
+    connect(actAllMethods, &QAction::toggled, this, &ZrmMethodEditor::act_all_methods       );
+    connect(actCopyModel, &QAction::triggered, this, &ZrmMethodEditor::copy_model            );
+    connect(actCopyMethod, &QAction::triggered, this, &ZrmMethodEditor::copy_method           );
+    connect(actUnload, &QAction::triggered, this, &ZrmMethodEditor::unload                );
+    connect(actLoad, &QAction::triggered, this, &ZrmMethodEditor::load                  );
 
     connect(tbUnlinkMethod, &QAbstractButton::clicked, this, &ZrmMethodEditor::on_actDelete_triggered);
-    connect(tbLinkMethod  , &QAbstractButton::clicked, this, &ZrmMethodEditor::link_abstract_method  );
-    connect(stages_page   , &ZrmStagesEditor::method_changed, this, &ZrmMethodEditor::sl_method_changed);
+    connect(tbLinkMethod, &QAbstractButton::clicked, this, &ZrmMethodEditor::link_abstract_method  );
+    connect(stages_page, &ZrmStagesEditor::method_changed, this, &ZrmMethodEditor::sl_method_changed);
 
-    connect(methods_tree    , &ZrmMethodsTree::current_item_changed , this, &ZrmMethodEditor::slot_current_item_changed);
-    connect(methods_tree    , &ZrmMethodsTree::item_changed         , this, &ZrmMethodEditor::slot_item_data_changed);
-    connect(methods_abstract, &ZrmMethodsTree::current_item_changed , this, &ZrmMethodEditor::abstract_method_changed);
+    connect(methods_tree, &ZrmMethodsTree::current_item_changed, this, &ZrmMethodEditor::slot_current_item_changed);
+    connect(methods_tree, &ZrmMethodsTree::item_changed, this, &ZrmMethodEditor::slot_item_data_changed);
+    connect(methods_abstract, &ZrmMethodsTree::current_item_changed, this, &ZrmMethodEditor::abstract_method_changed);
 }
 
 #ifdef Q_OS_ANDROID
 void ZrmMethodEditor::setup_android_ui()
 {
     auto tb_list =  findChildren<QToolButton*>();
-    QSize sz(96,96);
-    for(auto tb: tb_list)
+    QSize sz(96, 96);
+    for (auto tb : tb_list)
     {
         tb->setIconSize(sz);
     }
@@ -104,42 +104,42 @@ void ZrmMethodEditor::setup_android_ui()
 void ZrmMethodEditor::act_all_methods(bool checked)
 {
     open_db(methods_tree->opened_as(), checked);
-    QTreeWidgetItem * item = methods_tree->topLevelItemCount() ? methods_tree->topLevelItem(0) : nullptr;
+    QTreeWidgetItem* item = methods_tree->topLevelItemCount() ? methods_tree->topLevelItem(0) : nullptr;
     methods_tree->setCurrentItem(item);
     actLink->setEnabled(!checked && !actApply->isEnabled());
     actNew->setVisible(!checked);
 }
 
 
-void set_edit_enable(QTreeWidgetItem * item, bool edit_name, bool edit_voltage,bool edit_capacity )
+void set_edit_enable(QTreeWidgetItem* item, bool edit_name, bool edit_voltage, bool edit_capacity )
 {
-   if(item)
-   {
-     QSignalBlocker bl(item->treeWidget());
-     //qDebug()<<"Set enable  edit voltage "<<edit_voltage<<" edit_capacity "<<edit_capacity;
-     item->setData(ZrmMethodsTree::column_name    , ZrmMethodsTree::role_edit_enable, edit_name    );
-     item->setData(ZrmMethodsTree::column_voltage , ZrmMethodsTree::role_edit_enable, edit_voltage );
-     item->setData(ZrmMethodsTree::column_capacity, ZrmMethodsTree::role_edit_enable, edit_capacity);
-   }
+    if (item)
+    {
+        QSignalBlocker bl(item->treeWidget());
+        //qDebug()<<"Set enable  edit voltage "<<edit_voltage<<" edit_capacity "<<edit_capacity;
+        item->setData(ZrmMethodsTree::column_name, ZrmMethodsTree::role_edit_enable, edit_name    );
+        item->setData(ZrmMethodsTree::column_voltage, ZrmMethodsTree::role_edit_enable, edit_voltage );
+        item->setData(ZrmMethodsTree::column_capacity, ZrmMethodsTree::role_edit_enable, edit_capacity);
+    }
 }
 
 
-void ZrmMethodEditor::item_set_inactive(QTreeWidgetItem * prev)
+void ZrmMethodEditor::item_set_inactive(QTreeWidgetItem* prev)
 {
-  if(prev )
-  {
-   set_edit_enable(prev,false,false,false);
-   /*if(change_mask(prev))
-   {
-     if(item_is_new(prev))
-       do_delete_item(prev,false);
-        else
-       do_undo_changes(prev);
-   }*/
-  }
+    if (prev )
+    {
+        set_edit_enable(prev, false, false, false);
+        /*if(change_mask(prev))
+        {
+          if(item_is_new(prev))
+            do_delete_item(prev,false);
+             else
+            do_undo_changes(prev);
+        }*/
+    }
 }
 
-void ZrmMethodEditor::slot_current_item_changed        (QTreeWidgetItem * current, QTreeWidgetItem * prev)
+void ZrmMethodEditor::slot_current_item_changed        (QTreeWidgetItem* current, QTreeWidgetItem* prev)
 {
     if (current != prev)
     {
@@ -153,71 +153,75 @@ void ZrmMethodEditor::slot_current_item_changed        (QTreeWidgetItem * curren
         actCopyModel  ->setEnabled(table_type == ZrmMethodsTree::table_models);
         actCopyMethod ->setEnabled(table_type == ZrmMethodsTree::table_method && actAllMethods->isChecked());
 
-        if(actLink->isChecked())
+        if (actLink->isChecked())
             abstract_method_changed(methods_abstract->currentItem(), Q_NULLPTR);
         else
             switch (table_type)
             {
-            case ZrmMethodsTree::table_models :
-                set_edit_enable(current, true, true, true);
-                setup_akb(current);
-                break;
-            case  ZrmMethodsTree::table_method :
-                if (actAllMethods->isChecked())
+                case ZrmMethodsTree::table_models :
                     set_edit_enable(current, true, true, true);
-                break;
-            default:
-                set_edit_enable(current, true, false, false);
-                break;
+                    setup_akb(current);
+                    break;
+                case  ZrmMethodsTree::table_method :
+                    if (actAllMethods->isChecked())
+                        set_edit_enable(current, true, true, true);
+                    break;
+                default:
+                    set_edit_enable(current, true, false, false);
+                    break;
             }
     }
 }
 
-void ZrmMethodEditor::setup_akb(QTreeWidgetItem * item)
+void ZrmMethodEditor::setup_akb(QTreeWidgetItem* item)
 {
-  if(item)
-  {
-   zrm_method.m_method.set_voltage( methods_tree->get_method_param(item,ZrmMethodsTree::column_voltage));
-   zrm_method.m_method.set_capacity(methods_tree->get_method_param(item,ZrmMethodsTree::column_capacity));
-  }
+    if (item)
+    {
+        zrm_method.m_method.set_voltage( methods_tree->get_method_param(item, ZrmMethodsTree::column_voltage));
+        zrm_method.m_method.set_capacity(methods_tree->get_method_param(item, ZrmMethodsTree::column_capacity));
+    }
 }
 
-QString method_time(const zrm::method_t & method)
+QString method_time(const zrm::method_t& method)
 {
-  return QString("%1:%2:%3").arg(method.m_hours,2,10,QLatin1Char('0')).arg(method.m_minutes,2,10,QLatin1Char('0')).arg(method.m_secs,2,10,QLatin1Char('0'));
+    return QString("%1:%2:%3").arg(method.m_hours, 2, 10, QLatin1Char('0')).arg(method.m_minutes, 2, 10, QLatin1Char('0')).arg(method.m_secs, 2, 10, QLatin1Char('0'));
 }
 
-void set_method_time( zrm::method_t & method, const QString & str)
+void set_method_time( zrm::method_t& method, const QString& str)
 {
-  uint8_t tval[3] = {0};
-  uint8_t * ptval = tval;
-  for(auto sl : str.split(QLatin1String(":")))
-      *ptval++ = uint8_t(sl.trimmed().toUInt());
-  method.m_hours = tval[0]; method.m_minutes = tval[1]; method.m_secs = tval[2];
+    uint8_t tval[3] = {0};
+    uint8_t* ptval = tval;
+    for ( auto&& sl : str.split(QLatin1String(":")))
+        *ptval++ = uint8_t(sl.trimmed().toUInt());
+    method.m_hours = tval[0];
+    method.m_minutes = tval[1];
+    method.m_secs = tval[2];
 
 }
 
 
-void ZrmMethodEditor::setup_method(QTreeWidgetItem * item)
+void ZrmMethodEditor::setup_method(QTreeWidgetItem* item)
 {
-  bool is_abstarct = methods_tree->abstract_methods();
-  set_edit_enable(item,true, is_abstarct, is_abstarct);
-  methods_tree->read_method(item);
+    bool is_abstarct = methods_tree->abstract_methods();
+    set_edit_enable(item, true, is_abstarct, is_abstarct);
+    methods_tree->read_method(item);
 
-  //Разрешаем редактирование
+    //Разрешаем редактирование
 
-  //QTreeWidgetItem * parent = item->parent() ? item->parent() : item;
-  //Учитываем  абстрактный метод
-  double volt = methods_tree->get_method_param(item,ZrmMethodsTree::column_voltage );
-  double cap  = methods_tree->get_method_param(item,ZrmMethodsTree::column_capacity);
-  if(qFuzzyIsNull(volt)) volt = 12;
-  if(qFuzzyIsNull(cap )) cap  = 55;
+    //QTreeWidgetItem * parent = item->parent() ? item->parent() : item;
+    //Учитываем  абстрактный метод
+    double volt = methods_tree->get_method_param(item, ZrmMethodsTree::column_voltage );
+    double cap  = methods_tree->get_method_param(item, ZrmMethodsTree::column_capacity);
+    if (qFuzzyIsNull(volt))
+        volt = 12;
+    if (qFuzzyIsNull(cap ))
+        cap  = 55;
 
-  stages_page->set_abstract(is_abstarct);
-  stages_page->set_voltage (volt, false);
-  stages_page->set_capacity(cap, false);
-  stages_page->set_method_id(ZrmMethodsTree::item_id(item));
-  stages_page->set_method_name(item->text(0));
+    stages_page->set_abstract(is_abstarct);
+    stages_page->set_voltage (volt, false);
+    stages_page->set_capacity(cap, false);
+    stages_page->set_method_id(ZrmMethodsTree::item_id(item));
+    stages_page->set_method_name(item->text(0));
 }
 
 
@@ -230,47 +234,48 @@ void ZrmMethodEditor::setup_method(QTreeWidgetItem * item)
  */
 
 
-void     ZrmMethodEditor::slot_item_data_changed                  (QTreeWidgetItem *item, int column)
+void     ZrmMethodEditor::slot_item_data_changed                  (QTreeWidgetItem* item, int column)
 {
 
     QString item_text = item->text(column);
-    qDebug()<<Q_FUNC_INFO<<"sender "<<sender()<<"column "<<column<<" text "<<item_text;
+    qDebug() << Q_FUNC_INFO << "sender " << sender() << "column " << column << " text " << item_text;
     auto item_table = ZrmMethodsTree::item_table(item);
 
-    switch(column)
+    switch (column)
     {
-     case ZrmMethodsTree::column_name     :
-        if(item_table == ZrmMethodsTree::table_method)
-            stages_page->set_method_name(item_text);
-        break;
-     case ZrmMethodsTree::column_voltage  :
-        if(item_table == ZrmMethodsTree::table_method)
-          {
-            stages_page->set_voltage(item_text.toDouble()) ;
-          }
-          break;
-     case ZrmMethodsTree::column_capacity :
-        if(item_table == ZrmMethodsTree::table_method)
-          {
-            stages_page->set_capacity(item_text.toDouble()) ;
-          }
-        break;
+        case ZrmMethodsTree::column_name     :
+            if (item_table == ZrmMethodsTree::table_method)
+                stages_page->set_method_name(item_text);
+            break;
+        case ZrmMethodsTree::column_voltage  :
+            if (item_table == ZrmMethodsTree::table_method)
+            {
+                stages_page->set_voltage(item_text.toDouble()) ;
+            }
+            break;
+        case ZrmMethodsTree::column_capacity :
+            if (item_table == ZrmMethodsTree::table_method)
+            {
+                stages_page->set_capacity(item_text.toDouble()) ;
+            }
+            break;
 
-     default: return;
+        default:
+            return;
     }
 
-  set_change_mask( item, change_item, true);
-  bEdit = true;
-  emit editChanged(bEdit);
+    set_change_mask( item, change_item, true);
+    bEdit = true;
+    emit editChanged(bEdit);
 }
 
 void ZrmMethodEditor::on_actApply_triggered()
 {
-  //Записать изменения
-  SignalBlocker sb(findChildren<QWidget*>());
-  //write_changes(methods_tree->current_item());
+    //Записать изменения
+    SignalBlocker sb(findChildren<QWidget*>());
+    //write_changes(methods_tree->current_item());
 
-    std::function<void(QTreeWidgetItem*)> applyItem = [this, &applyItem](QTreeWidgetItem* item)
+    std::function<void(QTreeWidgetItem*)> applyItem = [this, &applyItem](QTreeWidgetItem * item)
     {
         write_changes(item);
         if (item_is_new(item))
@@ -293,29 +298,29 @@ void ZrmMethodEditor::on_actApply_triggered()
         actMethodEdit->setChecked(false);
 }
 
-void ZrmMethodEditor::do_undo_changes(QTreeWidgetItem*item )
+void ZrmMethodEditor::do_undo_changes(QTreeWidgetItem* item )
 {
- SignalBlocker sb(findChildren<QWidget*>());
+    SignalBlocker sb(findChildren<QWidget*>());
 
- switch(methods_tree->item_table(item))
- {
-   case ZrmMethodsTree::table_types:
-        methods_tree->read_type(item);
-     break;
- case ZrmMethodsTree::table_models:
-      methods_tree->read_model(item);
-   break;
- case ZrmMethodsTree::table_method:
-      methods_tree->read_method(item);
-      stages_page->set_method_id(ZrmMethodsTree::item_id(item));
-   break;
- }
-  clr_change_mask( item );
+    switch (methods_tree->item_table(item))
+    {
+        case ZrmMethodsTree::table_types:
+            methods_tree->read_type(item);
+            break;
+        case ZrmMethodsTree::table_models:
+            methods_tree->read_model(item);
+            break;
+        case ZrmMethodsTree::table_method:
+            methods_tree->read_method(item);
+            stages_page->set_method_id(ZrmMethodsTree::item_id(item));
+            break;
+    }
+    clr_change_mask( item );
 }
 
 void ZrmMethodEditor::on_actUndo_triggered()
 {
-    std::function<void(QTreeWidgetItem*)> undoItem = [this, &undoItem](QTreeWidgetItem* item)
+    std::function<void(QTreeWidgetItem*)> undoItem = [this, &undoItem](QTreeWidgetItem * item)
     {
         if (change_mask(item))
         {
@@ -366,65 +371,72 @@ void ZrmMethodEditor::on_actUndo_triggered()
 }
 
 
-void ZrmMethodEditor::do_delete_item(QTreeWidgetItem *item , bool select_next)
+void ZrmMethodEditor::do_delete_item(QTreeWidgetItem* item, bool select_next)
 {
- bool ret = true;
- if(!item_is_new(item))
- {
-   switch(methods_tree->item_table(item))
-   {
-     case ZrmMethodsTree::table_method : ret = unlink_method(item ,actAllMethods->isChecked()); break;
-     case ZrmMethodsTree::table_models : ret = erase_modles( item ); break;
-     case ZrmMethodsTree::table_types  : ret = erase_types ( item ); break;
-     default : break;
-   }
- }
- if(ret)
- {
-     QTreeWidget * tw = item->treeWidget();
-     QTreeWidgetItem * parent_item = item->parent();
-     int idx = parent_item ? parent_item->indexOfChild(item) : tw->indexOfTopLevelItem(item);
-     item = Q_NULLPTR;
+    bool ret = true;
+    if (!item_is_new(item))
+    {
+        switch (methods_tree->item_table(item))
+        {
+            case ZrmMethodsTree::table_method :
+                ret = unlink_method(item, actAllMethods->isChecked());
+                break;
+            case ZrmMethodsTree::table_models :
+                ret = erase_modles( item );
+                break;
+            case ZrmMethodsTree::table_types  :
+                ret = erase_types ( item );
+                break;
+            default :
+                break;
+        }
+    }
+    if (ret)
+    {
+        QTreeWidget* tw = item->treeWidget();
+        QTreeWidgetItem* parent_item = item->parent();
+        int idx = parent_item ? parent_item->indexOfChild(item) : tw->indexOfTopLevelItem(item);
+        item = Q_NULLPTR;
 
-     if(parent_item )
-     {
-         delete parent_item->takeChild(idx);
-         if(select_next)
-         {
-             idx = std::min(idx,parent_item->childCount()-1);
-             item = idx < 0 ? parent_item :  parent_item->child(idx);
-         }
-     }
-     else
-     {
-         delete tw->takeTopLevelItem(idx);
-         if(select_next)
-         {
-             idx = std::min(idx, tw->topLevelItemCount()-1);
-             item = idx < 0 ? Q_NULLPTR :  tw->topLevelItem(idx);
-         }
-     }
+        if (parent_item )
+        {
+            delete parent_item->takeChild(idx);
+            if (select_next)
+            {
+                idx = std::min(idx, parent_item->childCount() - 1);
+                item = idx < 0 ? parent_item :  parent_item->child(idx);
+            }
+        }
+        else
+        {
+            delete tw->takeTopLevelItem(idx);
+            if (select_next)
+            {
+                idx = std::min(idx, tw->topLevelItemCount() - 1);
+                item = idx < 0 ? Q_NULLPTR :  tw->topLevelItem(idx);
+            }
+        }
 
-     if(select_next)
-         tw->setCurrentItem(item);
- }
+        if (select_next)
+            tw->setCurrentItem(item);
+    }
 }
 
 void ZrmMethodEditor::on_actDelete_triggered()
 {
-  //Удалить элемент
-  QTreeWidgetItem * item = methods_tree->currentItem();
-  if(item)
-  {
-    do_delete_item(item,true);
-  }
+    //Удалить элемент
+    QTreeWidgetItem* item = methods_tree->currentItem();
+    if (item)
+    {
+        do_delete_item(item, true);
+    }
 }
 
 void ZrmMethodEditor::on_actLink_toggled(bool checked)
 {
     // Связать
     frameAbstract->setVisible(checked);
-    if(checked)
+    if (checked)
     {
         methods_abstract->open_database(methods_tree->opened_as(), true);
         actMethodEdit->setChecked(false);
@@ -485,19 +497,20 @@ void ZrmMethodEditor::on_actLink_toggled(bool checked)
 
 void ZrmMethodEditor::create_new(bool child)
 {
-    QTreeWidgetItem * cur_item = child ? methods_tree->currentItem() : Q_NULLPTR;
+    QTreeWidgetItem* cur_item = child ? methods_tree->currentItem() : Q_NULLPTR;
     auto t_type = ZrmMethodsTree::item_table(cur_item);
 
-    if(t_type == ZrmMethodsTree::table_unknown)
+    if (t_type == ZrmMethodsTree::table_unknown)
     {
         child = false;
         t_type = ZrmMethodsTree::table_types;
     }
 
-    if(child && t_type == ZrmMethodsTree::table_method)
+    if (child && t_type == ZrmMethodsTree::table_method)
         child = false;
 
-    if(child) ++t_type;
+    if (child)
+        ++t_type;
 
     /*QString item_text;
 
@@ -509,9 +522,9 @@ void ZrmMethodEditor::create_new(bool child)
     }
 
     QTreeWidgetItem * item = ZrmMethodsTree::new_tree_item(item_text, t_type, 0, false);*/
-    QTreeWidgetItem * item = ZrmMethodsTree::new_tree_item("", t_type, 0, false);
+    QTreeWidgetItem* item = ZrmMethodsTree::new_tree_item("", t_type, 0, false);
     bool edit_params = t_type == ZrmMethodsTree::table_models || ( t_type == ZrmMethodsTree::table_method && actAllMethods->isChecked());
-    if(edit_params)
+    if (edit_params)
     {
         QString str = "?";
         item->setText(ZrmMethodsTree::column_voltage, str);
@@ -520,11 +533,11 @@ void ZrmMethodEditor::create_new(bool child)
     set_edit_enable(item, true, edit_params, edit_params);
     item_new_set(item, true);
 
-    if(cur_item && !child)
+    if (cur_item && !child)
         cur_item = cur_item->parent();
-    if(cur_item)
+    if (cur_item)
     {
-        if(!cur_item->isExpanded())
+        if (!cur_item->isExpanded())
         {
             cur_item->setExpanded(true);
             qApp->processEvents();
@@ -560,7 +573,7 @@ void ZrmMethodEditor::on_actNewChild_triggered()
 
 void ZrmMethodEditor::switch_edit_widget(bool edit_param)
 {
-    if(edit_param)
+    if (edit_param)
     {
         setup_method(methods_tree->currentItem());
         param_widget->setCurrentWidget(stages_page);
@@ -588,38 +601,38 @@ void ZrmMethodEditor::switch_edit_widget(bool edit_param)
 
 void     ZrmMethodEditor::sl_method_changed(int what)
 {
-  QTreeWidgetItem * method_item =  methods_tree->currentItem();
-  if(method_item)
-  {
-   QSignalBlocker bl(method_item->treeWidget());
-   switch(what)
-   {
-    case ZrmStagesEditor::method_param_changed:
+    QTreeWidgetItem* method_item =  methods_tree->currentItem();
+    if (method_item)
     {
-       if (actAllMethods->isChecked())
-       {
-           method_item->setText(ZrmMethodsTree::column_voltage, QString::number(stages_page->user_voltage(), 'f', 1));
-           method_item->setText(ZrmMethodsTree::column_capacity, QString::number(stages_page->user_capacity(), 'f', 1));
-       }
-       set_change_mask(method_item, change_item, true);
-    }
-    break;
-    case ZrmStagesEditor::method_name_changed:
+        QSignalBlocker bl(method_item->treeWidget());
+        switch (what)
         {
-         QString met_name = stages_page->method_name();
-         //qDebug()<<"new name "<<met_name;
-         method_item->setText(ZrmMethodsTree::column_name, met_name);
-         set_change_mask(method_item, change_item, true);
-        }
-    break;
-    case ZrmStagesEditor::method_stage_changed:
-         set_change_mask(method_item, change_stage, true);
-    break;
+            case ZrmStagesEditor::method_param_changed:
+            {
+                if (actAllMethods->isChecked())
+                {
+                    method_item->setText(ZrmMethodsTree::column_voltage, QString::number(stages_page->user_voltage(), 'f', 1));
+                    method_item->setText(ZrmMethodsTree::column_capacity, QString::number(stages_page->user_capacity(), 'f', 1));
+                }
+                set_change_mask(method_item, change_item, true);
+            }
+            break;
+            case ZrmStagesEditor::method_name_changed:
+            {
+                QString met_name = stages_page->method_name();
+                //qDebug()<<"new name "<<met_name;
+                method_item->setText(ZrmMethodsTree::column_name, met_name);
+                set_change_mask(method_item, change_item, true);
+            }
+            break;
+            case ZrmStagesEditor::method_stage_changed:
+                set_change_mask(method_item, change_stage, true);
+                break;
 
-   }
-   bEdit = true;
-   emit editChanged(bEdit);
-  }
+        }
+        bEdit = true;
+        emit editChanged(bEdit);
+    }
 }
 /**
  * @brief ZrmMethodEditor::copy_model
@@ -628,56 +641,57 @@ void     ZrmMethodEditor::sl_method_changed(int what)
 
 void ZrmMethodEditor::copy_model()
 {
-  QTreeWidgetItem * item = methods_tree->currentItem();
-  if( ZrmMethodsTree::item_table(item) == ZrmMethodsTree::table_models && item->childCount() )
-  {
-    setCursor(Qt::WaitCursor);
-    bool was_expanding = item->isExpanded();
-    if(!was_expanding)
-      {item->treeWidget()->expandItem(item);qApp->processEvents();}
-
-    QTreeWidgetItem * new_model = ZrmMethodsTree::copy_tree_item(item, item->parent());
-    QString item_name = QString("%1 - КОПИЯ").arg(item->text(ZrmMethodsTree::column_name));
-    new_model->setText(ZrmMethodsTree::column_name, item_name);
-    ZrmMethodsTree::set_item_id( new_model, QVariant());
-    QSqlDatabase & db = methods_tree->database();
-    ZrmDatabase::start_transaction(db);
-    bool success = write_model(new_model);
-    int met_idx = item->childCount();
-    QVariant model_id = ZrmMethodsTree::item_id(new_model);
-
-    while(success && met_idx)
+    QTreeWidgetItem* item = methods_tree->currentItem();
+    if ( ZrmMethodsTree::item_table(item) == ZrmMethodsTree::table_models && item->childCount() )
     {
-      QTreeWidgetItem * met_item = item->child(--met_idx);
-      success = ZrmDatabase::link_method(db,ZrmMethodsTree::item_id(met_item),model_id);
-    }
+        setCursor(Qt::WaitCursor);
+        bool was_expanding = item->isExpanded();
+        if (!was_expanding)
+        {item->treeWidget()->expandItem(item); qApp->processEvents();}
 
-    if(success)
-    {
-      ZrmDatabase::commit_transaction(db);
-      new QTreeWidgetItem(new_model);
-      methods_tree->setCurrentItem(new_model);
-      set_edit_enable(new_model,true,true,true);
-    }
-    else
-    {
-         ZrmMethodsTree::set_item_id( new_model, QVariant());
-         do_delete_item(new_model,false);
-    }
+        QTreeWidgetItem* new_model = ZrmMethodsTree::copy_tree_item(item, item->parent());
+        QString item_name = QString("%1 - КОПИЯ").arg(item->text(ZrmMethodsTree::column_name));
+        new_model->setText(ZrmMethodsTree::column_name, item_name);
+        ZrmMethodsTree::set_item_id( new_model, QVariant());
+        QSqlDatabase& db = methods_tree->database();
+        ZrmDatabase::start_transaction(db);
+        bool success = write_model(new_model);
+        int met_idx = item->childCount();
+        QVariant model_id = ZrmMethodsTree::item_id(new_model);
 
-    if(!was_expanding) item->treeWidget()->collapseItem(item);
-    setCursor(Qt::ArrowCursor);
-  }
+        while (success && met_idx)
+        {
+            QTreeWidgetItem* met_item = item->child(--met_idx);
+            success = ZrmDatabase::link_method(db, ZrmMethodsTree::item_id(met_item), model_id);
+        }
+
+        if (success)
+        {
+            ZrmDatabase::commit_transaction(db);
+            new QTreeWidgetItem(new_model);
+            methods_tree->setCurrentItem(new_model);
+            set_edit_enable(new_model, true, true, true);
+        }
+        else
+        {
+            ZrmMethodsTree::set_item_id( new_model, QVariant());
+            do_delete_item(new_model, false);
+        }
+
+        if (!was_expanding)
+            item->treeWidget()->collapseItem(item);
+        setCursor(Qt::ArrowCursor);
+    }
 }
 
 void ZrmMethodEditor::copy_method()
 {
-    QTreeWidgetItem * curitem = methods_tree->currentItem();
+    QTreeWidgetItem* curitem = methods_tree->currentItem();
     if (!curitem)
         return;
     if (QMessageBox::Yes != QMessageBox::question(this, tr("Копирование метода"), tr("Сделать копию метода ") + curitem->text(ZrmMethodsTree::column_name) + QString(" ?")))
         return;
-    QTreeWidgetItem * item = ZrmMethodsTree::new_tree_item(curitem->text(ZrmMethodsTree::column_name) + " - КОПИЯ", ZrmMethodsTree::table_method, 0, false);
+    QTreeWidgetItem* item = ZrmMethodsTree::new_tree_item(curitem->text(ZrmMethodsTree::column_name) + " - КОПИЯ", ZrmMethodsTree::table_method, 0, false);
     item->setText(ZrmMethodsTree::column_voltage, curitem->text(ZrmMethodsTree::column_voltage));
     item->setText(ZrmMethodsTree::column_capacity, curitem->text(ZrmMethodsTree::column_capacity));
     set_edit_enable(item, true, true, true);
@@ -697,7 +711,7 @@ void ZrmMethodEditor::copy_method()
 
 void    ZrmMethodEditor::save_user_values()
 {
-  methods_tree->save_user_values();
+    methods_tree->save_user_values();
 }
 
 void ZrmMethodEditor::unload()
@@ -720,7 +734,7 @@ QList<int> ZrmMethodEditor::getSplitterSizes()
     return  stages_page->getSplitterSizes();
 }
 
-void ZrmMethodEditor::setSplitterSizes(const QList<int> &list)
+void ZrmMethodEditor::setSplitterSizes(const QList<int>& list)
 {
     stages_page->setSplitterSizes(list);
 }
@@ -741,7 +755,7 @@ void ZrmMethodEditor::refresh()
 {
     methods_tree->close_database();
     open_db(methods_tree->opened_as(), actAllMethods->isChecked());
-    QTreeWidgetItem * item = methods_tree->topLevelItemCount() ? methods_tree->topLevelItem(0) : nullptr;
+    QTreeWidgetItem* item = methods_tree->topLevelItemCount() ? methods_tree->topLevelItem(0) : nullptr;
     methods_tree->setCurrentItem(item);
 
     methods_abstract->close_database();

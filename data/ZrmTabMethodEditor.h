@@ -24,8 +24,8 @@ public:
 
 private slots:
     void editChanged();
-    void on_tabWidget_currentChanged(int index);
-    void on_tabWidget_tabBarClicked(int index);
+    void currentTabChanged(int index);
+    void tabBarClicked(int index);
 };
 
 #endif // ZRMTABMETHODEDITOR_H

@@ -1,31 +1,30 @@
 #include "zrmwidget.h"
 #include "ui_constraints.hpp"
 
-ZrmWidget::ZrmWidget(QWidget *parent) :
+ZrmWidget::ZrmWidget(QWidget* parent) :
     ZrmGroupWidget (parent)
 {
     setupUi(this);
-    splitter_3->setStretchFactor(0,1);
-    splitter_3->setStretchFactor(1,2);
+    splitter_3->setStretchFactor(0, 1);
+    splitter_3->setStretchFactor(1, 2);
 #ifdef Q_OS_ANDROID
     //groupBoxMethod->setVisible(false);
     groupBoxLogerChart->setVisible(false);
     groupBoxDevice->setVisible(false);
 #else
     zrm_method->set_details_enable(false);
-
-    connect(zrm_ready, SIGNAL(channel_activated(zrm::ZrmConnectivity *, unsigned)), this, SIGNAL(channel_activated(zrm::ZrmConnectivity *, unsigned)));
+    connect(zrm_ready, &ZrmReadySlaveWidget::channel_activated, this, &ZrmWidget::channel_activated);
 #endif
 }
 
 void ZrmWidget::update_ui()
 {
-  ZrmGroupWidget::update_ui();
+    ZrmGroupWidget::update_ui();
 #ifdef Q_OS_ANDROID
-  for (auto && splitter : findChildren<QSplitter*>())
-  {
-      splitter->setHandleWidth(SPLITTER_HADNLE_WIDTH);
-  }
+    for (auto&& splitter : findChildren<QSplitter*>())
+    {
+        splitter->setHandleWidth(SPLITTER_HADNLE_WIDTH);
+    }
 #endif
 }
 
@@ -69,7 +68,7 @@ QList<int> ZrmWidget::getSplitterSizes()
     return splitterSizes;
 }
 
-void ZrmWidget::setSplitterSizes(const QList<int> &list)
+void ZrmWidget::setSplitterSizes(const QList<int>& list)
 {
     if (list.size() < 6)
         return;

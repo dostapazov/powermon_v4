@@ -21,7 +21,7 @@ private slots:
      void channel_activated(ZrmChannelMimimal *cm, bool bSelect);
      void action_toggled(bool checked);
 
-     void slot_dev_error(QString error_string);
+     void slot_dev_error(const QString error_string);
      void write_log(QtMsgType msg_type, QString log_string);
      void set_style(const QString  & styleName);
 

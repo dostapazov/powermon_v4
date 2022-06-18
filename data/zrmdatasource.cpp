@@ -14,22 +14,22 @@
 
 ZrmDataSource::data_source_ptr_t ZrmDataSource::data_source ;
 
-const char * ZrmDataSource::charge_methods = "cmethods";
-const char * ZrmDataSource::power_methods  = "pmethods";
-const char * ZrmDataSource::svc_reports    = "svcreports";
+const char* ZrmDataSource::charge_methods = "cmethods";
+const char* ZrmDataSource::power_methods  = "pmethods";
+const char* ZrmDataSource::svc_reports    = "svcreports";
 
 
-ZrmDataSource::ZrmDataSource(QObject *parent) : QObject(parent)
+ZrmDataSource::ZrmDataSource(QObject* parent) : QObject(parent)
 {
 }
 
-ZrmDataSource * ZrmDataSource::instance()
+ZrmDataSource* ZrmDataSource::instance()
 {
-  if(data_source.isNull())
-     {
-      data_source.reset(new ZrmDataSource);
-     }
-  return data_source.data();
+    if (data_source.isNull())
+    {
+        data_source.reset(new ZrmDataSource);
+    }
+    return data_source.data();
 }
 
 // временная функция
@@ -54,30 +54,30 @@ QString getPath(QString file, bool bData = false)
  * Проверяет существование файла и восстанавливает его из ресурсов при необходимости
  */
 
-QString check_and_restore(const QString & conn_str)
+QString check_and_restore(const QString& conn_str)
 {
     QString db_path;
 #ifdef Q_OS_ANDROID
     db_path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
 #else
     //db_path = qApp->applicationDirPath();
-    db_path = getPath(QString("%1.%2").arg(conn_str).arg("db3"), true);
+    db_path = getPath(QString("%1.%2").arg(conn_str, "db3"), true);
 #endif
     //qDebug()<<db_path;
     QDir dir(db_path);
-    if(!dir.exists(db_path))
+    if (!dir.exists(db_path))
         dir.mkpath(db_path);
     dir.cd(db_path);
     db_path = dir.absolutePath();
     //qDebug()<<db_path;
 
-    QString file_name = QString("%1.%2").arg(conn_str).arg("db3");
+    QString file_name = QString("%1.%2").arg(conn_str, "db3");
     QString src_file = QString(":/data/%1").arg(file_name);
     QString data_dir  = QLatin1String("data");
-    if(!dir.exists(data_dir))
+    if (!dir.exists(data_dir))
         dir.mkdir(data_dir);
 
-    db_path = QString("%1/%2/%3").arg(db_path).arg(data_dir).arg(file_name);
+    db_path = QString("%1/%2/%3").arg(db_path, data_dir, file_name);
     if (!QFile::exists(db_path))
         QFile::copy(src_file, db_path);
 
@@ -91,53 +91,54 @@ QString check_and_restore(const QString & conn_str)
 
 bool              ZrmDataSource::register_data_base(bool as_charge)
 {
-   bool ret = true;
+    bool ret = true;
     QString conn_str = QLatin1String( as_charge ? charge_methods : power_methods) ;
-    if(!QSqlDatabase::contains(conn_str))
+    if (!QSqlDatabase::contains(conn_str))
     {
-      QString db_path =  check_and_restore(conn_str);
-      QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", conn_str);
-      db.setDatabaseName(db_path);
-      ret = db.open();
-      if(!ret) qDebug()<< db.lastError();
+        QString db_path =  check_and_restore(conn_str);
+        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", conn_str);
+        db.setDatabaseName(db_path);
+        ret = db.open();
+        if (!ret)
+            qDebug() << db.lastError();
     }
-  return ret;
+    return ret;
 }
 
 
 QSqlDatabase      ZrmDataSource::method_database(bool as_charger)
 {
-  register_data_base(as_charger);
-  return QSqlDatabase::database(QLatin1String(as_charger ? charge_methods : power_methods));
+    register_data_base(as_charger);
+    return QSqlDatabase::database(QLatin1String(as_charger ? charge_methods : power_methods));
 }
 
 
 QSqlDatabase      ZrmDataSource::reports_database ()
 {
-   QString conn_str = QLatin1String(svc_reports);
-   if(!QSqlDatabase::contains(conn_str))
-   {
-      QString db_path = check_and_restore(conn_str);
-      QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", conn_str);
-      db.setDatabaseName(db_path);
-      if(!db.open())
-        qDebug()<< db.lastError();
-   }
-  return QSqlDatabase::database(conn_str);
+    QString conn_str = QLatin1String(svc_reports);
+    if (!QSqlDatabase::contains(conn_str))
+    {
+        QString db_path = check_and_restore(conn_str);
+        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", conn_str);
+        db.setDatabaseName(db_path);
+        if (!db.open())
+            qDebug() << db.lastError();
+    }
+    return QSqlDatabase::database(conn_str);
 }
 
 
-QString ZrmDataSource::config_file_name(const QString & kind)
+QString ZrmDataSource::config_file_name(const QString& kind)
 {
 #ifdef Q_OS_ANDROID
     QString location = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
 #else
-    QString location = getPath(QString("%1%2.json").arg(qApp->applicationName()).arg(kind));
+    QString location = getPath(QString("%1%2.json").arg(qApp->applicationName(), kind));
 #endif
     QDir dir;
-    if(!dir.exists(location))
+    if (!dir.exists(location))
         dir.mkdir(location);
-    QString cfg_name = QString("%1/%2%3.json").arg(location).arg(qApp->applicationName()).arg(kind);
+    QString cfg_name = QString("%1/%2%3.json").arg(location, qApp->applicationName(), kind);
     return cfg_name;
 }
 
@@ -150,15 +151,15 @@ void ZrmDataSource::unload(bool as_charger)
     QString db_path = qApp->applicationDirPath();
 #endif
     QDir  dir(db_path);
-    if(!dir.exists(db_path))
+    if (!dir.exists(db_path))
         return;
-    QString file_name = QString("%1.%2").arg(conn_str).arg("db3");
+    QString file_name = QString("%1.%2").arg(conn_str, "db3");
     QString data_dir = QLatin1String("data");
-    db_path = QString("%1/%2/%3").arg(db_path).arg(data_dir).arg(file_name);
+    db_path = QString("%1/%2/%3").arg(db_path, data_dir, file_name);
     QString dirSave = QFileDialog::getExistingDirectory(nullptr, tr("Выберите папку для файла"), QString(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if (dirSave.isEmpty())
         return;
-    QString newName = QString("%1/%2").arg(dirSave).arg(file_name);
+    QString newName = QString("%1/%2").arg(dirSave, file_name);
     if (QFile::exists(newName))
     {
         QMessageBox::warning(nullptr, "Внимание!", "Файл уже существует.\nНе удалось выгрузить файл.");
@@ -177,15 +178,15 @@ void ZrmDataSource::load(bool as_charger)
     QString db_path = qApp->applicationDirPath();
 #endif
     QDir  dir(db_path);
-    if(!dir.exists(db_path))
+    if (!dir.exists(db_path))
         return;
-    QString file_name = QString("%1.%2").arg(conn_str).arg("db3");
+    QString file_name = QString("%1.%2").arg(conn_str, "db3");
     QString data_dir = QLatin1String("data");
-    db_path = QString("%1/%2/%3").arg(db_path).arg(data_dir).arg(file_name);
+    db_path = QString("%1/%2/%3").arg(db_path, data_dir, file_name);
     QString fileLoad = QFileDialog::getOpenFileName(nullptr, tr("Выберите файл с методами"), QString(), "DB (*.db3)");
     if (fileLoad.isEmpty())
         return;
-    if(QSqlDatabase::contains(conn_str))
+    if (QSqlDatabase::contains(conn_str))
         QSqlDatabase::removeDatabase(conn_str);
     QFile::remove(db_path);
     bool res = QFile::copy(fileLoad, db_path);

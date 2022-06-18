@@ -1,6 +1,6 @@
 #include "zrmmethodchoose.h"
 
-ZrmMethodChoose::ZrmMethodChoose(QWidget *parent) :
+ZrmMethodChoose::ZrmMethodChoose(QWidget* parent) :
     QDialog(parent)
 {
     setupUi(this);
@@ -39,7 +39,7 @@ void ZrmMethodChoose::set_mode(zrm::zrm_work_mode_t value)
         m_work_mode = zrm::zrm_work_mode_t(value);
 }
 
-void ZrmMethodChoose::sl_method_selected(QTreeWidgetItem * item)
+void ZrmMethodChoose::sl_method_selected(QTreeWidgetItem* item)
 {
     m_current_method = item;
     bool sel_enabled = (item && methods->method_valid(item));
@@ -54,7 +54,7 @@ void ZrmMethodChoose::sl_method_selected(QTreeWidgetItem * item)
     bOk->setEnabled(sel_enabled);
 }
 
-bool  ZrmMethodChoose::get_method(zrm::zrm_method_t  & zrm_method, QTextCodec * codec, QString *model_name)
+bool  ZrmMethodChoose::get_method(zrm::zrm_method_t&   zrm_method, QTextCodec* codec, QString* model_name)
 {
     if (!m_current_method)
         return false;
@@ -90,7 +90,7 @@ void ZrmMethodChoose::editVoltage()
     m_current_method->setData(0, ZrmMethodsTree::tree_roles_t::role_voltage, volt);
     QString text;
     text = methods->number(m_current_method->data(0, ZrmMethodsTree::tree_roles_t::role_voltage).toDouble(), 1);
-    m_current_method->setText(ZrmMethodsTree::column_type_t::column_voltage , text);
+    m_current_method->setText(ZrmMethodsTree::column_type_t::column_voltage, text);
     labelWarning->setVisible(false);
 }
 
@@ -105,6 +105,6 @@ void ZrmMethodChoose::editCapacity()
     m_current_method->setData(0, ZrmMethodsTree::tree_roles_t::role_capacity, cap);
     QString text;
     text = methods->number(m_current_method->data(0, ZrmMethodsTree::tree_roles_t::role_capacity).toDouble(), 1);
-    m_current_method->setText(ZrmMethodsTree::column_type_t::column_capacity , text);
+    m_current_method->setText(ZrmMethodsTree::column_type_t::column_capacity, text);
     labelWarning->setVisible(false);
 }

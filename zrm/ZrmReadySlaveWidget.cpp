@@ -10,7 +10,7 @@
 
 #include <QScrollArea>
 
-ZrmReadySlaveWidget::ZrmReadySlaveWidget(QWidget *parent) :
+ZrmReadySlaveWidget::ZrmReadySlaveWidget(QWidget* parent) :
     ZrmBaseWidget(parent)
 {
     ready_area = new QScrollArea(this);
@@ -31,7 +31,7 @@ ZrmReadySlaveWidget::~ZrmReadySlaveWidget()
     set_layout_count(0);
 }
 
-ZrmChannel * ZrmReadySlaveWidget::create_channel_widget()
+ZrmChannel* ZrmReadySlaveWidget::create_channel_widget()
 {
     auto w = new ZrmChannel(ready_widget);
     w->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -53,14 +53,15 @@ void  ZrmReadySlaveWidget::set_layout_count(int count)
         if (ready_count > count)
         {
             --ready_count;
-            QLayoutItem * litem = m_ready_layout->takeAt(ready_count);
-            QWidget * w = litem->widget();
-            if (m_current == w)
+            QLayoutItem* litem = m_ready_layout->takeAt(ready_count);
+            QScopedPointer<QWidget> w (litem->widget());
+            if (m_current == w.get())
             {
                 m_current = nullptr;
             }
+
             w->disconnect();
-            delete w;
+            w.reset(nullptr);
             delete litem;
         }
     }
@@ -91,13 +92,13 @@ void ZrmReadySlaveWidget::update_ready()
     int ch_count = zrm::ZrmConnectivity::channels_total();
     set_layout_count(ch_count);
     int idx = 0;
-    for (auto && conn : zrm::ZrmConnectivity::connectivities())
+    for (auto&& conn : zrm::ZrmConnectivity::connectivities())
     {
-        for (auto && chan : conn->channels())
+        for (auto&& chan : conn->channels())
         {
             auto litem = m_ready_layout->itemAt(idx++);
-            ZrmChannel * w = dynamic_cast<ZrmChannel*>(litem->widget());
-            if(w)
+            ZrmChannel* w = dynamic_cast<ZrmChannel*>(litem->widget());
+            if (w)
                 w->bind(conn, chan);
         }
     }
@@ -108,13 +109,13 @@ void ZrmReadySlaveWidget::update_ready()
     ready_widget->adjustSize();
 }
 
-void ZrmReadySlaveWidget::zrm_chanhel_activate(ZrmChannel * w)
+void ZrmReadySlaveWidget::zrm_chanhel_activate(ZrmChannel* w)
 {
     if (m_current != w)
     {
-      if (m_current)
-          m_current->set_active(false);
-       m_current = w;
+        if (m_current)
+            m_current->set_active(false);
+        m_current = w;
     }
     if (m_current)
         m_current->set_active(true);
@@ -122,7 +123,7 @@ void ZrmReadySlaveWidget::zrm_chanhel_activate(ZrmChannel * w)
 
 void ZrmReadySlaveWidget::zrm_clicked()
 {
-    auto w = dynamic_cast<ZrmChannel *>(sender());
+    auto w = dynamic_cast<ZrmChannel*>(sender());
     if (w)
         emit channel_activated(w->connectivity(), w->channel());
 }

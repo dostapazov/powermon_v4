@@ -18,10 +18,10 @@ class ZrmMainDisplay : public ZrmChannelWidget, private Ui::ZrmMainDisplay
     void connectSlots();
 
 public:
-    explicit ZrmMainDisplay(QWidget *parent = nullptr);
+    explicit ZrmMainDisplay(QWidget* parent = nullptr);
     virtual void update_ui() override;
 
- protected slots:
+protected slots:
     void manual_method_changed();
     void manual_method();
     void currLimitChange();
@@ -32,19 +32,19 @@ public:
     void reset_error();
     void select_method(bool bAbstract);
 
- protected:
+protected:
     virtual void update_controls() override;
     virtual void clear_controls() override;
-    virtual void channel_param_changed(unsigned channel, const zrm::params_list_t & params_list  ) override;
+    virtual void channel_param_changed(unsigned channel, const zrm::params_list_t& params_list  ) override;
     virtual void on_connected(bool con_state) override;
-    virtual void on_ioerror(const QString & error_string) override;
+    virtual void on_ioerror(const QString& error_string) override;
 
     void channel_session  (unsigned ch_num) override;
 
     void make_request();
     void setup_method();
     void update_state(uint32_t state);
-    void set_method_duration(zrm::zrm_method_t & method,const QString & str);
+    void set_method_duration(zrm::zrm_method_t& method, const QString& str);
     void handle_error_state(uint32_t err_code);
     void update_method_controls();
 
@@ -63,11 +63,11 @@ public:
 #endif
 private:
 
-    void  set_current_limits();
-    void  set_volt_limits();
     bool  is_manual() {return m_method_id == zrm::METHOD_MANUAL_ID; }
-
-
+    void setupIcons();
+    zrm::zrm_method_t create_manual_method(bool charge);
+    double getManualVoltage();
+    double getManualCurrent(bool charge);
 };
 
 #endif // ZRMMAINDISPLAY_H

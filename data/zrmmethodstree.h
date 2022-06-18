@@ -51,7 +51,14 @@ public:
 
     QString   get_stage_desctipt(unsigned stage_id);
 
+    /**
+     * @brief ZrmMethodsTree::search_method_by_id
+     * @param item
+     * @param method_id
+     * @return method tree item if found
+     */
     QTreeWidgetItem * search_method_by_id(QTreeWidgetItem * item, QVariant method_id);
+    QTreeWidgetItem * search_method_by_name(const QString &name);
     void      save_user_values();
 
 

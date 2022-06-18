@@ -38,7 +38,7 @@
       <bool>false</bool>
      </property>
      <property name="sortingEnabled">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <property name="headerHidden">
       <bool>false</bool>
@@ -53,7 +53,7 @@
       <bool>true</bool>
      </attribute>
      <attribute name="headerShowSortIndicator" stdset="0">
-      <bool>true</bool>
+      <bool>false</bool>
      </attribute>
      <column>
       <property name="text">

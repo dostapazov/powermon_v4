@@ -146,13 +146,46 @@
       </layout>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox">
+      <widget class="QGroupBox" name="ImportExportBox">
        <property name="title">
         <string>Методы для экспорта/импорта</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <widget class="QListWidget" name="methodsList"/>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="legendBox">
+          <property name="title">
+           <string>Легенда</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="QLabel" name="importedNotExists">
+             <property name="styleSheet">
+              <string notr="true">color: rgb(78, 154, 6);</string>
+             </property>
+             <property name="text">
+              <string>новый метод</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="importedExists">
+             <property name="text">
+              <string>существуюший метод </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="exported">
+             <property name="text">
+              <string>Экспортированный/или импортированный</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </item>
        </layout>
       </widget>
