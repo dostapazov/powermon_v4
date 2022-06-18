@@ -9,14 +9,15 @@
 #include <QValueAxis>
 #include <QDateTime>
 
+constexpr int CHART_UPDATE_PREIOD = 150;
+
 ZrmLogerChartUI::ZrmLogerChartUI(QWidget* parent) :
     ZrmChannelWidget(parent)
 {
     setupUi(this);
 
-    timerChart.setInterval(100);
-    connect(&timerChart, SIGNAL(timeout()), this, SLOT(updateChart()));
-
+    timerChart.setInterval(CHART_UPDATE_PREIOD);
+    connect(&timerChart, &QTimer::timeout, this, &ZrmLogerChartUI::updateChart);
     init_chart();
 }
 
@@ -84,6 +85,7 @@ void ZrmLogerChartUI::init_chart()
 
     //add axis to the chart
     QtCharts::QDateTimeAxis* axisX = new QtCharts::QDateTimeAxis;
+
     axisX->setTickCount(10);
     axisX->setFormat("hh:mm:ss");
     axisX->setTitleText("Time");
@@ -107,9 +109,23 @@ void ZrmLogerChartUI::init_chart()
 
 void ZrmLogerChartUI::updateChart()
 {
+    this->setUpdatesEnabled(false);
     qint64 t = QDateTime::currentDateTime().toMSecsSinceEpoch();
     i_series->append(t, m_source->param_get(m_channel, zrm::PARAM_CUR).toDouble());
     u_series->append(t, m_source->param_get(m_channel, zrm::PARAM_VOLT).toDouble());
-    m_chart->axes(Qt::Horizontal, u_series)[0]->setRange(QDateTime::currentDateTime().addMSecs(- 1000 * 60), QDateTime::currentDateTime());
-    m_chart->update();
+
+
+    constexpr qint64 TIME_LENGTH = 1000 * 60;
+    constexpr int    MAX_SERIES_COUNT = TIME_LENGTH / CHART_UPDATE_PREIOD;
+    QDateTime endRange = QDateTime::currentDateTime();
+    QDateTime begRange = endRange.addMSecs(-TIME_LENGTH);
+    int count_to_remove = i_series->count() - MAX_SERIES_COUNT;
+    if (count_to_remove > 0)
+    {
+        i_series->removePoints(0, count_to_remove);
+        u_series->removePoints(0, count_to_remove);
+    }
+
+    m_chart->axes(Qt::Horizontal, u_series)[0]->setRange(begRange, endRange);
+    this->setUpdatesEnabled(true);
 }
