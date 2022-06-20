@@ -173,8 +173,9 @@ enum zrm_mode_command
 
 constexpr int MAX_CHANNEL_NUMBER = 255;
 
-typedef struct {uint8_t sync_byte =  PS_PC;} pc_prolog_t;
-typedef struct {uint8_t sync_byte =  PS_CU;} cu_prolog_t;
+struct pc_prolog_t {uint8_t sync_byte =  PS_PC;};
+
+struct cu_prolog_t {uint8_t sync_byte =  PS_CU;} ;
 
 #ifndef PROTOCOL_PT_LINE
 struct proto_header
@@ -278,7 +279,8 @@ struct stage_exec_result_sensors_t
 {
     uint8_t stage;  // этап
     uint8_t count;  // количество датчиков
-    std::vector<stage_exec_result_sensor_t> sensors;    // датчик
+    using sensor_data_t = std::vector<stage_exec_result_sensor_t>;
+    sensor_data_t sensors;    // датчик
 };
 
 using  lp_stage_exec_result_t = stage_exec_result_t* ;
@@ -574,7 +576,7 @@ struct  zrm_method_t
     zrm_method_t& operator += (const stage_t& stage)
     {
         m_stages.insert(m_stages.end(), stage);
-        m_method.m_stages = stages_count();
+        m_method.m_stages = static_cast<uint8_t>(stages_count());
         return *this;
     }
 };

@@ -53,7 +53,11 @@ QWidget* mtree_item_delegate::createEditor(QWidget* parent,
             sb->setRange(0, column == ZrmMethodsTree::column_voltage ? zrm::method_t::max_voltage() : zrm::method_t::max_capacity());
             //sb->setSpecialValueText("--");
 
+#if QT_VERSION < QT_VERSION_CHECK(5,14,0)
             QObject::connect(sb, QOverload<const QString&>::of(&QDoubleSpinBox::valueChanged), m_methods_tree,  &ZrmMethodsTree::volt_cap_changed);
+#else
+            QObject::connect(sb, &QDoubleSpinBox::textChanged, m_methods_tree,  &ZrmMethodsTree::volt_cap_changed);
+#endif
             sb->setLocale(QLocale::C);
             return sb;
         }
@@ -929,7 +933,6 @@ void ZrmMethodsTree::volt_cap_changed(const QString& val_text)
 {
     //auto src = sender();
     auto item = currentItem();
-//    qDebug() << Q_FUNC_INFO << src << val_text;
     QString ns = val_text;
 //    number_string(ns, false);
     item->setText(currentColumn(), ns);
