@@ -286,6 +286,11 @@ void ZrmConnectivity::send_next_packet()
 
 }
 
+bool isWriteEnabled( const ZrmModule* mod, uint8_t type)
+{
+    return mod && (type != PT_DATAWRITE ||  !mod->session_readonly());
+}
+
 size_t   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, size_t data_size, const void* data )
 {
 
@@ -294,7 +299,7 @@ size_t   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type,
     {
         QMutexLocker l(&m_zrm_mutex);
         auto mod = get_channel(channel);
-        if (mod.data() &&  (type != PT_DATAWRITE ||  !mod->session_readonly()))
+        if (isWriteEnabled(mod.data(), type) )
         {
             //ставим в очередь если канал существует и разрешается управлять или это запросы
             sz = m_send_buffer.queue_packet(channel, type, uint16_t(data_size), data);
