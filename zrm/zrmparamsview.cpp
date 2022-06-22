@@ -9,8 +9,8 @@ ZrmParamsView::ZrmParamsView(QWidget* parent) :
     QHeaderView* hdr = zrm_params->header();
     hdr->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
     connect(&m_request_timer, &QTimer::timeout, this, &ZrmParamsView::request);
+    connect(pushButtonService, &QAbstractButton::clicked, this, &ZrmParamsView::serviceMode);
     init_params();
-    connect(pushButtonService, SIGNAL(clicked()), this, SLOT(serviceMode()));
 }
 
 void ZrmParamsView::appendParam(zrm::zrm_param_t param, const QString& text)
@@ -79,6 +79,24 @@ void    ZrmParamsView::update_controls      ()
     }
 }
 
+void ZrmParamsView::showEvent(QShowEvent* event)
+{
+    ZrmChannelWidget::showEvent(event);
+    if (m_source && m_source->channel_session(m_channel).is_active())
+    {
+        m_request_timer.start(std::chrono::milliseconds(1666));
+        request();
+    }
+
+}
+
+void ZrmParamsView::hideEvent(QHideEvent* event)
+{
+    ZrmChannelWidget::hideEvent(event);
+    m_request_timer.stop();
+}
+
+
 void    ZrmParamsView::clear_controls       ()
 {
 }
@@ -87,13 +105,7 @@ void    ZrmParamsView::channel_session      (unsigned channel)
 {
     if (m_source && m_channel == channel && m_source->channel_session(m_channel).is_active())
     {
-        m_request_timer.start(std::chrono::seconds(1));
-        request();
-
-    }
-    else
-    {
-        m_request_timer.stop();
+        qDebug() << Q_FUNC_INFO << " channel : " << channel;
     }
 }
 

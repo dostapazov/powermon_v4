@@ -28,6 +28,9 @@ protected:
     void init_params();
     void appendParam(zrm::zrm_param_t, const QString& text);
     using params_items_t  =  QMap<zrm::zrm_param_t, QTreeWidgetItem* >;
+private:
+    void showEvent(QShowEvent* event) override;
+    void hideEvent(QHideEvent* event) override;
     zrm::params_t    m_orders;
     params_items_t   m_items;
     QTimer           m_request_timer;
