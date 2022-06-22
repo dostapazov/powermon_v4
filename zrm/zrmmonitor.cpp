@@ -9,31 +9,18 @@ ZrmMonitor::ZrmMonitor(QWidget* parent) :
     m_enable_rx = tbMonRx->isChecked();
     m_enable_tx = tbMonTx->isChecked();
     m_paused    = tbMonPause->isChecked();
-    for (auto&& bt : btn_frame->findChildren<QAbstractButton*>())
-    {
-        if (bt == tbMonClear)
-            connect(bt,  &QAbstractButton::clicked, monitor, &QTextViewer::clear);
-        else
-            connect(bt,  &QAbstractButton::toggled, this, &ZrmMonitor::btn_toggled);
-    }
-
     monitor->set_update_time(200);
-
+    initSignalConnections();
 }
 
 
-void   ZrmMonitor::btn_toggled(bool checked)
+void   ZrmMonitor::initSignalConnections()
 {
-    auto src = sender();
-    if (src == tbMonRx)
-        m_enable_rx = checked;
-    if (src == tbMonTx)
-        m_enable_tx = checked;
-    if (src == tbMonPause)
-        m_paused    = checked;
-
+    connect(tbMonClear,  &QAbstractButton::clicked, monitor, &QTextViewer::clear);
+    connect(tbMonRx, &QAbstractButton::toggled, this, [this](bool checked) {m_enable_rx = checked;});
+    connect(tbMonTx, &QAbstractButton::toggled, this, [this](bool checked) {m_enable_tx = checked;});
+    connect(tbMonPause, &QAbstractButton::toggled, this, [this](bool checked) {m_paused = checked;});
 }
-
 
 void    ZrmMonitor::mon_line_add    (const QString& hdr, const QString& text, QColor color)
 {

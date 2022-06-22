@@ -465,11 +465,15 @@ std::string ZrmModule::trect_param(const param_variant& pv)
 
 QString ZrmModule::fan_param(const param_variant& pv)
 {
-    int8_t fan1 = 0, fan2 = 0, fan3 = 0;
-    memcpy(&fan1, pv.puchar, 1);
-    memcpy(&fan2, pv.puchar + 1, 1);
-    memcpy(&fan3, pv.puchar + 2, 1);
-    return QString("%1, %2, %3").arg(fan1, fan2, fan3);
+    QString fans;
+    const uint8_t* beg = pv.puchar;
+    const uint8_t* end = beg + pv.size;
+    while (beg < end)
+    {
+        fans += QString("%1%2").arg(fans.isEmpty() ? "" : ", ").arg(static_cast<int>(*beg));
+        ++beg;
+    }
+    return fans;
 }
 
 } // namespace zrm
