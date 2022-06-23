@@ -1,5 +1,6 @@
 #include "zrmmonitor.h"
 #include <qdatetime.h>
+#include <zrmproto.hpp>
 
 ZrmMonitor::ZrmMonitor(QWidget* parent) :
     ZrmChannelWidget(parent)
@@ -20,6 +21,7 @@ void   ZrmMonitor::initSignalConnections()
     connect(tbMonRx, &QAbstractButton::toggled, this, [this](bool checked) {m_enable_rx = checked;});
     connect(tbMonTx, &QAbstractButton::toggled, this, [this](bool checked) {m_enable_tx = checked;});
     connect(tbMonPause, &QAbstractButton::toggled, this, [this](bool checked) {m_paused = checked;});
+    connect(tbDetails, &QAbstractButton::toggled, this, [this](bool checked) {m_details = checked;});
 }
 
 void    ZrmMonitor::mon_line_add    (const QString& hdr, const QString& text, QColor color)
@@ -27,8 +29,9 @@ void    ZrmMonitor::mon_line_add    (const QString& hdr, const QString& text, QC
     if (!m_paused && (!hdr.isEmpty() || !text.isEmpty()) )
     {
         monitor->line_add( QString("%1 : %2").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz"), hdr), color );
-        if (!text.isEmpty())
-            monitor->line_add( text, color );
+
+        for (const QString& line : text.split(QChar('\n')))
+            monitor->line_add( line, color );
     }
 }
 
@@ -42,12 +45,32 @@ void    ZrmMonitor::on_ioerror           (const QString& error_string)
     mon_line_add(error_string, QString(), Qt::darkRed);
 }
 
+QString getMonText(const QByteArray& data, bool detail)
+{
+    if (detail)
+    {
+        QString text;
+        const zrm::recv_header_t* header = reinterpret_cast<const zrm::recv_header_t*>(data.constData());
+        text += QString("Channel № %1, ").arg(static_cast<uint32_t>(header->proto_hdr.channel));
+        text += QString("Packet Number № %1, ").arg(static_cast<uint32_t>(header->proto_hdr.packet_number));
+        text += QString("SSID %1, ").arg(static_cast<uint32_t>(header->proto_hdr.session_id));
+        text += QString("Type %1, ").arg(QString("%1").arg(static_cast<uint32_t>(header->proto_hdr.type), 2, 16, QChar('0')).toUpper());
+        text += QString("Data size %1\n").arg(static_cast<uint32_t>(header->proto_hdr.data_size));
+
+        text += QByteArray(reinterpret_cast<const char*>(header->data), static_cast<int>(header->proto_hdr.data_size)).toHex(' ');
+
+        return text;
+    }
+    return QString::fromLocal8Bit(data.toHex(' '));
+
+}
+
 void    ZrmMonitor::channel_recv_packet  (unsigned channel, const zrm::recv_header_t* recv_data)
 {
     if (m_source && channel == m_channel && m_enable_rx)
     {
-        auto hex_data = QByteArray(reinterpret_cast<const char*>(recv_data), int(recv_data->size())).toHex(' ');
-        mon_line_add(QString("RX"), QString::fromLocal8Bit(hex_data.toUpper()), monitor->palette().color(QPalette::Link));
+        QByteArray recvData(reinterpret_cast<const char*>(recv_data), int(recv_data->size()));
+        mon_line_add(QString("RX"), getMonText(recvData, m_details), monitor->palette().color(QPalette::Link));
     }
 }
 
@@ -55,8 +78,8 @@ void    ZrmMonitor::channel_send_packet  (unsigned channel, const zrm::send_head
 {
     if (m_source && channel == m_channel && m_enable_tx)
     {
-        auto hex_data = QByteArray(reinterpret_cast<const char*>(send_data), int(send_data->size())).toHex(' ');
-        mon_line_add(QString("TX"), QString::fromLocal8Bit(hex_data.toUpper()), monitor->palette().color(QPalette::LinkVisited));
+        QByteArray sendData(reinterpret_cast<const char*>(send_data), int(send_data->size()));
+        mon_line_add(QString("TX"), getMonText(sendData, m_details), monitor->palette().color(QPalette::LinkVisited));
     }
 }
 

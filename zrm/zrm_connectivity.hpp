@@ -192,7 +192,7 @@ protected:
     void    send_timer_ctrl      (bool start);
     virtual bool    event(QEvent* ev) override;
     virtual void    channel_control_event(QChannelControlEvent* ctrl_event);
-    size_t  channel_write_method (uint16_t ch_num);
+    size_t          channel_write_method (uint16_t ch_num);
 
     virtual void     write(QJsonObject& jobj);
     virtual void     read (const QJsonObject& jobj);

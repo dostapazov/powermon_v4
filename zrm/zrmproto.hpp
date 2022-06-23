@@ -709,14 +709,14 @@ protected:
     uint16_t   m_session_id    = 0;
 };
 
+constexpr int SECUNDS_IN_MINUTE = 60;
+constexpr int SECUNDS_IN_HOUR = 60 * SECUNDS_IN_MINUTE;
 
 /* inline implementation*/
 
 
 inline void     method_t::set_duration(uint32_t value)
 {
-    constexpr int SECUNDS_IN_MINUTE = 60;
-    constexpr int SECUNDS_IN_HOUR = 60 * SECUNDS_IN_MINUTE;
     div_t h   = div(int(value), SECUNDS_IN_HOUR);
     div_t ms  = div(h.rem, SECUNDS_IN_MINUTE  );
     m_hours   = uint8_t(h.quot);
@@ -774,14 +774,14 @@ void  send_buffer_t::params_add(devproto::storage_t& data, param_write_mode_t wm
 
 inline method_hms method_t::secunds2hms(uint32_t duration)
 {
-    div_t h  = div(int(duration), 3600);
-    div_t ms = div(h.rem, 60  );
+    div_t h  = div(int(duration), SECUNDS_IN_HOUR);
+    div_t ms = div(h.rem, SECUNDS_IN_MINUTE  );
     return std::make_tuple(uint8_t(h.quot), uint8_t(ms.quot), uint8_t(ms.rem));
 }
 
 inline uint32_t  method_t::hms2secunds(uint8_t h, uint8_t m, uint8_t s)
 {
-    return h * 3600 + m * 60 + s;
+    return h * SECUNDS_IN_HOUR + m * SECUNDS_IN_MINUTE + s;
 }
 
 inline uint32_t  method_t::hms2secunds(const method_hms& hms)
