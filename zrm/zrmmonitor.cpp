@@ -28,10 +28,21 @@ void    ZrmMonitor::mon_line_add    (const QString& hdr, const QString& text, QC
 {
     if (!m_paused && (!hdr.isEmpty() || !text.isEmpty()) )
     {
-        monitor->line_add( QString("%1 : %2").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz"), hdr), color );
+        if (!hdr.isEmpty())
+        {
+            monitor->line_add
+            (
+                QString("%1 : %2").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz"), hdr),
+                color
+            );
+        }
 
-        for (const QString& line : text.split(QChar('\n')))
+        for ( auto&& line : text.split(QChar('\n')))
+        {
+            if (line.isEmpty())
+                continue;
             monitor->line_add( line, color );
+        }
     }
 }
 
@@ -85,13 +96,14 @@ void    ZrmMonitor::channel_send_packet  (unsigned channel, const zrm::send_head
 
 void    ZrmMonitor::update_controls      ()
 {
+    monitor->clear();
     if (m_source && m_channel )
     {
-        monitor->clear();
-        QString hdr = QString("%1 : %2 %3 № %4").arg(tr("Подключено"), m_source->name(), tr("канал")).arg( m_channel);
+        QString hdr = QString("%1 : %2 %3 № %4")
+                      .arg(tr("Подключено к "), m_source->name(), tr("канал")).arg( m_channel);
         mon_line_add(
             hdr
-            , QString()
+            , QString("%1").arg(m_source->is_connected() ? tr("соединение установлено") : tr("обрыв связи"))
             , monitor->palette().color(QPalette::Text)
         );
     }
