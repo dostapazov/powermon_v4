@@ -35,8 +35,8 @@ ZrmConnectivityParam::ZrmConnectivityParam(QWidget* parent) :
     setupUi(this);
     prepare_ui();
     init_ui   ();
-    splitter->setStretchFactor(0, 0);
-    //splitter->setStretchFactor(1,3);
+    splitter->setStretchFactor(1, 1);
+    splitter->setStretchFactor(1, 3);
     conn_params->interface_enable(QMultiIODev::udp, false);
     auto hdr = tw_connectivity->header();
 
