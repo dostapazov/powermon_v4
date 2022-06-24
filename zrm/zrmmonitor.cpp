@@ -81,7 +81,12 @@ void    ZrmMonitor::channel_recv_packet  (unsigned channel, const zrm::recv_head
     if (m_source && channel == m_channel && m_enable_rx)
     {
         QByteArray recvData(reinterpret_cast<const char*>(recv_data), int(recv_data->size()));
-        mon_line_add(QString("RX"), getMonText(recvData, m_details), monitor->palette().color(QPalette::Link));
+        mon_line_add
+        (
+            QString("RX - size %1").arg(recvData.size()),
+            getMonText(recvData, m_details)
+            , monitor->palette().color(QPalette::Link)
+        );
     }
 }
 
@@ -90,7 +95,12 @@ void    ZrmMonitor::channel_send_packet  (unsigned channel, const zrm::send_head
     if (m_source && channel == m_channel && m_enable_tx)
     {
         QByteArray sendData(reinterpret_cast<const char*>(send_data), int(send_data->size()));
-        mon_line_add(QString("TX"), getMonText(sendData, m_details), monitor->palette().color(QPalette::LinkVisited));
+        mon_line_add
+        (
+            QString("TX - size %1").arg(sendData.size()),
+            getMonText(sendData, m_details),
+            monitor->palette().color(QPalette::LinkVisited)
+        );
     }
 }
 
