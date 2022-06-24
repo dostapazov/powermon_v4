@@ -14,11 +14,8 @@ public:
     enum     columns_t {column_name, column_value};
 
     explicit ZrmParamsView(QWidget* parent = nullptr);
-
     void    channel_param_changed(unsigned channel, const zrm::params_list_t& params_list  ) override;
-    void    update_controls      () override;
-    void    clear_controls       () override;
-    void    channel_session      (unsigned channel) override;
+    void    clear_controls() override;
 
 protected slots:
     void    request ();

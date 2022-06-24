@@ -68,14 +68,11 @@ void ZrmParamsView::channel_param_changed(unsigned channel, const zrm::params_li
     ZrmChannelWidget::channel_param_changed(channel, params_list);
 }
 
-
-void    ZrmParamsView::update_controls      ()
+void    ZrmParamsView::clear_controls()
 {
-    ZrmChannelWidget::update_controls();
-    if (m_source && m_channel)
+    for (auto&& item : m_items)
     {
-        channel_session(m_channel);
-        channel_param_changed(m_channel, m_source->channel_params(m_channel));
+        item->setText(column_value, QString());
     }
 }
 
@@ -84,7 +81,8 @@ void ZrmParamsView::showEvent(QShowEvent* event)
     ZrmChannelWidget::showEvent(event);
     if (m_source && m_source->channel_session(m_channel).is_active())
     {
-        m_request_timer.start(std::chrono::milliseconds(1666));
+        channel_param_changed(m_channel, m_source->channel_params(m_channel));
+        m_request_timer.start(std::chrono::milliseconds(2000));
         request();
     }
 
@@ -94,19 +92,6 @@ void ZrmParamsView::hideEvent(QHideEvent* event)
 {
     ZrmChannelWidget::hideEvent(event);
     m_request_timer.stop();
-}
-
-
-void    ZrmParamsView::clear_controls       ()
-{
-}
-
-void    ZrmParamsView::channel_session      (unsigned channel)
-{
-    if (m_source && m_channel == channel && m_source->channel_session(m_channel).is_active())
-    {
-        qDebug() << Q_FUNC_INFO << " channel : " << channel;
-    }
 }
 
 void    ZrmParamsView::request()
