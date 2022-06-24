@@ -261,7 +261,17 @@ bool  ZrmBaseWidget::load_ui(const QString& ui_file)
     return false;
 }
 
+void    ZrmBaseWidget::showEvent(QShowEvent* event)
+{
+    QWidget::showEvent(event);
+    onActivate();
+}
 
+void    ZrmBaseWidget::hideEvent(QHideEvent* event)
+{
+    QWidget::hideEvent(event);
+    onDeactivate();
+}
 
 void    ZrmGroupWidget::update_ui()
 {
@@ -346,11 +356,4 @@ void  ZrmGroupWidget::update_controls ()
         widget->update_controls();
     ZrmBaseWidget::update_controls();
 }
-
-
-
-
-
-
-
 

@@ -76,9 +76,9 @@ void    ZrmParamsView::clear_controls()
     }
 }
 
-void ZrmParamsView::showEvent(QShowEvent* event)
+void ZrmParamsView::onActivate()
 {
-    ZrmChannelWidget::showEvent(event);
+    ZrmChannelWidget::onActivate();
     if (m_source && m_source->channel_session(m_channel).is_active())
     {
         channel_param_changed(m_channel, m_source->channel_params(m_channel));
@@ -88,9 +88,9 @@ void ZrmParamsView::showEvent(QShowEvent* event)
 
 }
 
-void ZrmParamsView::hideEvent(QHideEvent* event)
+void ZrmParamsView::onDeactivate()
 {
-    ZrmChannelWidget::hideEvent(event);
+    ZrmChannelWidget::onDeactivate();
     m_request_timer.stop();
 }
 

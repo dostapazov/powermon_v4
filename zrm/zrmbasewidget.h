@@ -77,7 +77,10 @@ protected:
     virtual void    update_controls      ();
     virtual void    clear_controls       () {}
     virtual void    channel_session      (unsigned ch_num)  ;
-
+    virtual void    onActivate() {}
+    virtual void    onDeactivate() {}
+    virtual void    showEvent(QShowEvent* event) override;
+    virtual void    hideEvent(QHideEvent* event) override;
     virtual void    init_ui(QWidget* widget ) {Q_UNUSED(widget)}
     QString    zrm_method_duration_text(const zrm::zrm_method_t& method);
     template <typename T>
