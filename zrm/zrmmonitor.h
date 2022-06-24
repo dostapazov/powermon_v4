@@ -28,6 +28,7 @@ private:
     bool    m_paused    = false;
     bool    m_enable_tx = true;
     bool    m_enable_rx = true;
+    bool    m_details = false;
     QColor  m_color_tx;
     QColor  m_color_rx;
 };

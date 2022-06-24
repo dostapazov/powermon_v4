@@ -144,11 +144,11 @@ public:
     static int                 connectivity_count();
     static connectivity_list_t connectivities();
     static ZrmConnectivity*    connectivity  (int idx);
-    static bool                connectivities_changed() {return m_connectivities_changed;}
     static int                 channels_total();
     static void                start_all();
     static void                stop_all ();
-    void                make_changed() { ++m_connectivities_changed;}
+    static void                make_changed() { ++m_connectivities_changed;}
+    static bool                connectivities_changed() {return m_connectivities_changed;}
 
     static int                 read_from_json(QString path_to_file);
     static bool                write_to_json (QString path_to_file);
@@ -192,7 +192,7 @@ protected:
     void    send_timer_ctrl      (bool start);
     virtual bool    event(QEvent* ev) override;
     virtual void    channel_control_event(QChannelControlEvent* ctrl_event);
-    size_t  channel_write_method (uint16_t ch_num);
+    size_t          channel_write_method (uint16_t ch_num);
 
     virtual void     write(QJsonObject& jobj);
     virtual void     read (const QJsonObject& jobj);

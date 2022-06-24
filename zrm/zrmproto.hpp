@@ -588,8 +588,9 @@ struct zrm_cell_t
     uint32_t m_volt;
     int32_t m_temp;
     zrm_cell_t() { m_volt = m_temp = 0; }
-    double volt() { return double(m_volt) / 1000.; }
-    double temp() { return double(m_temp) / 1000.; }
+    static constexpr double SCALE_FACTOR = 1000;
+    double volt() { return double(m_volt) / SCALE_FACTOR; }
+    double temp() { return double(m_temp) / SCALE_FACTOR; }
 };
 
 typedef       zrm_cell_t* lp_zrm_cell_t;
@@ -618,17 +619,17 @@ struct param_variant
     size_t       size = 0;
     union
     {
-        int8_t   sbyte;
+        int8_t    sbyte;
         uint8_t   ubyte;
         int16_t   sword;
-        uint16_t   uword;
+        uint16_t  uword;
         int32_t   sdword;
-        uint32_t   udword;
+        uint32_t  udword;
         int64_t   sqword;
-        uint64_t   uqword ;
-        double     v_double;
-        float      v_float;
-        uint8_t    puchar[128] = {0};
+        uint64_t  uqword ;
+        double    v_double;
+        float     v_float;
+        uint8_t   puchar[128] = {0};
     };
     bool is_valid() const {return size && size <= sizeof(puchar);}
     template <typename T>
@@ -708,14 +709,16 @@ protected:
     uint16_t   m_session_id    = 0;
 };
 
+constexpr int SECUNDS_IN_MINUTE = 60;
+constexpr int SECUNDS_IN_HOUR = 60 * SECUNDS_IN_MINUTE;
 
 /* inline implementation*/
 
 
 inline void     method_t::set_duration(uint32_t value)
 {
-    div_t h   = div(int(value), 3600);
-    div_t ms  = div(h.rem, 60  );
+    div_t h   = div(int(value), SECUNDS_IN_HOUR);
+    div_t ms  = div(h.rem, SECUNDS_IN_MINUTE  );
     m_hours   = uint8_t(h.quot);
     m_minutes = uint8_t(ms.quot);
     m_secs    = uint8_t(ms.rem);
@@ -771,14 +774,14 @@ void  send_buffer_t::params_add(devproto::storage_t& data, param_write_mode_t wm
 
 inline method_hms method_t::secunds2hms(uint32_t duration)
 {
-    div_t h  = div(int(duration), 3600);
-    div_t ms = div(h.rem, 60  );
+    div_t h  = div(int(duration), SECUNDS_IN_HOUR);
+    div_t ms = div(h.rem, SECUNDS_IN_MINUTE  );
     return std::make_tuple(uint8_t(h.quot), uint8_t(ms.quot), uint8_t(ms.rem));
 }
 
 inline uint32_t  method_t::hms2secunds(uint8_t h, uint8_t m, uint8_t s)
 {
-    return h * 3600 + m * 60 + s;
+    return h * SECUNDS_IN_HOUR + m * SECUNDS_IN_MINUTE + s;
 }
 
 inline uint32_t  method_t::hms2secunds(const method_hms& hms)
