@@ -12,7 +12,7 @@ ZrmMonitor::ZrmMonitor(QWidget* parent) :
     m_enable_rx = tbMonRx->isChecked();
     m_enable_tx = tbMonTx->isChecked();
     m_paused    = tbMonPause->isChecked();
-    monitor->set_update_time(300);
+    monitor->set_update_time(250);
     initSignalConnections();
 }
 
