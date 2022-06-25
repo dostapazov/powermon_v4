@@ -1,11 +1,13 @@
 #include "zrmmonitor.h"
 #include <qdatetime.h>
 #include <zrmproto.hpp>
+#include <QGraphicsDropShadowEffect>
 
 ZrmMonitor::ZrmMonitor(QWidget* parent) :
     ZrmChannelWidget(parent)
 {
     setupUi(this);
+    addShadow(monitor, 6, 6);
     monitor->set_scrollbars(this->mon_vsbar, mon_hsbar);
     m_enable_rx = tbMonRx->isChecked();
     m_enable_tx = tbMonTx->isChecked();
