@@ -1,6 +1,7 @@
 
 #include "zrmbasewidget.h"
 #include <qcoreapplication.h>
+#include <QGraphicsDropShadowEffect>
 
 QString           ZrmBaseWidget::infinity_symbol = QString("∞");
 QString           ZrmBaseWidget::no_value        = QString("--");
@@ -272,6 +273,15 @@ void    ZrmBaseWidget::hideEvent(QHideEvent* event)
     QWidget::hideEvent(event);
     onDeactivate();
 }
+
+void ZrmBaseWidget::addShadow (QWidget* w, qreal offset, qreal blurRadius)
+{
+    QGraphicsDropShadowEffect* shadow = new QGraphicsDropShadowEffect();
+    shadow->setOffset(offset);
+    shadow->setBlurRadius(blurRadius);
+    w->setGraphicsEffect(shadow);
+};
+
 
 void    ZrmGroupWidget::update_ui()
 {

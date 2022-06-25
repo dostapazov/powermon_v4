@@ -51,11 +51,15 @@ public:
     bool          channel_is_executing(uint16_t channel);
     bool          channel_is_paused   (uint16_t channel);
 
+    QVariant      param_get  ( uint16_t channel, zrm::zrm_param_t param)
+    {return (m_source && channel) ? m_source->param_get(channel, param) : QVariant();}
+
+
     static QLatin1String  codec_name();
     static void           set_codec_name  (const QLatin1String& str);
     static QString        to_utf(const char* str, int len);
     static QTextCodec*    codec();
-    QVariant              param_get  ( uint16_t channel, zrm::zrm_param_t param) {return (m_source && channel) ? m_source->param_get(channel, param) : QVariant();}
+    static void           addShadow(QWidget* w, qreal offset, qreal blurRadius);
 
 protected slots:
     void    slot_connected       ( bool       conn_state);
