@@ -103,23 +103,29 @@ protected:
 
 protected:
 //mutable mutex_t          m_mut;
-    int                m_ping_period     =  1000;
-    mutable int                m_ping_timeout    =  0;
-    uint16_t           m_channel         =  uint16_t(-1);
-    session_types_t    m_session_request = ST_CONTROL;
-    params_list_t      m_curr_params;   //Список полученных   параметров
+    int                   m_ping_period     =  1000;
+    mutable int           m_ping_timeout    =  0;
+    uint16_t              m_channel         =  uint16_t(-1);
+    session_types_t       m_session_request = ST_CONTROL;
+    params_list_t         m_curr_params;   //Список полученных   параметров
 
-    mutable params_list_t      m_chg_params;   //Список изменившихся параметров
-    params_t           m_ctrl_params;  //Список параметров которые хочется контролировать
-    oper_state_t       m_prev_state;
-    method_exec_results_t      m_exec_results;
+    mutable params_list_t m_chg_params;   //Список изменившихся параметров
+    params_t              m_ctrl_params;  //Список параметров которые хочется контролировать
+    oper_state_t          m_prev_state;
+
+    zrm_cells_t           m_cells;
+    zrm_work_mode_t       m_work_mode = as_charger;
+    zrm_maskab_param_t    m_maskab_param;
+
+    zrm_method_t          m_eprom_method;   //Метод запрошенный из памяти устройства
+    zrm_method_t          m_current_method; //Текущий метод
+    method_exec_results_t m_exec_results;
     method_exec_results_sensors_t m_exec_results_sensor;
-    zrm_method_t       m_current_method; //Текущий метод
 
-    zrm_method_t       m_eprom_method;   //Метод запрошенный из памяти устройства
-    zrm_cells_t        m_cells;
-    zrm_work_mode_t    m_work_mode = as_charger;
-    zrm_maskab_param_t m_maskab_param;
+    send_buffer_t         m_SendBuffer;
+
+
+
 
     int box_number = 0;
     int device_number = 0;

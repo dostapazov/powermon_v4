@@ -257,7 +257,7 @@ inline size_t    ZrmConnectivity::send_session_stop          (uint16_t channel  
 
 inline size_t   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, const devproto::storage_t& data )
 {
-    return data.size() ? send_packet(channel, type, data.size(), &data.at(0)) : 0;
+    return data.size() ? send_packet(channel, type, data.size(), data.begin().base()) : 0;
 }
 
 
