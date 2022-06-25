@@ -4,7 +4,6 @@
 #include <qdesktopwidget.h>
 #include <QMessageBox>
 
-
 ZrmMethodEditor::ZrmMethodEditor(QWidget* parent) :
     QWidget(parent)
 {
