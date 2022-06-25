@@ -29,25 +29,15 @@ private:
 };
 
 
-
-template <typename T>
-void setButtonShadow(QWidget* w)
-{
-    for ( auto&& b : w->findChildren<T*>())
-    {
-        ZrmBaseWidget::addShadow(b, 6, 6);
-    }
-}
-
 ZrmConnectivityParam::ZrmConnectivityParam(QWidget* parent) :
     QWidget(parent)
 {
     setupUi(this);
     prepare_ui();
     init_ui   ();
-    setButtonShadow<QToolButton>(tool_frame);
-    setButtonShadow<QToolButton>(zrm_mon);
-    setButtonShadow<QPushButton>(conn_params);
+    ZrmBaseWidget::setWidgetsShadow<QToolButton>(tool_frame, 6, 6);
+    ZrmBaseWidget::setWidgetsShadow<QToolButton>(zrm_mon, 6, 6);
+    ZrmBaseWidget::setWidgetsShadow<QPushButton>(conn_params, 6, 6);
 
     splitter->setStretchFactor(1, 1);
     splitter->setStretchFactor(1, 3);

@@ -60,6 +60,9 @@ public:
     static QString        to_utf(const char* str, int len);
     static QTextCodec*    codec();
     static void           addShadow(QWidget* w, qreal offset, qreal blurRadius);
+    template <typename T>
+    static void setWidgetsShadow(QWidget* parent, qreal offset, qreal blurRadius);
+
 
 protected slots:
     void    slot_connected       ( bool       conn_state);
@@ -147,7 +150,6 @@ protected:
 
 };
 
-
 /**/
 
 inline bool          ZrmBaseWidget::channel_is_stopped  (uint16_t channel)
@@ -213,6 +215,17 @@ inline void   ZrmBaseWidget::set_number_value<QDoubleSpinBox> (QDoubleSpinBox* t
     text_widget->setDecimals(precision);
     text_widget->setValue(value);
 }
+
+
+template <typename T>
+void ZrmBaseWidget::setWidgetsShadow(QWidget* parent, qreal offset, qreal blurRadius)
+{
+    for ( auto&& b : parent->findChildren<T*>())
+    {
+        ZrmBaseWidget::addShadow(b, offset, blurRadius);
+    }
+}
+
 
 
 
