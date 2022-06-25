@@ -85,7 +85,7 @@ void    ZrmMonitor::channel_recv_packet  (unsigned channel, const zrm::recv_head
         (
             QString("RX - size %1").arg(recvData.size()),
             getMonText(recvData, m_details)
-            , monitor->palette().color(QPalette::Link)
+            , m_details ? Qt::GlobalColor::blue : Qt::GlobalColor::darkBlue// monitor->palette().color(QPalette::Link)
         );
     }
 }
@@ -99,7 +99,7 @@ void    ZrmMonitor::channel_send_packet  (unsigned channel, const zrm::send_head
         (
             QString("TX - size %1").arg(sendData.size()),
             getMonText(sendData, m_details),
-            monitor->palette().color(QPalette::LinkVisited)
+            m_details ? Qt::GlobalColor::red : Qt::GlobalColor::darkRed // monitor->palette().color(QPalette::LinkVisited)
         );
     }
 }
