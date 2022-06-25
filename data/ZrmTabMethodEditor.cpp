@@ -23,9 +23,6 @@ void ZrmTabMethodEditor::setWorkMode(zrm::zrm_work_mode_t mode)
     tabMethods->setWorkMode(mode);
     tabExportImport->setWorkMode(mode);
 
-//    tabAKB->open_db();
-//    tabMethods->open_db();
-//    tabExportImport->open_db();
 }
 
 void ZrmTabMethodEditor::save_user_values()

@@ -173,10 +173,7 @@ bool ZrmMethodsTree::setWorkMode(zrm::zrm_work_mode_t wm)
 {
     if (getWorkMode() != wm)
     {
-        if (isOpen())
-            return open_database(wm, this->isAbstract());
-        else
-            m_work_mode = wm;
+        return open_database(wm, this->isAbstract());
     }
     return true;
 }
