@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui network  sql charts multimedia printsupport
-CONFIG += thread c++11
+CONFIG += thread c++14
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -25,8 +25,11 @@ windows{
  }
 }
 
-DEFINES += MULTI_IODEV_CONFIG_WIDGET
+linux{
 QMAKE_CXXFLAGS += -Wno-deprecated-copy
+}
+
+DEFINES += MULTI_IODEV_CONFIG_WIDGET
 
 include(../qtshared/crc/crc_unit.pri )
 include(../qtshared/multi_iodev/multi_iodev.pri)

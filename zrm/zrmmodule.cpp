@@ -281,15 +281,20 @@ uint16_t  ZrmModule::handle_results (uint16_t data_size, const uint8_t* beg, con
 uint16_t  ZrmModule::handle_results_sensor(uint16_t data_size, const uint8_t* beg, const uint8_t* end)
 {
 
-    uint8_t stage = beg[0], count = beg[1];
-
-    if (m_exec_results_sensor.size() >= stage)
-        return data_size;
+    Q_UNUSED(end)
     stage_exec_result_sensors_t res;
-    res.stage = stage;
-    res.count = count;
-    res.sensors.resize(count);
-    memcpy(res.sensors.data(), beg + 2, count * 4);
+    res.stage = *beg++;
+    res.count = *beg++;
+
+
+    if (m_exec_results_sensor.size() >= res.stage)
+        return data_size;
+
+    res.sensors.resize(res.count);
+
+    auto source_beg = reinterpret_cast<stage_exec_result_sensors_t::sensor_data_t::const_pointer>(beg);
+    auto source_end = reinterpret_cast<stage_exec_result_sensors_t::sensor_data_t::const_pointer>(beg);
+    std::copy(source_beg, source_end, res.sensors.begin());
     m_exec_results_sensor.push_back(res);
     return data_size;
 }
@@ -460,11 +465,15 @@ std::string ZrmModule::trect_param(const param_variant& pv)
 
 QString ZrmModule::fan_param(const param_variant& pv)
 {
-    int8_t fan1 = 0, fan2 = 0, fan3 = 0;
-    memcpy(&fan1, pv.puchar, 1);
-    memcpy(&fan2, pv.puchar + 1, 1);
-    memcpy(&fan3, pv.puchar + 2, 1);
-    return QString("%1, %2, %3").arg(fan1).arg(fan2).arg(fan3);
+    QString fans;
+    const uint8_t* beg = pv.puchar;
+    const uint8_t* end = beg + pv.size;
+    while (beg < end)
+    {
+        fans += QString("%1%2").arg(fans.isEmpty() ? "" : ", ").arg(static_cast<int>(*beg));
+        ++beg;
+    }
+    return fans;
 }
 
 } // namespace zrm

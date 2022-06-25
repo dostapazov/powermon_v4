@@ -35,8 +35,12 @@ ZrmConnectivityParam::ZrmConnectivityParam(QWidget* parent) :
     setupUi(this);
     prepare_ui();
     init_ui   ();
-    splitter->setStretchFactor(0, 0);
-    //splitter->setStretchFactor(1,3);
+    ZrmBaseWidget::setWidgetsShadow<QToolButton>(tool_frame, 6, 6);
+    ZrmBaseWidget::setWidgetsShadow<QToolButton>(zrm_mon, 6, 6);
+    ZrmBaseWidget::setWidgetsShadow<QPushButton>(conn_params, 6, 6);
+
+    splitter->setStretchFactor(1, 1);
+    splitter->setStretchFactor(1, 3);
     conn_params->interface_enable(QMultiIODev::udp, false);
     auto hdr = tw_connectivity->header();
 
@@ -46,6 +50,8 @@ ZrmConnectivityParam::ZrmConnectivityParam(QWidget* parent) :
     connect(conn_params, &mutli_iodev_params::param_undo, this, &ZrmConnectivityParam::conn_param_undo );
     conn_params->enable_apply(true);
     conn_params->enable_undo (true);
+
+
 
     int i = 0;
     for (auto&& tb : tool_frame->findChildren<QToolButton*>())

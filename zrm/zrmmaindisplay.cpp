@@ -14,18 +14,12 @@ ZrmMainDisplay::ZrmMainDisplay(QWidget* parent) :
 {
     setupUi(this);
     setupIcons();
-    auto addShadow = [](QWidget * w)
-    {
-        QGraphicsDropShadowEffect* shadow = new QGraphicsDropShadowEffect();
-        shadow->setOffset(4);
-        shadow->setBlurRadius(5);
-        w->setGraphicsEffect(shadow);
-    };
-    addShadow(bMethodAuto);
-    addShadow(bMethodAny);
-    addShadow(bMethodManual);
-    addShadow(bCharge);
-    addShadow(bDischarge);
+
+    addShadow(bMethodAuto, 4, 5);
+    addShadow(bMethodAny, 4, 5);
+    addShadow(bMethodManual, 4, 5);
+    addShadow(bCharge, 4, 5);
+    addShadow(bDischarge, 4, 5);
 
     style()->polish(bStart);
     style()->polish(bStop);
@@ -305,7 +299,7 @@ void  ZrmMainDisplay::setup_method()
         method_name = QString("%1:%2").arg(m_model_name, to_utf(method.m_method.m_name, sizeof(method.m_method.m_name)));
     }
 
-    method_name = method_name.remove('\u0000');
+    method_name = method_name.remove(QChar('\u0000'));
 
     setEditText(edMethodName, method_name, 0);
 

@@ -245,7 +245,7 @@ QString MainWindow::window_param_file_name()
     return ZrmDataSource::config_file_name("-config");
 }
 
-void MainWindow::write_log(QtMsgType msg_type, QString log_string)
+void MainWindow::write_log(QtMsgType msg_type, const QString& log_string)
 {
 #ifdef POWERMON_LOG
     static const char* dtfmt = "yyyy-MM-dd hh::mm:ss.zzz";
@@ -308,14 +308,17 @@ void MainWindow::configure_apply()
 
 void MainWindow::style_apply()
 {
-    qApp->setStyle(QStyleFactory::create(style_select->currentText()));
+    setUpdatesEnabled(false);
+    set_style(style_select->currentText());
     qApp->processEvents();
     QFont font = edit_font(fontComboBox->currentFont());
     qApp->setFont(font);
     setFont(font);
     for (auto&& w : findChildren<QWidget*>())
         w->setFont(font);
+    setupStyleSheet();
     layout()->update();
+    setUpdatesEnabled(true);
 }
 
 
@@ -360,14 +363,17 @@ constexpr const char* cfg_font_name    = "font-name";
 constexpr const char* cfg_font_size    = "font-size";
 constexpr const char* cfg_font_bold    = "font-bold";
 constexpr const char* cfg_font_italic  = "font-italic";
-/*constexpr const char * cfg_xpos         = "x_pos";
+/*
+constexpr const char * cfg_xpos         = "x_pos";
 constexpr const char * cfg_ypos         = "y_pos";
 constexpr const char * cfg_width        = "width";
 constexpr const char * cfg_height       = "height";
-constexpr const char * cfg_full_screen  = "full-screen";*/
+constexpr const char * cfg_full_screen  = "full-screen";
+*/
 constexpr const char* cfg_zrm_splitter = "zrm_splitter_sizes";
 constexpr const char* cfg_params_splitter = "params_splitter_sizes";
 constexpr const char* cfg_stages_splitter = "stages_splitter_sizes";
+constexpr const char* cfg_use_qss = "use_qss";
 
 void MainWindow::write_config       ()
 {
@@ -376,6 +382,7 @@ void MainWindow::write_config       ()
     QFontInfo fi(this->font());
 
 
+    jobj[cfg_use_qss]        = cbUseQss->isChecked();
     jobj[cfg_style]          = style_select->currentText();
     jobj[cfg_font_name   ]   = fi.family();
     jobj[cfg_font_size   ]   = fi.pixelSize();
@@ -417,15 +424,18 @@ void MainWindow::write_config       ()
 
 void MainWindow::updateFont(const QFont& fnt)
 {
+    setUpdatesEnabled(false);
     qApp->setFont(fnt);
     setFont(fnt);
     for (auto&& w : findChildren<QWidget*>())
         w->setFont(fnt);
+    setUpdatesEnabled(true);
 }
 
 void MainWindow::read_config()
 {
 
+    setUpdatesEnabled(false);
     QString cname = window_param_file_name();
     QFile file(cname);
 
@@ -434,6 +444,8 @@ void MainWindow::read_config()
 
         QJsonDocument jdoc = QJsonDocument::fromJson(file.readAll());
         QJsonObject jobj(jdoc.object());
+
+        cbUseQss->setChecked(jobj.contains(cfg_use_qss) && jobj[cfg_use_qss].toBool());
         if (jobj.contains(cfg_style))
         {
             QString style_name = jobj[cfg_style].toString("Fusion");
@@ -478,6 +490,7 @@ void MainWindow::read_config()
     {
         set_default_config();
     }
+    setUpdatesEnabled(true);
 }
 
 void MainWindow::set_default_config()
@@ -488,6 +501,7 @@ void MainWindow::set_default_config()
     fnt.setBold(true);
     fnt.setItalic(false);
     style_select->setCurrentText(QString("Fusion"));
+    cbUseQss->setChecked(true);
     updateFont(fnt);
 }
 
@@ -519,6 +533,20 @@ bool MainWindow::eventFilter(QObject* target, QEvent* event)
 void MainWindow::orientation_changed(Qt::ScreenOrientation screen_orient)
 {
     Q_UNUSED(screen_orient)
+}
+
+void MainWindow::onStyleToogled(bool checked)
+{
+    if (checked)
+    {
+        set_font_for_edit();
+        stackedWidget->setCurrentWidget(style_page);
+    }
+    else
+    {
+        if (!method_editor->isEdit())
+            style_apply();
+    }
 }
 
 void MainWindow::action_toggled(bool checked)
@@ -565,13 +593,7 @@ void MainWindow::action_toggled(bool checked)
                 configure_apply();
             break;
         case act_style:
-            if (checked)
-            {
-                set_font_for_edit();
-                stackedWidget->setCurrentWidget(style_page);
-            }
-            else if (!method_editor->isEdit())
-                style_apply();
+            onStyleToogled(checked);
             break;
         case act_dev_method :
             if (checked)
@@ -638,16 +660,20 @@ void MainWindow::channel_activated(ZrmChannelMimimal* cm, bool bSelect)
 
 void MainWindow::setupStyleSheet()
 {
-    QFile file(":/powermon.qss");
     QString stylesheet;
-    if (!file.open(QIODevice::ReadOnly))
+    if (cbUseQss->isChecked())
     {
-        qDebug() << "Cannot open stylesheet file powermon.qss";
-        return;
-    }
-    else
-    {
-        stylesheet = QString::fromUtf8(file.readAll());
+        QFile file(":/powermon.qss");
+
+        if (!file.open(QIODevice::ReadOnly))
+        {
+            qDebug() << "Cannot open stylesheet file powermon.qss";
+            return;
+        }
+        else
+        {
+            stylesheet = QString::fromUtf8(file.readAll());
+        }
     }
     setStyleSheet(stylesheet);
 }

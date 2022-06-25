@@ -35,6 +35,7 @@ void ZrmChannelMimimal::set_active(bool active)
     else
     {
         frame->setFrameShadow(QFrame::Shadow::Raised);
+        QScopedPointerDeleteLater::cleanup(graphicsEffect());
         setGraphicsEffect(nullptr);
     }
 }

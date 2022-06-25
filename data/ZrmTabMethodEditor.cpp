@@ -12,6 +12,9 @@ ZrmTabMethodEditor::ZrmTabMethodEditor(QWidget* parent) :
     tabAKB->setAbstract(false);
     tabMethods->setAbstract(true);
     tabWidget->setCurrentIndex(TAB_AKB);
+    ZrmBaseWidget::setWidgetsShadow<QAbstractButton>(tabAKB, 6, 6);
+    ZrmBaseWidget::setWidgetsShadow<QAbstractButton>(tabMethods, 6, 6);
+    ZrmBaseWidget::setWidgetsShadow<QAbstractButton>(tabExportImport, 6, 6);
 }
 
 void ZrmTabMethodEditor::setWorkMode(zrm::zrm_work_mode_t mode)

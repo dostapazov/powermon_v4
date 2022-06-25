@@ -22,7 +22,7 @@ private slots:
      void action_toggled(bool checked);
 
      void slot_dev_error(const QString error_string);
-     void write_log(QtMsgType msg_type, QString log_string);
+     void write_log(QtMsgType msg_type, const QString &log_string);
      void set_style(const QString  & styleName);
 
      void edit_font_changed(const QFont &font);
@@ -31,7 +31,9 @@ private slots:
 
      void configure_apply();
 
-private:
+     void onStyleToogled(bool checked);
+
+    private:
       QFont edit_font  (const QFont &f);
       void init_styles ();
       void init_actions();

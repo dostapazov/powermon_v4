@@ -375,7 +375,7 @@
        <enum>QFrame::Raised</enum>
       </property>
       <property name="currentIndex">
-       <number>7</number>
+       <number>1</number>
       </property>
       <widget class="ZrmReadyWidget" name="zrm_ready"/>
       <widget class="QWidget" name="zrm_view">
@@ -593,6 +593,16 @@
               </spacer>
              </item>
             </layout>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="cbUseQss">
+             <property name="text">
+              <string>Использовать Qss Style</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item>
             <spacer name="verticalSpacer_2">

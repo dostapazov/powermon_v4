@@ -15,6 +15,8 @@
 #include <qjsondocument.h>
 #include <qjsonobject.h>
 #include <qjsonarray.h>
+#include <QDateTime>
+#include <QDebug>
 
 
 static void  meta_types_init(bool& inited)
@@ -284,6 +286,11 @@ void ZrmConnectivity::send_next_packet()
 
 }
 
+bool isWriteEnabled( const ZrmModule* mod, uint8_t type)
+{
+    return mod && (type != PT_DATAWRITE ||  !mod->session_readonly());
+}
+
 size_t   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, size_t data_size, const void* data )
 {
 
@@ -292,7 +299,7 @@ size_t   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type,
     {
         QMutexLocker l(&m_zrm_mutex);
         auto mod = get_channel(channel);
-        if (mod.data() &&  (type != PT_DATAWRITE ||  !mod->session_readonly()))
+        if (isWriteEnabled(mod.data(), type) )
         {
             //ставим в очередь если канал существует и разрешается управлять или это запросы
             sz = m_send_buffer.queue_packet(channel, type, uint16_t(data_size), data);
@@ -658,27 +665,31 @@ void   ZrmConnectivity::channel_set_work_mode ( uint16_t     ch_num, zrm_work_mo
 void   ZrmConnectivity::channel_subscribe_param     (uint16_t     ch_num, zrm_param_t param, bool add)
 {
     QMutexLocker l (&m_zrm_mutex);
-    auto mod = get_channel(ch_num);
+    zrm_module_ptr_t mod = get_channel(ch_num);
     if ( mod.data() )
     {
         if (add)
             mod->param_request_add(param);
         else
             mod->param_request_remove(param);
+
     }
+
 }
 
 void   ZrmConnectivity::channel_subscribe_params     ( uint16_t     ch_num, const params_t& params, bool add )
 {
     QMutexLocker l (&m_zrm_mutex);
-    auto mod = get_channel(ch_num);
+    zrm_module_ptr_t mod = get_channel(ch_num);
     if ( mod.data() )
     {
         if (add)
             mod->params_request_add(params);
         else
             mod->params_request_remove(params);
+        qDebug() << "Subscribed count" << mod->params_list().size();
     }
+
 
 }
 

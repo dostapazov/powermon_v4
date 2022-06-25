@@ -50,7 +50,7 @@ void ZrmReadyAccum::handle_state(zrm::ZrmConnectivity* __conn, unsigned channel,
     if (m_exec_count != exec_count)
     {
         m_exec_count = exec_count;
-        qDebug() << QString(" Running count %1").arg(exec_count);
+        //qDebug() << QString(" Running count %1").arg(exec_count);
         update_view(true);
     }
 }
