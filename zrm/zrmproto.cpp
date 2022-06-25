@@ -2,9 +2,15 @@
 #include <crc_unit.hpp>
 #include <algorithm>
 #include <limits.h>
+#include <functional>
 
 namespace zrm {
 
+#ifndef PROTOCOL_PT_LINE
+    pCrcFunc crcCalc = crcunit::CRC::crc32 ;
+#else
+    pCrcFunc crcCalc = crcunit::CRC::crc8_1wire ;
+#endif
 
 const char* stage_t::st_types_power  [4] = {"Пауза", "Источник", "Нагрузка", "Импульс"};
 const char* stage_t::st_types_charger[4] = {"Пауза", "Заряд", "Разряд", "Импульс"};
@@ -23,13 +29,8 @@ size_t   send_buffer_t::queue_packet         (uint16_t channel, uint8_t packet_t
     size_t old_size = m_storage.size();
     m_storage.resize(old_size + sz);
     auto phdr = header_from_offset(old_size);
-#ifndef PROTOCOL_PT_LINE
     phdr->init(proto_header(m_session_id, ++m_packet_number, channel, packet_type), data_size, data);
-    *phdr->last_byte_as<crc_type>() = crcunit::CRC::crc32(phdr, phdr->size());
-#else
-    phdr->init(proto_header(channel, m_session_id, ++m_packet_number, packet_type), data_size, data);
-    *phdr->last_byte_as<crc_type>() = crcunit::CRC::crc8_1wire(phdr, phdr->size());
-#endif
+    *phdr->last_byte_as<crc_type>() = crcCalc(phdr, phdr->size());
     return sz;
 }
 

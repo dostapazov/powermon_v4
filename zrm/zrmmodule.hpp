@@ -51,15 +51,15 @@ public:
     const params_t&   params_list          () const;
     param_variant     param_get            (zrm_param_t param) const;
     bool     params_is_changed    (zrm_param_t param) const;
-    const params_list_t params_current     () const;
+    const params_list_t& params_current     () const;
 
     oper_state_t  get_state(bool prev = false) const;
 
-    const params_list_t changes      ()   const;
-    void        clear_changes();
+    const params_list_t& changes()   const;
+    void          clear_changes();
 
-    int         results_get(method_exec_results_t&) const;
-    void        results_clear();
+    int           results_get(method_exec_results_t&) const;
+    void          results_clear();
 
     void          method_clear();
     void          method_set  (const zrm_method_t& method);
@@ -67,27 +67,27 @@ public:
     zrm_method_t& method_get (bool eprom = false)          { return eprom ? m_eprom_method : m_current_method;}
     bool          method_is_auto() const { return m_current_method.m_method.m_id > 0 ; }
 
-    bool       is_executing () const;
-    bool       is_paused  () const;
-    bool       is_stopped () const;
+    bool          is_executing () const;
+    bool          is_paused  () const;
+    bool          is_stopped () const;
 
-    const method_exec_results_t& results_get() const ;
-    const method_exec_results_sensors_t& results_sensor_get() const ;
-    zrm_cells_t cells_get() const;
-    zrm_maskab_param_t masakb_param();
-    void               set_masakb_param(const zrm_maskab_param_t& map);
+    const method_exec_results_t&          results_get() const ;
+    const method_exec_results_sensors_t&  results_sensor_get() const ;
+    zrm_cells_t         cells_get() const;
+    zrm_maskab_param_t  masakb_param();
+    void                set_masakb_param(const zrm_maskab_param_t& map);
 
-    inline void setBoxNumber(int n) { box_number = n; }
-    inline int boxNumber() { return box_number; }
-    inline void setDeviceNumber(int n) { device_number = n; }
-    inline int deviceNumber() { return device_number; }
-    inline void setColor(const QString& c) { color = c; }
-    inline QString getColor() { return color; }
+    inline void         setBoxNumber(int n) { box_number = n; }
+    inline int          boxNumber() { return box_number; }
+    inline void         setDeviceNumber(int n) { device_number = n; }
+    inline int          deviceNumber() { return device_number; }
+    inline void         setColor(const QString& c) { color = c; }
+    inline QString      getColor() { return color; }
 
-    static uint16_t      handle_method_stages(zrm_method_t& method, uint16_t data_size, const uint8_t* beg, const uint8_t* end);
-    static std::string   time_param (const param_variant& pv);
-    static std::string   trect_param(const param_variant& pv);
-    static QString fan_param(const param_variant& pv);
+    static uint16_t     handle_method_stages(zrm_method_t& method, uint16_t data_size, const uint8_t* beg, const uint8_t* end);
+    static std::string  time_param (const param_variant& pv);
+    static std::string  trect_param(const param_variant& pv);
+    static QString      fan_param(const param_variant& pv);
 
 
 
@@ -174,7 +174,7 @@ inline const params_t&   ZrmModule::params_list         () const
     return m_ctrl_params;
 }
 
-inline const params_list_t  ZrmModule::changes() const
+inline const params_list_t&  ZrmModule::changes() const
 {
     //locker_t l(m_mut);
     return m_chg_params;
@@ -202,7 +202,7 @@ inline bool       ZrmModule::is_stopped() const
     return !(st.state_bits.auto_on | st.state_bits.start_pause);
 }
 
-inline const params_list_t ZrmModule::params_current    () const
+inline const params_list_t& ZrmModule::params_current() const
 {
     //locker_t l(m_mut);
     return m_curr_params;

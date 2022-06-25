@@ -21,7 +21,7 @@ namespace zrm {
 
 
 #ifndef PROTOCOL_PT_LINE
-    constexpr unsigned long  SEND_PERIOD_DEFAULT  = 20;
+    constexpr unsigned long  SEND_PERIOD_DEFAULT  = 30;
 #else
     constexpr unsigned long  SEND_PERIOD_DEFAULT  = 100;
 #endif
@@ -46,8 +46,8 @@ public:
     size_t             data_size() const {return size_t(m_data.size());}
 
 private:
-    uint32_t           m_control;
-    uint16_t           m_channel;
+    uint32_t           m_control = ctrl_request_param;
+    uint16_t           m_channel = 0;
     param_write_mode_t m_wr_mode;
     zrm_param_t        m_param;
     QByteArray         m_data ;
