@@ -848,7 +848,11 @@ bool  ZrmConnectivity::setChannelAttributes(uint16_t ch_num, const ZrmChannelAtt
     auto mod = get_channel(ch_num);
     if (mod.isNull())
         return false;
+    if (mod->getAttributes() == attrs)
+        return true;
+
     mod->setAttributes(attrs);
+    ++ m_connectivities_changed;
     return true;
 }
 

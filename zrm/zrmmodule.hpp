@@ -26,6 +26,8 @@ public:
         int box_number = 0;
         int device_number = 0;
         uint32_t color = 0x4682b4;
+        bool operator == (const Attributes& other) const
+        {return (box_number == other.box_number && device_number == other.device_number && color == other.color);}
     };
 
 
