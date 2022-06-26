@@ -10,7 +10,7 @@
 #define ZRMCONNECTIVITY_H
 
 #include "zrmproto.hpp"
-#include "zrmmodule.hpp"
+#include "zrmchannel.hpp"
 #include <miodevworker.h>
 #include <qsharedpointer.h>
 #include <qevent.h>
@@ -27,7 +27,7 @@ namespace zrm {
 #endif
 
 
-using ZrmChannelAttributes = zrm::ZrmModule::Attributes;
+using ZrmChannelAttributes = zrm::ZrmChannel::Attributes;
 
 enum channel_ctrl_t
 {ctrl_request_param, ctrl_write_param };
@@ -56,7 +56,7 @@ private:
 
 };
 
-using    zrm_module_ptr_t =  QSharedPointer<ZrmModule>       ;
+using    zrm_module_ptr_t =  QSharedPointer<ZrmChannel>       ;
 using    channels_t       =  QMap<uint16_t, zrm_module_ptr_t> ;
 using    channels_key_t   =  QList<channels_t::key_type>     ;
 using    idtext_t         =  QMap<uint32_t, QString>         ;
@@ -182,13 +182,13 @@ protected:
     //virtual  void    handle_thread_finish () override;
     void    recv_check_sequence(uint16_t kadr_number);
 
-    virtual  ZrmModule* create_zrm_module(uint16_t number, zrm_work_mode_t work_mode);
+    virtual  ZrmChannel* create_zrm_module(uint16_t number, zrm_work_mode_t work_mode);
 
     void    handle_recv_channel (const recv_header_t& recv_hdr);
     int     channels_start      ();
     void    channels_stop       (bool silent = false);
 
-    void    ping_module         (const ZrmModule* mod);
+    void    ping_module         (const ZrmChannel* mod);
 
     void    on_channels_changed  ();
     void    module_state_changed (zrm_module_ptr_t& mod, bool* pneed_request_method, bool* pneed_ping);

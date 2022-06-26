@@ -137,9 +137,9 @@ bool     ZrmConnectivity::set_connection_string(const QString& conn_str)
 }
 
 
-ZrmModule* ZrmConnectivity::create_zrm_module(uint16_t number, zrm_work_mode_t work_mode)
+ZrmChannel* ZrmConnectivity::create_zrm_module(uint16_t number, zrm_work_mode_t work_mode)
 {
-    return new ZrmModule(number, work_mode);
+    return new ZrmChannel(number, work_mode);
 }
 
 
@@ -287,7 +287,7 @@ void ZrmConnectivity::send_next_packet()
 
 }
 
-bool isWriteEnabled( const ZrmModule* mod, uint8_t type)
+bool isWriteEnabled( const ZrmChannel* mod, uint8_t type)
 {
     return mod && (type != PT_DATAWRITE ||  !mod->session_readonly());
 }
@@ -566,7 +566,7 @@ void   ZrmConnectivity::channels_stop       (bool silent)
 
 
 
-void   ZrmConnectivity::ping_module         (const ZrmModule* mod)
+void   ZrmConnectivity::ping_module         (const ZrmChannel* mod)
 {
 
     // Отправка запроса параметров устройству
@@ -1120,7 +1120,7 @@ QVariant     ZrmConnectivity::param_get( zrm::zrm_param_t param, const zrm::para
                 break;
             case zrm::PARAM_WTIME      :
             case zrm::PARAM_LTIME      :
-                res = QString::fromStdString(ZrmModule::time_param(pv));
+                res = QString::fromStdString(ZrmChannel::time_param(pv));
                 break;
 
             case zrm::PARAM_CUR        :
@@ -1152,10 +1152,10 @@ QVariant     ZrmConnectivity::param_get( zrm::zrm_param_t param, const zrm::para
                 break;
             case zrm::PARAM_TEMP       :
             case zrm::PARAM_TRECT      :
-                res = QString::fromStdString( ZrmModule::trect_param(pv) );
+                res = QString::fromStdString( ZrmChannel::trect_param(pv) );
                 break;
             case zrm::PARAM_FAN_PERCENT :
-                res = QString::fromStdString(ZrmModule::fan_param(pv));
+                res = QString::fromStdString(ZrmChannel::fan_param(pv));
                 break;
 
             default:

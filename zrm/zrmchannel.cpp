@@ -3,7 +3,7 @@
 * inner class ZrmModule for save state of the zrm device
 */
 
-#include "zrmmodule.hpp"
+#include "zrmchannel.hpp"
 #include <algorithm>
 #include <math.h>
 #include <stdlib.h>
@@ -12,7 +12,7 @@
 
 namespace zrm {
 
-ZrmModule::ZrmModule(uint16_t channel, zrm_work_mode_t work_mode)
+ZrmChannel::ZrmChannel(uint16_t channel, zrm_work_mode_t work_mode)
     : m_channel(channel), m_work_mode(work_mode)
 {
     m_ctrl_params.reserve(64);
@@ -20,11 +20,11 @@ ZrmModule::ZrmModule(uint16_t channel, zrm_work_mode_t work_mode)
 }
 
 
-ZrmModule::~ZrmModule()
+ZrmChannel::~ZrmChannel()
 {}
 
 
-bool ZrmModule::ping_check     (int timer_value)
+bool ZrmChannel::ping_check     (int timer_value)
 {
     m_ping_timeout -= timer_value;
     if (m_ping_timeout <= 0)
@@ -41,7 +41,7 @@ bool ZrmModule::ping_check     (int timer_value)
  * Добавление параметра для контроля
  */
 
-void     ZrmModule::param_request_add  (zrm_param_t param)
+void     ZrmChannel::param_request_add  (zrm_param_t param)
 {
     //locker_t l(m_mut);
     params_t::iterator ptr = this->m_ctrl_params.begin();
@@ -53,7 +53,7 @@ void     ZrmModule::param_request_add  (zrm_param_t param)
 }
 
 
-void     ZrmModule::params_request_add  (const params_t&   params)
+void     ZrmChannel::params_request_add  (const params_t&   params)
 {
     //locker_t l(m_mut);
     m_ctrl_params.insert(m_ctrl_params.end(), params.begin(), params.end());
@@ -62,7 +62,7 @@ void     ZrmModule::params_request_add  (const params_t&   params)
 }
 
 
-void     ZrmModule::param_request_remove(const zrm_param_t param)
+void     ZrmChannel::param_request_remove(const zrm_param_t param)
 {
     //locker_t l(m_mut);
     params_t::iterator ptr = this->m_ctrl_params.begin();
@@ -76,25 +76,25 @@ void     ZrmModule::param_request_remove(const zrm_param_t param)
     }
 }
 
-void     ZrmModule::params_request_remove(const params_t&   params)
+void     ZrmChannel::params_request_remove(const params_t&   params)
 {
     //locker_t l(m_mut);
     for (auto p : params)
         param_request_remove(zrm_param_t(p));
 }
 
-bool     ZrmModule::param_is_requested (zrm_param_t param)
+bool     ZrmChannel::param_is_requested (zrm_param_t param)
 {
     return std::binary_search(m_ctrl_params.begin(), m_ctrl_params.end(), params_t::value_type(param));
 }
 
-bool     ZrmModule::params_is_changed   (zrm_param_t param) const
+bool     ZrmChannel::params_is_changed   (zrm_param_t param) const
 {
     //locker_t l(m_mut);
     return m_chg_params.count(param);
 }
 
-param_variant     ZrmModule::param_get          (zrm_param_t param ) const
+param_variant     ZrmChannel::param_get          (zrm_param_t param ) const
 {
     param_variant pvar;
     //locker_t l(m_mut);
@@ -105,7 +105,7 @@ param_variant     ZrmModule::param_get          (zrm_param_t param ) const
     return pvar;
 }
 
-void ZrmModule::handle_conreq(const session_t* session)
+void ZrmChannel::handle_conreq(const session_t* session)
 {
     param_variant pv;
     pv.size      = sizeof(*session);
@@ -117,7 +117,7 @@ void ZrmModule::handle_conreq(const session_t* session)
 }
 
 
-oper_state_t ZrmModule::get_state(bool prev) const
+oper_state_t ZrmChannel::get_state(bool prev) const
 {
     oper_state_t state;
     if (prev)
@@ -129,7 +129,7 @@ oper_state_t ZrmModule::get_state(bool prev) const
     return state;
 }
 
-void ZrmModule::param_set(zrm_param_t param, const param_variant& pv)
+void ZrmChannel::param_set(zrm_param_t param, const param_variant& pv)
 {
     //locker_t l(m_mut);
     auto v = m_curr_params[param];
@@ -145,7 +145,7 @@ void ZrmModule::param_set(zrm_param_t param, const param_variant& pv)
     }
 }
 
-int ZrmModule::handle_recv(const zrm::recv_header_t& recv_data)
+int ZrmChannel::handle_recv(const zrm::recv_header_t& recv_data)
 {
     switch (recv_data.proto_hdr.type)
     {
@@ -165,7 +165,7 @@ int ZrmModule::handle_recv(const zrm::recv_header_t& recv_data)
 }
 
 
-void ZrmModule::handle_data(const uint8_t* data, size_t size)
+void ZrmChannel::handle_data(const uint8_t* data, size_t size)
 {
     if (!(data && size))
         return;
@@ -226,7 +226,7 @@ void ZrmModule::handle_data(const uint8_t* data, size_t size)
     }
 }
 
-uint16_t ZrmModule::handle_cells(uint16_t data_size, const uint8_t* beg, const uint8_t* end)
+uint16_t ZrmChannel::handle_cells(uint16_t data_size, const uint8_t* beg, const uint8_t* end)
 {
     Q_UNUSED(end)
     lpc_zrm_cell_t cbeg = reinterpret_cast<lpc_zrm_cell_t>(beg);
@@ -250,7 +250,7 @@ uint16_t ZrmModule::handle_cells(uint16_t data_size, const uint8_t* beg, const u
  * Обработка результатов работы метода
  */
 
-uint16_t  ZrmModule::handle_results (uint16_t data_size, const uint8_t* beg, const uint8_t* end)
+uint16_t  ZrmChannel::handle_results (uint16_t data_size, const uint8_t* beg, const uint8_t* end)
 {
     const stage_exec_result_t* res_beg = reinterpret_cast<const stage_exec_result_t*>(beg);
     const stage_exec_result_t* res_end = reinterpret_cast<const stage_exec_result_t*>(end);
@@ -284,7 +284,7 @@ uint16_t  ZrmModule::handle_results (uint16_t data_size, const uint8_t* beg, con
  * Обработка результатов работы метода - показания датчиков за один этап
  */
 
-uint16_t  ZrmModule::handle_results_sensor(uint16_t data_size, const uint8_t* beg, const uint8_t* end)
+uint16_t  ZrmChannel::handle_results_sensor(uint16_t data_size, const uint8_t* beg, const uint8_t* end)
 {
 
     Q_UNUSED(end)
@@ -316,7 +316,7 @@ uint16_t  ZrmModule::handle_results_sensor(uint16_t data_size, const uint8_t* be
  * Обработка текущих методов на устройстве
  */
 
-uint16_t ZrmModule::handle_method_stages(zrm_method_t& method, uint16_t data_size, const uint8_t* beg, const uint8_t* end)
+uint16_t ZrmChannel::handle_method_stages(zrm_method_t& method, uint16_t data_size, const uint8_t* beg, const uint8_t* end)
 {
     lpc_method_t recv_meth = reinterpret_cast<lpc_method_t>(beg);
     method.m_stages.clear();
@@ -344,7 +344,7 @@ uint16_t ZrmModule::handle_method_stages(zrm_method_t& method, uint16_t data_siz
     return data_size;
 }
 
-uint16_t ZrmModule::handle_method_stages(uint16_t data_size, const uint8_t* beg, const uint8_t* end)
+uint16_t ZrmChannel::handle_method_stages(uint16_t data_size, const uint8_t* beg, const uint8_t* end)
 {
     //locker_t l(m_mut);
     method_clear();
@@ -354,7 +354,7 @@ uint16_t ZrmModule::handle_method_stages(uint16_t data_size, const uint8_t* beg,
     return   data_size;
 }
 
-uint16_t ZrmModule::handle_eprom_method (uint16_t data_size, const uint8_t* beg, const uint8_t* end)
+uint16_t ZrmChannel::handle_eprom_method (uint16_t data_size, const uint8_t* beg, const uint8_t* end)
 {
     m_eprom_method.m_method = method_t();
     m_eprom_method.m_stages.clear();
@@ -367,7 +367,7 @@ uint16_t ZrmModule::handle_eprom_method (uint16_t data_size, const uint8_t* beg,
 
 
 
-void        ZrmModule::method_set  (const zrm_method_t& method)
+void        ZrmChannel::method_set  (const zrm_method_t& method)
 {
     //locker_t l(m_mut);
     method_clear();
@@ -383,7 +383,7 @@ void        ZrmModule::method_set  (const zrm_method_t& method)
 }
 
 
-zrm_cells_t ZrmModule::cells_get() const
+zrm_cells_t ZrmChannel::cells_get() const
 {
     return m_cells;
 }
@@ -393,7 +393,7 @@ zrm_cells_t ZrmModule::cells_get() const
  * @brief ZrmModule::session
  * @return получение текущей сессии
  */
-session_t ZrmModule::session               () const
+session_t ZrmChannel::session               () const
 {
     session_t sess(uint16_t(-1));
     auto param = param_get(PARAM_CON);
@@ -403,7 +403,7 @@ session_t ZrmModule::session               () const
 }
 
 
-void      ZrmModule::session_reset         ()
+void      ZrmChannel::session_reset         ()
 {
     m_curr_params.erase(PARAM_CON);
     m_prev_state.state = 0;
@@ -412,7 +412,7 @@ void      ZrmModule::session_reset         ()
 }
 
 
-int ZrmModule::results_get  (method_exec_results_t& res) const
+int ZrmChannel::results_get  (method_exec_results_t& res) const
 {
     res.clear();
     //locker_t l(m_mut);
@@ -420,7 +420,7 @@ int ZrmModule::results_get  (method_exec_results_t& res) const
     return int(res.size());
 }
 
-void      ZrmModule::results_clear()
+void      ZrmChannel::results_clear()
 {
     //locker_t l(m_mut);
     m_exec_results.clear();
@@ -430,7 +430,7 @@ void      ZrmModule::results_clear()
 }
 
 
-void     ZrmModule::method_clear()
+void     ZrmChannel::method_clear()
 {
     //locker_t l(m_mut);
     m_current_method.m_method = method_t();
@@ -438,7 +438,7 @@ void     ZrmModule::method_clear()
     param_set(PARAM_METHOD_STAGES, init_variant(0));
 }
 
-std::string  ZrmModule::time_param(const param_variant& pv)
+std::string  ZrmChannel::time_param(const param_variant& pv)
 {
     char text[128];
     if (pv.is_valid())
@@ -452,7 +452,7 @@ std::string  ZrmModule::time_param(const param_variant& pv)
     return std::string(text);
 }
 
-std::string ZrmModule::trect_param(const param_variant& pv)
+std::string ZrmChannel::trect_param(const param_variant& pv)
 {
     std::string ret;
     size_t pcount = pv.size / sizeof(int32_t);
@@ -470,7 +470,7 @@ std::string ZrmModule::trect_param(const param_variant& pv)
     return ret;
 }
 
-std::string ZrmModule::fan_param(const param_variant& pv)
+std::string ZrmChannel::fan_param(const param_variant& pv)
 {
     std::string fans;
     const uint8_t* beg = pv.puchar;

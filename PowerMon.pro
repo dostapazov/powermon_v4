@@ -78,10 +78,10 @@ SOURCES += \
 	zrm/zrm_connectivity.cpp \
 	zrm/zrmcalibrate.cpp \
 	zrm/zrmcellview.cpp \
+	zrm/zrmchannel.cpp \
 	zrm/zrmdevmethods.cpp \
 	zrm/zrmparamsview.cpp \
 	zrm/zrmproto.cpp \
-	zrm/zrmmodule.cpp \
 	data/zrmdatasource.cpp \
 	data/zrmmethodchoose.cpp \
 	data/zrmmethodeditor.cpp \
@@ -123,10 +123,10 @@ HEADERS += \
 		zrm/zrm_connectivity.hpp \
 	zrm/zrmcalibrate.h \
 	zrm/zrmcellview.h \
+	zrm/zrmchannel.hpp \
 	zrm/zrmdevmethods.h \
 	zrm/zrmparamsview.h \
 		zrm/zrmproto.hpp \
-		zrm/zrmmodule.hpp \
 	data/zrmdatasource.h \
 	data/zrmmethodchoose.h \
 	data/zrmmethodeditor.h \
