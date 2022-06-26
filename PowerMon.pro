@@ -67,7 +67,7 @@ SOURCES += \
 		main.cpp \
 		mainwindow.cpp \
 	utils/powermon_utils.cpp \
-	zrm/ZrmChannel.cpp \
+	zrm/ZrmChannelView.cpp \
 	zrm/ZrmLogerChart.cpp \
 	zrm/ZrmLogerChartUI.cpp \
 	zrm/ZrmParams.cpp \
@@ -111,7 +111,7 @@ HEADERS += \
 	data/zrmstageseditor.h \
 		mainwindow.h \
 	utils/powermon_utils.h \
-	zrm/ZrmChannel.h \
+	zrm/ZrmChannelView.h \
 	zrm/ZrmLogerChart.h \
 	zrm/ZrmLogerChartUI.h \
 	zrm/ZrmParams.h \
