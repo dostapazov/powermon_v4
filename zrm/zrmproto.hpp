@@ -168,6 +168,8 @@ enum packet_types_t
     PT_CONCONF   = 0x11
 };
 
+using  pCrcFunc = CRC_TYPE(*)(const void*, size_t);
+
 struct proto_header
 {
     uint16_t session_id;
@@ -178,6 +180,7 @@ struct proto_header
     proto_header(uint16_t _session_id, uint16_t _number, uint16_t _channel, uint8_t _type);
     size_t   operator()() const {return size_t(data_size);}
     void     operator()(size_t _dsz) { data_size = uint16_t(_dsz);}
+    static   pCrcFunc crcCalc;
 };
 
 inline proto_header::proto_header(uint16_t _session_id, uint16_t _number, uint16_t _channel, uint8_t _type)
@@ -212,6 +215,7 @@ struct proto_header
     proto_header(uint16_t _session_id, uint16_t _number, uint16_t _channel, uint8_t _type);
     size_t operator()() const { return size_t(data_size); }
     void operator()(size_t _dsz) { data_size = uint16_t(_dsz); }
+    static   pCrcFunc crcCalc;
 };
 
 inline proto_header::proto_header(uint16_t _session_id, uint16_t _number, uint16_t _channel, uint8_t _type)
@@ -224,25 +228,24 @@ inline proto_header::proto_header(uint16_t _session_id, uint16_t _number, uint16
 
 #endif
 
-using  pCrcFunc = CRC_TYPE(*)(const void*, size_t);
 
 union session_t
+    {
+        struct
+        {
+            uint8_t  mode;
+            uint8_t  error;
+            uint16_t ssID;
+        } session_param;
+        uint32_t    value;
+        session_t(uint16_t id, uint8_t a_mode = ST_FINISH,  uint8_t a_error = 0)
 {
-    struct
-    {
-        uint8_t  mode;
-        uint8_t  error;
-        uint16_t ssID;
-    } session_param;
-    uint32_t    value;
-    session_t(uint16_t id, uint8_t a_mode = ST_FINISH,  uint8_t a_error = 0)
-    {
-        session_param.mode = a_mode ;
-        session_param.error = (a_error);
-        session_param.ssID = (id);
-    }
-    bool is_active   () const { return session_param.mode != ST_FINISH;}
-    bool is_read_only() const { return session_param.mode != ST_CONTROL;}
+    session_param.mode = a_mode ;
+    session_param.error = (a_error);
+    session_param.ssID = (id);
+}
+bool is_active   () const { return session_param.mode != ST_FINISH;}
+bool is_read_only() const { return session_param.mode != ST_CONTROL;}
 };
 
 
@@ -625,8 +628,11 @@ typedef std::vector<zrm_cell_t> zrm_cells_t;
 
 #pragma pack(pop)
 
-typedef devproto::t_hdr<pc_prolog_t, proto_header, uint16_t> send_header_t, *lpsend_header_t;
-typedef devproto::t_hdr<cu_prolog_t, proto_header, uint16_t> recv_header_t, *lprecv_header_t;
+using send_header_t = devproto::t_hdr<pc_prolog_t, proto_header, uint16_t>;
+using lpsend_header_t = send_header_t*;
+
+using recv_header_t = devproto::t_hdr<cu_prolog_t, proto_header, uint16_t> ;
+using lprecv_header_t = recv_header_t*;
 
 using recv_buffer_t  = devproto::proto_buffer<recv_header_t, CRC_TYPE>;
 using _send_buffer_t = devproto::proto_buffer<send_header_t, CRC_TYPE>;

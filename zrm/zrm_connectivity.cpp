@@ -52,9 +52,9 @@ QChannelControlEvent::~QChannelControlEvent()
 }
 
 bool     ZrmConnectivity::meta_types_inited = false;
-idtext_t ZrmConnectivity::m_mode_text;
-idtext_t ZrmConnectivity::m_error_text;
-idtext_t ZrmConnectivity::m_warning_text;
+ZrmTextMap ZrmConnectivity::m_mode_text;
+ZrmTextMap ZrmConnectivity::m_error_text;
+ZrmTextMap ZrmConnectivity::m_warning_text;
 int      ZrmConnectivity::m_connectivities_changed = 0;
 
 ZrmConnectivity::connectivity_list_t ZrmConnectivity::m_connectivity_list;
@@ -145,14 +145,14 @@ ZrmChannel* ZrmConnectivity::create_zrm_module(uint16_t number, zrm_work_mode_t 
 
 
 
-zrm_module_ptr_t   ZrmConnectivity::get_channel(uint16_t channel) const
+ZrmChannelSharedPointer   ZrmConnectivity::get_channel(uint16_t channel) const
 {
     QMutexLocker l(&m_zrm_mutex);
     if (m_channels.contains(channel))
     {
         return m_channels[channel];
     }
-    return zrm_module_ptr_t();
+    return ZrmChannelSharedPointer();
 }
 
 
@@ -165,17 +165,10 @@ void ZrmConnectivity::handle_write  (qint64 wr_bytes)
     QMultioDevWorker::handle_write(wr_bytes);
 }
 
-void ZrmConnectivity::recv_check_sequence(uint16_t kadr_number)
+void ZrmConnectivity::notifyRecv(const recv_header_t& recvHeader)
 {
-    if (m_recv_kadr_number != uint32_t(-1))
-    {
-        auto delta = kadr_number - uint16_t(m_recv_kadr_number);
-        if ( delta > 1 )
-        {
-            //qDebug()<<" Violation kadr sequence "<<delta;
-        }
-    }
-    m_recv_kadr_number = kadr_number;
+    QByteArray packet_data(reinterpret_cast<const char*>(&recvHeader), recv_buffer_t::proto_size<int>(&recvHeader, false) );
+    emit sig_recv_packet(packet_data);
 }
 
 void ZrmConnectivity::handle_recv   (const QByteArray& recv_data)
@@ -184,26 +177,23 @@ void ZrmConnectivity::handle_recv   (const QByteArray& recv_data)
     m_recv_buffer.raw_add(recv_data.constData(), size_t( recv_data.size()));
     int packet_count = 0;
     static const QMetaMethod signal_rev_packet = QMetaMethod::fromSignal(&ZrmConnectivity::sig_recv_packet);
+
     bool is_sig_connected = isSignalConnected(signal_rev_packet);
+
     while (m_recv_buffer.sync(cu_prolog_t()) && m_recv_buffer.is_proto_complete())
     {
-        auto proto   = m_recv_buffer();
+        lprecv_header_t proto   = m_recv_buffer();
         auto crc_ptr = proto->last_byte_as<recv_buffer_t::crc_type>();
-#ifndef PROTOCOL_PT_LINE
-        if (crcunit::CRC::crc32(proto, proto->size()) == *crc_ptr)
-#else
-        if (crcunit::CRC::crc8_1wire(proto, proto->size()) == *crc_ptr)
-#endif
+        if (proto_header::crcCalc(proto, proto->size()) == *crc_ptr)
         {
-            recv_check_sequence(proto->proto_hdr.packet_number);
-            if (is_sig_connected)
-            {
-                QByteArray packet_data(reinterpret_cast<const char*>(proto), recv_buffer_t::proto_size<int>(proto, false) );
-                emit sig_recv_packet(packet_data);
-            }
+
             handle_recv_channel(*proto);
             m_recv_buffer.remove_first();
             ++packet_count;
+
+            if (is_sig_connected)
+                notifyRecv(*proto);
+
         }
         else
         {
@@ -359,11 +349,10 @@ void   ZrmConnectivity::handle_recv_channel (const recv_header_t& recv_hdr)
 {
     auto channel = recv_hdr.proto_hdr.channel;
     QMutexLocker l (&m_zrm_mutex);
-    auto mod = get_channel(channel);
-    if (mod.data())
+    ZrmChannelSharedPointer mod = get_channel(channel);
+    if (mod.data() && mod->handle_recv(recv_hdr))
     {
-        if (mod->handle_recv(recv_hdr) )
-            channel_mark_changed( channel );
+        channel_mark_changed( channel );
     }
 }
 
@@ -456,7 +445,7 @@ void    ZrmConnectivity::channel_refresh_info   (uint16_t  channel)
  * Изменение состояния модуля старт/стоп/пауза
  * если нулевые адреса pneed_request_method && pneed_ping то запрос метода и ping выполняются самостоятельно
  */
-void   ZrmConnectivity::module_state_changed (zrm_module_ptr_t& mod, bool* pneed_request_method, bool* pneed_ping)
+void   ZrmConnectivity::module_state_changed (ZrmChannelSharedPointer& mod, bool* pneed_request_method, bool* pneed_ping)
 {
 
     auto prev_state = mod->get_state(true );
@@ -516,7 +505,7 @@ void   ZrmConnectivity::chanel_clear_changes  (uint16_t channel)
 }
 
 
-channels_key_t  ZrmConnectivity::get_changed_channels()
+ZrmChannelsKeys  ZrmConnectivity::get_changed_channels()
 {
     QMutexLocker l(&m_zrm_mutex);
     auto ret =  std::move(m_changed_channels);
@@ -666,7 +655,7 @@ void   ZrmConnectivity::channel_set_work_mode ( uint16_t     ch_num, zrm_work_mo
 void   ZrmConnectivity::channel_subscribe_param     (uint16_t     ch_num, zrm_param_t param, bool add)
 {
     QMutexLocker l (&m_zrm_mutex);
-    zrm_module_ptr_t mod = get_channel(ch_num);
+    ZrmChannelSharedPointer mod = get_channel(ch_num);
     if ( mod.data() )
     {
         if (add)
@@ -681,7 +670,7 @@ void   ZrmConnectivity::channel_subscribe_param     (uint16_t     ch_num, zrm_pa
 void   ZrmConnectivity::channel_subscribe_params     ( uint16_t     ch_num, const params_t& params, bool add )
 {
     QMutexLocker l (&m_zrm_mutex);
-    zrm_module_ptr_t mod = get_channel(ch_num);
+    ZrmChannelSharedPointer mod = get_channel(ch_num);
     if ( mod.data() )
     {
         if (add)
@@ -1065,7 +1054,7 @@ int            ZrmConnectivity::channels_count()
     return m_channels.count();
 }
 
-channels_key_t ZrmConnectivity::channels()
+ZrmChannelsKeys ZrmConnectivity::channels()
 {
     QMutexLocker l(&m_zrm_mutex);
     return m_channels.keys();
@@ -1193,7 +1182,7 @@ QString ZrmConnectivity::get_stage_type_name(uint16_t ch_num, zrm::stage_type_t 
 
 
 
-void    load_text(const QString& file_name, idtext_t& dest)
+void    load_text(const QString& file_name, ZrmTextMap& dest)
 {
     QFile file(file_name);
     if (file.open(QFile::ReadOnly))

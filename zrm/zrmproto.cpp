@@ -7,9 +7,9 @@
 namespace zrm {
 
 #ifndef PROTOCOL_PT_LINE
-    pCrcFunc crcCalc = crcunit::CRC::crc32 ;
+    pCrcFunc proto_header::crcCalc = crcunit::CRC::crc32 ;
 #else
-    pCrcFunc crcCalc = crcunit::CRC::crc8_1wire ;
+    pCrcFunc proto_header::crcCalc = crcunit::CRC::crc8_1wire ;
 #endif
 
 const char* stage_t::st_types_power  [4] = {"Пауза", "Источник", "Нагрузка", "Импульс"};
@@ -30,7 +30,7 @@ size_t   send_buffer_t::queue_packet         (uint16_t channel, uint8_t packet_t
     m_storage.resize(old_size + sz);
     auto phdr = header_from_offset(old_size);
     phdr->init(proto_header(m_session_id, ++m_packet_number, channel, packet_type), data_size, data);
-    *phdr->last_byte_as<crc_type>() = crcCalc(phdr, phdr->size());
+    *phdr->last_byte_as<crc_type>() = proto_header::crcCalc(phdr, phdr->size());
     return sz;
 }
 

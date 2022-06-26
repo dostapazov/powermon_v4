@@ -56,10 +56,10 @@ private:
 
 };
 
-using    zrm_module_ptr_t =  QSharedPointer<ZrmChannel>       ;
-using    channels_t       =  QMap<uint16_t, zrm_module_ptr_t> ;
-using    channels_key_t   =  QList<channels_t::key_type>     ;
-using    idtext_t         =  QMap<uint32_t, QString>         ;
+using    ZrmChannelSharedPointer =  QSharedPointer<ZrmChannel>       ;
+using    ZrmTextMap       =  QMap<uint32_t, QString>         ;
+using    ZrmChannelsMap   =  QMap<uint16_t, ZrmChannelSharedPointer> ;
+using    ZrmChannelsKeys  =  QList<ZrmChannelsMap::key_type>     ;
 
 class ZrmConnectivity : public QMultioDevWorker
 {
@@ -101,8 +101,8 @@ public:
     zrm_cells_t        channel_cell_info     ( uint16_t     channel);
     void               channel_read_eprom_method(uint16_t     ch_num, uint8_t met_number);
 
-    channels_key_t     get_changed_channels();
-    zrm_module_ptr_t   get_channel   ( uint16_t   channel) const;
+    ZrmChannelsKeys     get_changed_channels();
+    ZrmChannelSharedPointer get_channel   ( uint16_t   channel) const;
 
     unsigned long      send_period    () const             { return m_send_period ;}
     void               set_send_period(unsigned long value) { m_send_period = value;}
@@ -128,7 +128,7 @@ public:
     bool  setChannelAttributes(uint16_t ch_num, const ZrmChannelAttributes& attrs);
 
     zrm::params_list_t channel_params(uint16_t channel);
-    channels_key_t     channels();
+    ZrmChannelsKeys     channels();
     int                channels_count();
 
     QVariant          param_get(uint16_t channel, zrm::zrm_param_t param);
@@ -175,12 +175,12 @@ protected slots:
 protected:
 
     void    send_next_packet();
+    void    notifyRecv(const recv_header_t& recvHeader);
     virtual  void    handle_recv     (const QByteArray& recv_data) override;
     virtual  void    handle_connect  (bool connected  ) override;
     virtual  void    handle_write    (qint64 wr_bytes ) override;
     virtual  void    handle_thread_start  () override;
     //virtual  void    handle_thread_finish () override;
-    void    recv_check_sequence(uint16_t kadr_number);
 
     virtual  ZrmChannel* create_zrm_module(uint16_t number, zrm_work_mode_t work_mode);
 
@@ -191,7 +191,7 @@ protected:
     void    ping_module         (const ZrmChannel* mod);
 
     void    on_channels_changed  ();
-    void    module_state_changed (zrm_module_ptr_t& mod, bool* pneed_request_method, bool* pneed_ping);
+    void    module_state_changed (ZrmChannelSharedPointer& mod, bool* pneed_request_method, bool* pneed_ping);
     void    send_timer_ctrl      (bool start);
     virtual bool    event(QEvent* ev) override;
     virtual void    channel_control_event(QChannelControlEvent* ctrl_event);
@@ -212,14 +212,14 @@ protected:
     mutable QMutex  m_zrm_mutex;
 
     send_buffer_t   m_send_buffer;
-    channels_t      m_channels;//Список каналов
-    channels_key_t  m_changed_channels;
+    ZrmChannelsMap      m_channels;//Список каналов
+    ZrmChannelsKeys  m_changed_channels;
     QString         m_name;
 
     static bool     meta_types_inited;
-    static idtext_t m_mode_text   ;
-    static idtext_t m_error_text  ;
-    static idtext_t m_warning_text;
+    static ZrmTextMap m_mode_text   ;
+    static ZrmTextMap m_error_text  ;
+    static ZrmTextMap m_warning_text;
     static int      m_connectivities_changed;
 
 private:

@@ -4,6 +4,7 @@
 #include "zrmproto.hpp"
 #include <tuple>
 #include <algorithm>
+#include <queue>
 
 namespace zrm {
 
@@ -15,6 +16,8 @@ struct zrm_maskab_param_t
 };
 
 
+constexpr uint32_t CHANNEL_DEFAULT_COLOR = 0x4682b4;
+
 class ZrmChannel
 {
 public:
@@ -25,7 +28,7 @@ public:
     {
         int box_number = 0;
         int device_number = 0;
-        uint32_t color = 0x4682b4;
+        uint32_t color = CHANNEL_DEFAULT_COLOR;
         bool operator == (const Attributes& other) const
         {return (box_number == other.box_number && device_number == other.device_number && color == other.color);}
     };
@@ -90,10 +93,9 @@ public:
     void  setAttributes(const Attributes& attrs) {m_Attributes = attrs;}
     const Attributes& getAttributes() const {return m_Attributes;}
 
-    static uint16_t     handle_method_stages(zrm_method_t& method, uint16_t data_size, const uint8_t* beg, const uint8_t* end);
     static std::string  time_param (const param_variant& pv);
     static std::string  trect_param(const param_variant& pv);
-    static std::string  fan_param(const param_variant& pv);
+    static std::string  fan_param  (const param_variant& pv);
 
 
 
@@ -106,9 +108,11 @@ protected:
     uint16_t handle_cells        (uint16_t data_size, const uint8_t* beg, const uint8_t* end);
     uint16_t handle_eprom_method (uint16_t data_size, const uint8_t* beg, const uint8_t* end);
     uint16_t handle_method_stages(uint16_t data_size, const uint8_t* beg, const uint8_t* end);
+    static uint16_t handle_method_stages(zrm_method_t& method, uint16_t data_size, const uint8_t* beg, const uint8_t* end);
 
 protected:
 //mutable mutex_t          m_mut;
+    uint16_t              m_LastPacketNumber = -1;
     int                   m_ping_period     =  1000;
     mutable int           m_ping_timeout    =  0;
     uint16_t              m_channel         =  uint16_t(-1);
@@ -128,8 +132,11 @@ protected:
     method_exec_results_t m_exec_results;
     method_exec_results_sensors_t m_exec_results_sensor;
 
-    send_buffer_t         m_SendBuffer;
-    Attributes   m_Attributes;
+    Attributes            m_Attributes;
+    using queue_t = std::queue<devproto::storage_t>;
+
+    queue_t               m_SendQueue;
+
 
 };
 

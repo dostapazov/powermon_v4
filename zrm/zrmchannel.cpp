@@ -113,6 +113,7 @@ void ZrmChannel::handle_conreq(const session_t* session)
     m_chg_params.clear();
     m_curr_params.clear();
     m_ping_timeout = 0;
+    m_LastPacketNumber = -1;
     param_set  ( PARAM_CON, pv );
 }
 
@@ -147,6 +148,7 @@ void ZrmChannel::param_set(zrm_param_t param, const param_variant& pv)
 
 int ZrmChannel::handle_recv(const zrm::recv_header_t& recv_data)
 {
+
     switch (recv_data.proto_hdr.type)
     {
         case PT_CONCONF  :
@@ -161,6 +163,7 @@ int ZrmChannel::handle_recv(const zrm::recv_header_t& recv_data)
             qDebug() << "unhandled header type 0x" <<  Qt::hex  <<  recv_data.proto_hdr.type;
             break;
     }
+    m_LastPacketNumber = recv_data.proto_hdr.packet_number;
     return int(m_chg_params.size());
 }
 

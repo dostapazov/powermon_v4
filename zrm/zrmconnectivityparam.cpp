@@ -379,7 +379,7 @@ void  ZrmConnectivityParam::do_connection_add()
 void  ZrmConnectivityParam::do_channel_add          (QTreeWidgetItem* item, zrm::ZrmConnectivity* conn)
 {
     //Добваление Канала
-    zrm::channels_key_t channels = conn->channels();
+    zrm::ZrmChannelsKeys channels = conn->channels();
     uint16_t last_number = channels.size() ?  channels.last() : 0;
     if (last_number < zrm::MAX_CHANNEL_NUMBER)
     {
