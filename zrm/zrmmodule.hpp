@@ -94,7 +94,7 @@ public:
 protected:
     void     param_set           (zrm_param_t param, const param_variant& pv);
     void     handle_conreq       (const session_t* session);
-    void     handle_data         (const uint8_t*    data_ptr, size_t data_size);
+    void     handle_data         (const uint8_t*    data, size_t size);
     uint16_t handle_results      (uint16_t data_size, const uint8_t* beg, const uint8_t* end);
     uint16_t handle_results_sensor(uint16_t data_size, const uint8_t* beg, const uint8_t* end);
     uint16_t handle_cells        (uint16_t data_size, const uint8_t* beg, const uint8_t* end);

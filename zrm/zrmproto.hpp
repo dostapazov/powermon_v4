@@ -42,10 +42,10 @@ enum session_types_t
 };
 
 
-enum zrm_param_t
+enum zrm_param_t : uint8_t
 {
-    PARAM_CHANNEL_WORKMODE = -1 // Изменен режим работы канала
-    , PARAM_CON        = 0       // Данные подключения 0
+
+    PARAM_CON        = 0       // Данные подключения 0
     , PARAM_STATE      = 1       // Состояние 1
     , PARAM_WTIME      = 2       // Время работы 2
     , PARAM_LTIME      = 3       // Ограничение времени 3
@@ -139,6 +139,7 @@ enum zrm_param_t
     , PARAM_METH_EXEC_RESULT_SENSOR = 109   //Результаты выполнения метода - показания датчиковза один этап
 
     , PARAM_BOOT_LOADER  = 250 // Команда перехода в загрузчик
+    , PARAM_CHANNEL_WORKMODE = uint8_t(-1) // Изменен режим работы канала
 };
 
 enum zrm_mode_command
