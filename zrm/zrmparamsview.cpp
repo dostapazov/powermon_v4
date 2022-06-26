@@ -82,7 +82,7 @@ void ZrmParamsView::onActivate()
     if (m_source && m_source->channel_session(m_channel).is_active())
     {
         channel_param_changed(m_channel, m_source->channel_params(m_channel));
-        m_request_timer.start(std::chrono::milliseconds(2000));
+        m_request_timer.start(std::chrono::milliseconds(1000));
         request();
     }
 
@@ -91,7 +91,7 @@ void ZrmParamsView::onActivate()
 void ZrmParamsView::onDeactivate()
 {
     ZrmChannelWidget::onDeactivate();
-    m_request_timer.stop();
+    //m_request_timer.stop();
 }
 
 void    ZrmParamsView::request()
