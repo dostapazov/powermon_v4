@@ -157,19 +157,28 @@ int ZrmModule::handle_recv(const zrm::recv_header_t& recv_data)
             if (session().session_param.ssID == recv_data.proto_hdr.session_id)
                 handle_data  (reinterpret_cast<const uint8_t*>(recv_data.data), recv_data.proto_hdr.data_size);
             break;
+        default:
+            qDebug() << "unhandled header type 0x" <<  Qt::hex  <<  recv_data.proto_hdr.type;
+            break;
     }
     return int(m_chg_params.size());
 }
 
 
-void ZrmModule::handle_data(const uint8_t* data_ptr, size_t data_size)
+void ZrmModule::handle_data(const uint8_t* data, size_t size)
 {
-    if (!data_ptr || !data_size)
+    if (!(data && size))
         return;
-    auto data_end = data_ptr + data_size;
+
+    auto data_ptr = data;
+    auto data_end = data + size ;
+
 #ifndef PROTOCOL_PT_LINE
-    uint8_t state = *data_ptr++;
-    (void)(state);
+    // skip the state byte
+    /*    uint8_t state = *data_ptr++;
+        (void)(state); */
+    //  почему не так ?
+    ++data_ptr;
 #endif
 
     //locker_t l(m_mut);
@@ -178,8 +187,7 @@ void ZrmModule::handle_data(const uint8_t* data_ptr, size_t data_size)
     {
         zrm_param_t param = zrm_param_t(*data_ptr++);
         uint16_t param_size = *data_ptr++;
-        if (!param_size)
-            continue;
+
         switch (param)
         {
             case PARAM_CON :
@@ -188,15 +196,12 @@ void ZrmModule::handle_data(const uint8_t* data_ptr, size_t data_size)
                 break;
             case PARAM_METHOD_STAGES :
                 param_size = handle_method_stages(param_size, data_ptr, data_end);
-                //param_set(param, init_variant(m_method.count()));
                 break;
             case PARAM_METH_EXEC_RESULT :
                 param_size = handle_results(param_size, data_ptr, data_end);
-                param_set(param, init_variant(m_exec_results.size()));
                 break;
             case PARAM_METH_EXEC_RESULT_SENSOR :
                 param_size = handle_results_sensor(param_size, data_ptr, data_end);
-                param_set(param, init_variant(m_exec_results_sensor.size()));
                 break;
             case PARAM_CELL :
                 param_size = handle_cells(param_size, data_ptr, data_end);
@@ -266,6 +271,7 @@ uint16_t  ZrmModule::handle_results (uint16_t data_size, const uint8_t* beg, con
         data_size += sizeof (*res_beg);
     }
     std::sort(m_exec_results.begin(), m_exec_results.end());
+    param_set(PARAM_METHOD_STAGES, init_variant(m_exec_results.size()));
     return data_size;
 }
 
@@ -296,6 +302,7 @@ uint16_t  ZrmModule::handle_results_sensor(uint16_t data_size, const uint8_t* be
     auto source_end = reinterpret_cast<stage_exec_result_sensors_t::sensor_data_t::const_pointer>(beg);
     std::copy(source_beg, source_end, res.sensors.begin());
     m_exec_results_sensor.push_back(res);
+    param_set(PARAM_METH_EXEC_RESULT_SENSOR, init_variant(m_exec_results_sensor.size()));
     return data_size;
 }
 

@@ -24,52 +24,28 @@ enum   sync_types_t
     PS_PC = 0xa5  // pc -> cu
     , PS_CU = 0x5a // cu -> pc
 };
-#ifndef PROTOCOL_PT_LINE
-enum packet_types_t
-{
-    PT_DATAREQ   = 0x0A // Запрос данных
-    , PT_DATAREAD  = 0x0B // Чтение данных
-    , PT_DATAWRITE = 0x0C // Запись данных
-    , PT_DIAG      = 0x0D // Диагностика
-    , PT_DEBUG     = 0x0F
-    , PT_CONREQ    = 0x10
-    , PT_CONCONF   = 0x11
-};
-#else
-enum packet_types_t
-{
-    PT_DATAREQ   = 0x07 // Запрос данных
-    , PT_DATAREAD  = 0x12 // Чтение данных
-    , PT_DATAWRITE = 0x09 // Запись данных
-    , PT_DIAG      = 0x0D // Диагностика
-    , PT_DEBUG     = 0x0F
-    , PT_CONREQ    = 0x10
-    , PT_CONCONF   = 0x11
-};
-#endif
 
 enum param_write_mode_t
 {
-    WM_NONE                   = 0
-    , WM_CHECK_FOR_MODIFICATION = 1
-    , WM_PROCESS                = 2
-    , WM_PROCESS_AND_WRITE      = 3
+    WM_NONE                   = 0,
+    WM_CHECK_FOR_MODIFICATION = 1,
+    WM_PROCESS                = 2,
+    WM_PROCESS_AND_WRITE      = 3
 };
-
 
 // Session type
 enum session_types_t
 {
-    ST_FINISH    = 0x00
-    , ST_CONTROL   = 0x01
-    , ST_READONLY  = 0x02
+    ST_FINISH    = 0x00,
+    ST_CONTROL   = 0x01,
+    ST_READONLY  = 0x02
 };
 
 
-enum zrm_param_t
+enum zrm_param_t : uint8_t
 {
-    PARAM_CHANNEL_WORKMODE = -1 // Изменен режим работы канала
-    , PARAM_CON        = 0       // Данные подключения 0
+
+    PARAM_CON        = 0       // Данные подключения 0
     , PARAM_STATE      = 1       // Состояние 1
     , PARAM_WTIME      = 2       // Время работы 2
     , PARAM_LTIME      = 3       // Ограничение времени 3
@@ -98,15 +74,15 @@ enum zrm_param_t
     , PARAM_CALIB_CURR = 24
     , PARAM_FAN_PERCENT = 25
 
-    , PARAM_TCP_SETTINGS = 47 // Смена настроек соединения
-    , PARAM_CALIB_U = 48 // Калибровка U
-    , PARAM_CALIB_I = 49 // Калибровка I
+    , PARAM_TCP_SETTINGS = 47   // Смена настроек соединения
+    , PARAM_CALIB_U = 48        // Калибровка U
+    , PARAM_CALIB_I = 49        // Калибровка I
 
-//    ,PARAM_KIC        = 50       // К1 тока заряда
+//    ,PARAM_KIC        = 50    // К1 тока заряда
 //    ,PARAM_KU         = 51
 //    ,PARAM_KEX        = 52
-//    ,PARAM_KID        = 53       //K1 тока разряда
-//    ,PARAM_BIC        = 54      //B тока заряда
+//    ,PARAM_KID        = 53    //K1 тока разряда
+//    ,PARAM_BIC        = 54    //B тока заряда
 //    ,PARAM_BU         = 55   //B напряжения
 //    ,PARAM_BEX        = 56
 //    ,PARAM_BID        = 57   //B тока разряда
@@ -163,6 +139,7 @@ enum zrm_param_t
     , PARAM_METH_EXEC_RESULT_SENSOR = 109   //Результаты выполнения метода - показания датчиковза один этап
 
     , PARAM_BOOT_LOADER  = 250 // Команда перехода в загрузчик
+    , PARAM_CHANNEL_WORKMODE = uint8_t(-1) // Изменен режим работы канала
 };
 
 enum zrm_mode_command
@@ -174,10 +151,23 @@ enum zrm_mode_command
 constexpr int MAX_CHANNEL_NUMBER = 255;
 
 struct pc_prolog_t {uint8_t sync_byte =  PS_PC;};
-
 struct cu_prolog_t {uint8_t sync_byte =  PS_CU;} ;
 
 #ifndef PROTOCOL_PT_LINE
+
+using CRC_TYPE = uint32_t;
+
+enum packet_types_t
+{
+    PT_DATAREQ   = 0x0A, // Запрос данных
+    PT_DATAREAD  = 0x0B, // Чтение данных
+    PT_DATAWRITE = 0x0C, // Запись данных
+    PT_DIAG      = 0x0D, // Диагностика
+    PT_DEBUG     = 0x0F,
+    PT_CONREQ    = 0x10,
+    PT_CONCONF   = 0x11
+};
+
 struct proto_header
 {
     uint16_t session_id;
@@ -189,7 +179,29 @@ struct proto_header
     size_t   operator()() const {return size_t(data_size);}
     void     operator()(size_t _dsz) { data_size = uint16_t(_dsz);}
 };
+
+inline proto_header::proto_header(uint16_t _session_id, uint16_t _number, uint16_t _channel, uint8_t _type)
+    : session_id   (_session_id)
+    , packet_number(_number    )
+    , channel      (_channel   )
+    , type         (_type      )
+{}
+
 #else
+
+using CRC_TYPE = uint8_t;
+
+enum packet_types_t
+{
+    PT_DATAREQ   = 0x07,// Запрос данных
+    PT_DATAREAD  = 0x12, // Чтение данных
+    PT_DATAWRITE = 0x09, // Запись данных
+    PT_DIAG      = 0x0D, // Диагностика
+    PT_DEBUG     = 0x0F,
+    PT_CONREQ    = 0x10,
+    PT_CONCONF   = 0x11
+};
+
 struct proto_header
 {
     uint8_t channel;
@@ -197,11 +209,23 @@ struct proto_header
     uint8_t packet_number;
     uint8_t type;
     uint16_t data_size;
-    proto_header(uint8_t _channel, uint8_t _session_id, uint8_t _number, uint8_t _type);
+    proto_header(uint16_t _session_id, uint16_t _number, uint16_t _channel, uint8_t _type);
     size_t operator()() const { return size_t(data_size); }
     void operator()(size_t _dsz) { data_size = uint16_t(_dsz); }
 };
+
+inline proto_header::proto_header(uint16_t _session_id, uint16_t _number, uint16_t _channel, uint8_t _type)
+    : channel      (_channel   )
+    , session_id   (_session_id)
+    , packet_number(_number    )
+    , type         (_type      )
+{}
+
+
 #endif
+
+using  pCrcFunc = CRC_TYPE(*)(const void*, size_t);
+
 union session_t
 {
     struct
@@ -586,7 +610,7 @@ struct  zrm_method_t
 struct zrm_cell_t
 {
     uint32_t m_volt;
-    int32_t m_temp;
+    int32_t  m_temp;
     zrm_cell_t() { m_volt = m_temp = 0; }
     static constexpr double SCALE_FACTOR = 1000;
     double volt() { return double(m_volt) / SCALE_FACTOR; }
@@ -603,13 +627,9 @@ typedef std::vector<zrm_cell_t> zrm_cells_t;
 
 typedef devproto::t_hdr<pc_prolog_t, proto_header, uint16_t> send_header_t, *lpsend_header_t;
 typedef devproto::t_hdr<cu_prolog_t, proto_header, uint16_t> recv_header_t, *lprecv_header_t;
-#ifndef PROTOCOL_PT_LINE
-    typedef devproto::proto_buffer<recv_header_t, uint32_t>      recv_buffer_t;
-    typedef devproto::proto_buffer<send_header_t, uint32_t>      _send_buffer_t;
-#else
-    typedef devproto::proto_buffer<recv_header_t, uint8_t> recv_buffer_t;
-    typedef devproto::proto_buffer<send_header_t, uint8_t> _send_buffer_t;
-#endif
+
+using recv_buffer_t  = devproto::proto_buffer<recv_header_t, CRC_TYPE>;
+using _send_buffer_t = devproto::proto_buffer<send_header_t, CRC_TYPE>;
 
 typedef devproto::storage_t                   params_t;
 
@@ -750,21 +770,7 @@ inline void     send_buffer_t::set_packet_number(uint16_t pn)
 {
     m_packet_number =    pn;
 }
-#ifndef PROTOCOL_PT_LINE
-inline proto_header::proto_header(uint16_t _session_id, uint16_t _number, uint16_t _channel, uint8_t _type)
-    : session_id   (_session_id)
-    , packet_number(_number    )
-    , channel      (_channel   )
-    , type         (_type      )
-{}
-#else
-inline proto_header::proto_header(uint8_t _channel, uint8_t _session_id, uint8_t _number, uint8_t _type)
-    : channel      (_channel   )
-    , session_id   (_session_id)
-    , packet_number(_number    )
-    , type         (_type      )
-{}
-#endif
+
 template <typename _Type>
 void  send_buffer_t::params_add(devproto::storage_t& data, param_write_mode_t wm, zrm_param_t  param, _Type value)
 {

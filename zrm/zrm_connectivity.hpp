@@ -20,11 +20,15 @@
 namespace zrm {
 
 
+#ifndef PROTOCOL_PT_LINE
+    constexpr unsigned long  SEND_PERIOD_DEFAULT  = 30;
+#else
+    constexpr unsigned long  SEND_PERIOD_DEFAULT  = 100;
+#endif
+
+
 enum channel_ctrl_t
 {ctrl_request_param, ctrl_write_param };
-
-
-
 
 class QChannelControlEvent : public QEvent
 {
@@ -42,8 +46,8 @@ public:
     size_t             data_size() const {return size_t(m_data.size());}
 
 private:
-    uint32_t           m_control;
-    uint16_t           m_channel;
+    uint32_t           m_control = ctrl_request_param;
+    uint16_t           m_channel = 0;
     param_write_mode_t m_wr_mode;
     zrm_param_t        m_param;
     QByteArray         m_data ;
@@ -197,12 +201,8 @@ protected:
     virtual void     write(QJsonObject& jobj);
     virtual void     read (const QJsonObject& jobj);
 
+    unsigned long   m_send_period = SEND_PERIOD_DEFAULT;
 
-#ifndef PROTOCOL_PT_LINE
-    unsigned long   m_send_period = 20;
-#else
-    unsigned long   m_send_period = 100;
-#endif
     bool            m_enable_send = false;
     uint32_t        m_recv_kadr_number;
     recv_buffer_t   m_recv_buffer;
