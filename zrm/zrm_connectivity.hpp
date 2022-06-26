@@ -27,6 +27,8 @@ namespace zrm {
 #endif
 
 
+using ZrmChannelAttributes = zrm::ZrmModule::Attributes;
+
 enum channel_ctrl_t
 {ctrl_request_param, ctrl_write_param };
 
@@ -121,12 +123,9 @@ public:
     size_t             channel_write_method(uint16_t ch_num, const zrm_method_t& method, param_write_mode_t wr_mode = WM_PROCESS  );
     zrm_maskab_param_t channel_masakb_param(uint16_t ch_num);
     void               channel_set_masakb_param(uint16_t ch_num, const zrm_maskab_param_t& map);
-    int                channel_box_number(uint16_t ch_num);
-    void               channel_set_box_number(uint16_t ch_num, int n);
-    int                channel_device_number(uint16_t ch_num);
-    void               channel_set_device_number(uint16_t ch_num, int n);
-    QString            channel_color(uint16_t ch_num);
-    void               channel_set_color(uint16_t ch_num, QString c);
+
+    ZrmChannelAttributes channelAttributes(uint16_t ch_num) const ;
+    bool  setChannelAttributes(uint16_t ch_num, const ZrmChannelAttributes& attrs);
 
     zrm::params_list_t channel_params(uint16_t channel);
     channels_key_t     channels();

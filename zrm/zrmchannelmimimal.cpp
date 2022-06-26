@@ -55,9 +55,11 @@ void ZrmChannelMimimal::bind(zrm::ZrmConnectivity* src, uint16_t chan, bool _con
         str = channel_name(m_channel);
         str += sess.is_active() ? QString(" [ ID %1 ]").arg(sess.session_param.ssID, 4, 16, QLatin1Char('0')).toUpper() : tr(" [ нет соединения ]");
         connect(m_source, &zrm::ZrmConnectivity::sig_change_color, this, &ZrmChannelMimimal::setColor);
-        setColor(m_channel, m_source->channel_color(m_channel));
-        int box = m_source->channel_box_number(m_channel);
-        int device = m_source->channel_device_number(m_channel);
+        zrm::ZrmChannelAttributes attrs = m_source->channelAttributes(m_channel);
+        QColor color(QRgb(attrs.color));
+        setColor(m_channel, color.name());
+        int box = attrs.box_number;
+        int device = attrs.device_number;
         QString strName = (box > 0) ? QString::number(box) : "";
         if (box > 0 && device > 0)
             strName += " : ";

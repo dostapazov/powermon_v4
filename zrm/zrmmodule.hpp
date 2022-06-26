@@ -4,7 +4,6 @@
 #include "zrmproto.hpp"
 #include <tuple>
 #include <algorithm>
-#include <QString>
 
 namespace zrm {
 
@@ -15,11 +14,20 @@ struct zrm_maskab_param_t
     double dT = .0;
 };
 
+
 class ZrmModule
 {
 public:
 // typedef  std::recursive_mutex                  mutex_t;
 // typedef  std::lock_guard<mutex_t>              locker_t;
+
+    struct Attributes
+    {
+        int box_number = 0;
+        int device_number = 0;
+        uint32_t color = 0x4682b4;
+    };
+
 
     ZrmModule(uint16_t channel = uint16_t(-1), zrm_work_mode_t work_mode = zrm_work_mode_t::as_charger);
     virtual ~ZrmModule();
@@ -77,17 +85,13 @@ public:
     zrm_maskab_param_t  masakb_param();
     void                set_masakb_param(const zrm_maskab_param_t& map);
 
-    inline void         setBoxNumber(int n) { box_number = n; }
-    inline int          boxNumber() { return box_number; }
-    inline void         setDeviceNumber(int n) { device_number = n; }
-    inline int          deviceNumber() { return device_number; }
-    inline void         setColor(const QString& c) { color = c; }
-    inline QString      getColor() { return color; }
+    void  setAttributes(const Attributes& attrs) {m_Attributes = attrs;}
+    const Attributes& getAttributes() const {return m_Attributes;}
 
     static uint16_t     handle_method_stages(zrm_method_t& method, uint16_t data_size, const uint8_t* beg, const uint8_t* end);
     static std::string  time_param (const param_variant& pv);
     static std::string  trect_param(const param_variant& pv);
-    static QString      fan_param(const param_variant& pv);
+    static std::string  fan_param(const param_variant& pv);
 
 
 
@@ -123,13 +127,8 @@ protected:
     method_exec_results_sensors_t m_exec_results_sensor;
 
     send_buffer_t         m_SendBuffer;
+    Attributes   m_Attributes;
 
-
-
-
-    int box_number = 0;
-    int device_number = 0;
-    QString color = "#4682b4";
 };
 
 //********* inline implementations

@@ -470,14 +470,17 @@ std::string ZrmModule::trect_param(const param_variant& pv)
     return ret;
 }
 
-QString ZrmModule::fan_param(const param_variant& pv)
+std::string ZrmModule::fan_param(const param_variant& pv)
 {
-    QString fans;
+    std::string fans;
     const uint8_t* beg = pv.puchar;
     const uint8_t* end = beg + pv.size;
     while (beg < end)
     {
-        fans += QString("%1%2").arg(fans.isEmpty() ? "" : ", ").arg(static_cast<int>(*beg));
+
+        char text[32];
+        snprintf(text, sizeof(text), "%s%d", (fans.empty() ? "" : ", "), static_cast<int>(*beg));
+        fans += text;
         ++beg;
     }
     return fans;

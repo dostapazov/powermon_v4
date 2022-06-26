@@ -16,6 +16,7 @@
 #include <qjsonobject.h>
 #include <qjsonarray.h>
 #include <QDateTime>
+#include <QColor>
 #include <QDebug>
 
 
@@ -828,65 +829,27 @@ void               ZrmConnectivity::channel_set_masakb_param(uint16_t ch_num, co
     }
 }
 
-int ZrmConnectivity::channel_box_number(uint16_t ch_num)
-{
-    QMutexLocker l(&m_zrm_mutex);
-    auto mod = get_channel(ch_num);
-    if (mod.data())
-        return mod->boxNumber();
-    return 0;
-}
 
-void ZrmConnectivity::channel_set_box_number(uint16_t ch_num, int n)
+ZrmChannelAttributes ZrmConnectivity::channelAttributes(uint16_t ch_num) const
 {
+    ZrmChannelAttributes attrs;
     QMutexLocker l(&m_zrm_mutex);
     auto mod = get_channel(ch_num);
-    if (mod.data() && mod->boxNumber() != n)
+    if (!mod.isNull())
     {
-        mod->setBoxNumber(n);
-        ++m_connectivities_changed;
+        attrs = mod->getAttributes();
     }
+    return attrs;
 }
 
-int ZrmConnectivity::channel_device_number(uint16_t ch_num)
+bool  ZrmConnectivity::setChannelAttributes(uint16_t ch_num, const ZrmChannelAttributes& attrs)
 {
     QMutexLocker l(&m_zrm_mutex);
     auto mod = get_channel(ch_num);
-    if (mod.data())
-        return mod->deviceNumber();
-    return 0;
-}
-
-void ZrmConnectivity::channel_set_device_number(uint16_t ch_num, int n)
-{
-    QMutexLocker l(&m_zrm_mutex);
-    auto mod = get_channel(ch_num);
-    if (mod.data() && mod->deviceNumber() != n)
-    {
-        mod->setDeviceNumber(n);
-        ++m_connectivities_changed;
-    }
-}
-
-QString ZrmConnectivity::channel_color(uint16_t ch_num)
-{
-    QMutexLocker l(&m_zrm_mutex);
-    auto mod = get_channel(ch_num);
-    if (mod.data())
-        return mod->getColor();
-    return "#4682b4";
-}
-
-void ZrmConnectivity::channel_set_color(uint16_t ch_num, QString c)
-{
-    QMutexLocker l(&m_zrm_mutex);
-    auto mod = get_channel(ch_num);
-    if (mod.data() && mod->getColor() != c)
-    {
-        mod->setColor(c);
-        emit sig_change_color(ch_num, c);
-        ++m_connectivities_changed;
-    }
+    if (mod.isNull())
+        return false;
+    mod->setAttributes(attrs);
+    return true;
 }
 
 void              ZrmConnectivity::channel_read_eprom_method(uint16_t     ch_num, uint8_t met_number )
@@ -1188,7 +1151,7 @@ QVariant     ZrmConnectivity::param_get( zrm::zrm_param_t param, const zrm::para
                 res = QString::fromStdString( ZrmModule::trect_param(pv) );
                 break;
             case zrm::PARAM_FAN_PERCENT :
-                res = ZrmModule::fan_param(pv);
+                res = QString::fromStdString(ZrmModule::fan_param(pv));
                 break;
 
             default:
@@ -1371,9 +1334,12 @@ void ZrmConnectivity::read(const QJsonObject& jobj)
         _map.dU = chobj[json_chan_makb_dU].toDouble(.0);
         _map.dT = chobj[json_chan_makb_dT].toDouble(.0);
         channel_set_masakb_param(chan_number, _map);
-        channel_set_box_number(chan_number, chobj[json_chan_box].toInt(0));
-        channel_set_device_number(chan_number, chobj[json_chan_device].toInt(0));
-        channel_set_color(chan_number, chobj[json_chan_color].toString("#4682b4"));
+        ZrmChannelAttributes attrs;
+        attrs.box_number = chobj[json_chan_box].toInt(0);
+        attrs.device_number = chobj[json_chan_device].toInt(0);
+        QColor color(chobj[json_chan_color].toString("#4682b4"));
+        attrs.color = color.rgb();
+        setChannelAttributes(chan_number, attrs);
     }
 }
 
@@ -1391,9 +1357,10 @@ void ZrmConnectivity::write(QJsonObject& jobj)
         auto _map = channel_masakb_param(chan_number);
         jchan_obj[json_chan_makb_dU] = _map.dU;
         jchan_obj[json_chan_makb_dT] = _map.dT;
-        jchan_obj[json_chan_box] = channel_box_number(chan_number);
-        jchan_obj[json_chan_device] = channel_device_number(chan_number);
-        jchan_obj[json_chan_color] = channel_color(chan_number);
+        ZrmChannelAttributes attrs = channelAttributes(chan_number);
+        jchan_obj[json_chan_box] = attrs.box_number;
+        jchan_obj[json_chan_device] = attrs.device_number;
+        jchan_obj[json_chan_color] = QColor(QRgb(attrs.color)).name();
         jchannels.append(jchan_obj);
     }
     jobj[json_channels] = jchannels;

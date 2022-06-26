@@ -116,8 +116,11 @@ void ZrmChannel::paintEvent(QPaintEvent* event)
 
     // шкаф / устройство
     // длинна текста
-    int box = m_source->channel_box_number(m_channel);
-    int device = m_source->channel_device_number(m_channel);
+    zrm::ZrmChannelAttributes attrs = m_source->channelAttributes(m_channel);
+
+    int box = attrs.box_number;
+    int device = attrs.device_number;
+
     strValue = (box > 0) ? QString::number(box) : "";
     if (box > 0 && device > 0)
         strValue += " : ";
