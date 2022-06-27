@@ -712,6 +712,21 @@ T    param_variant::value(bool as_signed) const
 
 typedef  std::map<zrm_param_t, param_variant> params_list_t;
 
+size_t  make_send_packet
+(
+    devproto::storage_t& storage,
+    uint16_t ssid, uint16_t packetNumber,
+    uint16_t channel, uint8_t packet_type,
+    uint16_t data_size, const void* data = nullptr
+);
+
+devproto::storage_t  make_send_packet
+(
+    uint16_t ssid, uint16_t packetNumber,
+    uint16_t channel, uint8_t packet_type,
+    uint16_t data_size, const void* data = nullptr
+);
+
 
 class   send_buffer_t : public _send_buffer_t
 {
