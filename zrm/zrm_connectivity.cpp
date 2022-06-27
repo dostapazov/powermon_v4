@@ -224,6 +224,16 @@ void ZrmConnectivity::sl_send_timer ()
 }
 
 
+
+void ZrmConnectivity::writeToDevice(const void* data, size_t size)
+{
+    if (device_is_open())
+    {
+        m_iodev->write(data, size);
+        m_iodev->flush();
+    }
+}
+
 /**
  * @brief ZrmConnectivity::send_next_packet
  * Отправка пакета из очереди
@@ -248,8 +258,7 @@ void ZrmConnectivity::send_next_packet()
 //                ;
 #endif
 
-            m_iodev->write(proto, send_buffer_t::proto_size<qint64>(proto));
-            m_iodev->flush();
+            writeToDevice(proto, send_buffer_t::proto_size<qint64>(proto));
             send_timer_ctrl(true);
             // Не очень хорошо
             // Возможны задержки по другим каналам
@@ -282,25 +291,32 @@ bool isWriteEnabled( const ZrmChannel* mod, uint8_t type)
     return mod && (type != PT_DATAWRITE ||  !mod->session_readonly());
 }
 
-size_t   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, size_t data_size, const void* data )
+void   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, size_t data_size, const void* data )
 {
 
-    size_t sz = 0;
-    if (device_is_open())
+    if (!device_is_open())
     {
-        QMutexLocker l(&m_zrm_mutex);
-        auto mod = get_channel(channel);
-        if (isWriteEnabled(mod.data(), type) )
-        {
-            //ставим в очередь если канал существует и разрешается управлять или это запросы
-            sz = m_send_buffer.queue_packet(channel, type, uint16_t(data_size), data);
-            if (!m_send_timer.isActive())
-            {
-                send_next_packet();
-            }
-        }
+        return;
     }
-    return sz;
+
+    QMutexLocker l(&m_zrm_mutex);
+    auto mod = get_channel(channel);
+    if (!isWriteEnabled(mod.data(), type) )
+    {
+        return;
+    }
+
+    //ставим в очередь если канал существует и разрешается управлять или это запросы
+    if (m_send_timer.isActive())
+    {
+        m_send_buffer.queue_packet(channel, type, data_size, data);
+    }
+    else
+    {
+        devproto::storage_t s = make_send_packet(m_send_buffer.session_id(), 0, channel, type, data_size, data);
+        writeToDevice(s.data(), s.size());
+        qDebug() << "Send packet new function";
+    }
 }
 
 
@@ -1281,7 +1297,7 @@ int ZrmConnectivity::read_from_json(QString path_to_file)
                 {
                     ZrmConnectivity* con = new ZrmConnectivity;
                     con->set_session_id(555);
-                    con->read(jobj.toObject());
+                    con->readFromJson(jobj.toObject());
                 }
             }
             else
@@ -1308,7 +1324,7 @@ constexpr const char* const json_chan_box     = "box_number";
 constexpr const char* const json_chan_device  = "device_number";
 constexpr const char* const json_chan_color   = "color";
 
-void ZrmConnectivity::read(const QJsonObject& jobj)
+void ZrmConnectivity::readFromJson(const QJsonObject& jobj)
 {
     QMutexLocker l(&m_zrm_mutex);
     m_name = jobj[json_con_name].toString();
@@ -1336,7 +1352,7 @@ void ZrmConnectivity::read(const QJsonObject& jobj)
     }
 }
 
-void ZrmConnectivity::write(QJsonObject& jobj)
+void ZrmConnectivity::writeToJson(QJsonObject& jobj)
 {
     QMutexLocker l(&m_zrm_mutex);
     jobj[json_con_name] = m_name;
@@ -1367,7 +1383,7 @@ bool  ZrmConnectivity::write_to_json (QString path_to_file)
     for (auto&& con : m_connectivity_list)
     {
         QJsonObject  jobj;
-        con->write  (jobj);
+        con->writeToJson  (jobj);
         jarray.append(jobj);
     }
     QFile file(path_to_file);

@@ -77,10 +77,10 @@ public:
     void               set_session_id        (uint16_t ssid);
 
 
-    size_t             send_packet           (uint16_t channel, uint8_t type, size_t data_size, const void* data = Q_NULLPTR);
-    size_t             send_packet           (uint16_t channel, uint8_t type, const devproto::storage_t& data );
-    size_t             send_session_start    (uint16_t channel, session_types_t session_type);
-    size_t             send_session_stop     (uint16_t channel  );
+    void send_packet   (uint16_t channel, uint8_t type, size_t data_size, const void* data = Q_NULLPTR);
+    void send_packet(uint16_t channel, uint8_t type, const devproto::storage_t& data );
+    void send_session_start(uint16_t channel, session_types_t session_type);
+    void send_session_stop(uint16_t channel  );
 
     void               channels_clear        ();
     void               channel_add           ( uint16_t ch_num, zrm_work_mode_t work_mode);
@@ -197,8 +197,10 @@ protected:
     virtual void    channel_control_event(QChannelControlEvent* ctrl_event);
     size_t          channel_write_method (uint16_t ch_num);
 
-    virtual void     write(QJsonObject& jobj);
-    virtual void     read (const QJsonObject& jobj);
+    void writeToDevice(const void* data, size_t size);
+
+    void     writeToJson(QJsonObject& jobj);
+    void     readFromJson (const QJsonObject& jobj);
 
     unsigned long   m_send_period = SEND_PERIOD_DEFAULT;
 
@@ -240,23 +242,24 @@ inline void  ZrmConnectivity::set_session_id(uint16_t ssid)
     m_send_buffer.set_sesion_id(ssid);
 }
 
-inline size_t    ZrmConnectivity::send_session_start         (uint16_t channel, session_types_t  session_type)
+inline void    ZrmConnectivity::send_session_start         (uint16_t channel, session_types_t  session_type)
 {
     uint8_t st = session_type;
     if (!session_id())
         set_session_id(555);
 
-    return send_packet(channel, PT_CONREQ, sizeof(st), &st);
+    send_packet(channel, PT_CONREQ, sizeof(st), &st);
 }
 
-inline size_t    ZrmConnectivity::send_session_stop          (uint16_t channel  )
+inline void    ZrmConnectivity::send_session_stop          (uint16_t channel  )
 {
     return send_session_start(channel, ST_FINISH);
 }
 
-inline size_t   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, const devproto::storage_t& data )
+inline void   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, const devproto::storage_t& data )
 {
-    return data.size() ? send_packet(channel, type, data.size(), data.begin().base()) : 0;
+    if (data.size())
+        send_packet(channel, type, data.size(), data.begin().base());
 }
 
 

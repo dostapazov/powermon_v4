@@ -21,6 +21,38 @@ const char* stage_t::stage_type_name (zrm_work_mode_t work_mode, stage_type_t st
     return text[stage_type];
 }
 
+
+size_t  make_send_packet
+(
+    devproto::storage_t& storage,
+    uint16_t ssid, uint16_t packetNumber,
+    uint16_t channel, uint8_t packet_type,
+    uint16_t data_size, const void* data
+)
+{
+    size_t sz  = send_header_t::need_size(size_t(data_size)) + sizeof (CRC_TYPE) ;
+    storage.resize( sz);
+    lpsend_header_t phdr = reinterpret_cast<lpsend_header_t> (&storage.at(0));
+
+    phdr->init(proto_header(ssid, packetNumber, channel, packet_type), data_size, data);
+    *phdr->last_byte_as<CRC_TYPE>() = proto_header::crcCalc(phdr, phdr->size());
+    return sz;
+}
+
+devproto::storage_t  make_send_packet
+(
+    uint16_t ssid, uint16_t packetNumber,
+    uint16_t channel, uint8_t packet_type,
+    uint16_t data_size, const void* data
+)
+{
+    devproto::storage_t storage;
+    make_send_packet(storage, ssid, packetNumber, channel, packet_type, data_size, data);
+    return storage;
+}
+
+
+
 // Добавление в очередь кадра на отправку
 size_t   send_buffer_t::queue_packet         (uint16_t channel, uint8_t packet_type, uint16_t data_size, const void* data  )
 {
