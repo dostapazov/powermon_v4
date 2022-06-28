@@ -19,6 +19,12 @@
 #include <QColor>
 #include <QDebug>
 
+#ifndef PROTOCOL_PT_LINE
+    constexpr unsigned long  SEND_PERIOD_DEFAULT  = 30;
+#else
+    constexpr unsigned long  SEND_PERIOD_DEFAULT  = 100;
+#endif
+
 
 static void  meta_types_init(bool& inited)
 {
@@ -105,6 +111,7 @@ ZrmConnectivity::ZrmConnectivity(const QString& conn_name, QObject* parent)
 
 {
 
+    m_send_period = SEND_PERIOD_DEFAULT;
     if (!conn_name.isEmpty())
         setObjectName(conn_name);
     meta_types_init(meta_types_inited);
@@ -161,7 +168,7 @@ void ZrmConnectivity::handle_write  (qint64 wr_bytes)
 
     Q_UNUSED(wr_bytes)
 //qDebug()<<Q_FUNC_INFO<<QThread::currentThreadId();
-    send_timer_ctrl(true);
+    //send_timer_ctrl(true);
     QMultioDevWorker::handle_write(wr_bytes);
 }
 
@@ -173,7 +180,8 @@ void ZrmConnectivity::notifyRecv(const recv_header_t& recvHeader)
 
 void ZrmConnectivity::handle_recv   (const QByteArray& recv_data)
 {
-    m_enable_send  = true;
+    //m_enable_send  = true;
+
     m_recv_buffer.raw_add(recv_data.constData(), size_t( recv_data.size()));
     int packet_count = 0;
     static const QMetaMethod signal_rev_packet = QMetaMethod::fromSignal(&ZrmConnectivity::sig_recv_packet);
@@ -205,6 +213,7 @@ void ZrmConnectivity::handle_recv   (const QByteArray& recv_data)
 
     if (packet_count)
     {
+        send_timer_ctrl(true);
         //Обработать список ищменифшихся каналов
 #if QT_VERSION < QT_VERSION_CHECK(5,14,0)
         m_watchdog_value.store(m_watchdog_limit);
@@ -227,10 +236,16 @@ void ZrmConnectivity::sl_send_timer ()
 
 void ZrmConnectivity::writeToDevice(const void* data, size_t size)
 {
+    static const QMetaMethod signal_send_packet = QMetaMethod::fromSignal(&ZrmConnectivity::sig_send_packet);
     if (device_is_open())
     {
         m_iodev->write(data, size);
         m_iodev->flush();
+        if (isSignalConnected(signal_send_packet))
+        {
+            QByteArray packet_data(reinterpret_cast<const char*>(data), size );
+            emit sig_send_packet(packet_data);
+        }
     }
 }
 
@@ -241,49 +256,65 @@ void ZrmConnectivity::writeToDevice(const void* data, size_t size)
 
 void ZrmConnectivity::send_next_packet()
 {
+    send_timer_ctrl(false);
     QMutexLocker l(&m_zrm_mutex);
-    if (m_send_buffer.raw_size())
+
+    devproto::storage_t st;
+    auto b = m_channels.begin();
+    auto e = m_channels.end();
+    while (b != e)
     {
-        if (m_enable_send )
+        ZrmChannel* ch = b->data();
+        if (ch->getNextSend(st))
         {
-            auto proto = m_send_buffer();
-
-#ifdef QT_DEBUG
-//      qDebug()<<tr("%1 : Отправка пакета  № %2 тип %3 размер данных %4 Канал %5")
-//                .arg(QDateTime::currentDateTime().toString("hh:mm:ss.zzz"))
-//                .arg(proto->proto_hdr.packet_number)
-//                .arg(proto->proto_hdr.type,0,16)
-//                .arg(proto->proto_hdr.data_size)
-//                .arg(proto->proto_hdr.channel)
-//                ;
-#endif
-
-            writeToDevice(proto, send_buffer_t::proto_size<qint64>(proto));
-            send_timer_ctrl(true);
-            // Не очень хорошо
-            // Возможны задержки по другим каналам
-            // Пережелать логику передачи и запрета передачи.
-            // Перенести в канал
-            m_enable_send = (proto->proto_hdr.type != PT_DATAREAD && proto->proto_hdr.type != PT_DATAREQ);
-
-
-            static const QMetaMethod signal_send_packet = QMetaMethod::fromSignal(&ZrmConnectivity::sig_send_packet);
-            if (isSignalConnected(signal_send_packet))
-            {
-                QByteArray packet_data(reinterpret_cast<const char*>(proto), send_buffer_t::proto_size<int>(proto, false) );
-                emit sig_send_packet(packet_data);
-            }
-            m_send_buffer.remove_first();
+            writeToDevice(st.data(), st.size());
+            break;
         }
-        else
-        {
-            //qDebug() << "send disable";
-        }
+        ++b;
     }
-    else
-        send_timer_ctrl(false);
 
 
+
+//    if (m_send_buffer.raw_size())
+//    {
+//        if (m_enable_send )
+//        {
+//            auto proto = m_send_buffer();
+
+//#ifdef QT_DEBUG
+////      qDebug()<<tr("%1 : Отправка пакета  № %2 тип %3 размер данных %4 Канал %5")
+////                .arg(QDateTime::currentDateTime().toString("hh:mm:ss.zzz"))
+////                .arg(proto->proto_hdr.packet_number)
+////                .arg(proto->proto_hdr.type,0,16)
+////                .arg(proto->proto_hdr.data_size)
+////                .arg(proto->proto_hdr.channel)
+////                ;
+//#endif
+
+//            writeToDevice(proto, send_buffer_t::proto_size<qint64>(proto));
+//            send_timer_ctrl(true);
+//            // Не очень хорошо
+//            // Возможны задержки по другим каналам
+//            // Пережелать логику передачи и запрета передачи.
+//            // Перенести в канал
+//            m_enable_send = (proto->proto_hdr.type != PT_DATAREAD && proto->proto_hdr.type != PT_DATAREQ);
+
+
+//            static const QMetaMethod signal_send_packet = QMetaMethod::fromSignal(&ZrmConnectivity::sig_send_packet);
+//            if (isSignalConnected(signal_send_packet))
+//            {
+//                QByteArray packet_data(reinterpret_cast<const char*>(proto), send_buffer_t::proto_size<int>(proto, false) );
+//                emit sig_send_packet(packet_data);
+//            }
+//            m_send_buffer.remove_first();
+//        }
+//        else
+//        {
+//            //qDebug() << "send disable";
+//        }
+//    }
+//    else
+//        send_timer_ctrl(false);
 }
 
 bool isWriteEnabled( const ZrmChannel* mod, uint8_t type)
@@ -306,18 +337,9 @@ void   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, s
         return;
     }
 
-    //ставим в очередь если канал существует и разрешается управлять или это запросы
-    if (m_send_timer.isActive())
-    {
-        m_send_buffer.queue_packet(channel, type, data_size, data);
-    }
-    else
-    {
-        devproto::storage_t s = make_send_packet(m_send_buffer.session_id(), 0, channel, type, data_size, data);
-        mod->send(m_send_buffer.session_id(), static_cast<packet_types_t>(type), data_size, data);
-        writeToDevice(s.data(), s.size());
-        qDebug() << "Send packet new function";
-    }
+    mod->send(ssid, static_cast<packet_types_t>(type), data_size, data);
+    if (!m_send_timer.isActive())
+        send_next_packet();
 }
 
 
@@ -325,8 +347,8 @@ void ZrmConnectivity::handle_connect(bool connected)
 {
     send_timer_ctrl    (false);
     m_recv_buffer.clear();
-    m_send_buffer.clear();
-    m_enable_send  = true;
+    //m_send_buffer.clear();
+    //m_enable_send  = true;
     m_recv_kadr_number = uint32_t(-1);
 
     if (connected)
@@ -343,23 +365,19 @@ void ZrmConnectivity::handle_connect(bool connected)
         m_send_timer.stop();
         channels_stop();
     }
-    m_send_buffer.set_packet_number(0);
+    //m_send_buffer.set_packet_number(0);
     QMultioDevWorker::handle_connect(connected);
 }
 
 void   ZrmConnectivity::send_timer_ctrl(bool start)
 {
     //Управление таймером передачи
-    if (start && !m_send_timer.isActive()) // Запуск
+    m_send_timer.stop();
+    if (start ) // Запуск
     {
         m_send_timer.start(std::chrono::milliseconds(m_send_period));
     }
 
-    if (!start && m_send_timer.isActive()) // Останов
-    {
-        m_send_timer.stop();
-        m_enable_send = true;
-    }
 }
 
 void   ZrmConnectivity::handle_recv_channel (const recv_header_t& recv_hdr)
@@ -548,7 +566,7 @@ int    ZrmConnectivity::channels_start      ()
 void   ZrmConnectivity::channels_stop       (bool silent)
 {
     QMutexLocker l (&m_zrm_mutex);
-    m_send_buffer.clear();
+    //m_send_buffer.clear();
     for (auto mod : qAsConst(m_channels))
     {
         if (!mod.data())
@@ -562,12 +580,12 @@ void   ZrmConnectivity::channels_stop       (bool silent)
     }
 
     //TODO make asynchronous
-    while (!m_send_buffer.is_empty())
-    {
-        m_enable_send = true;
-        send_next_packet();
-        QThread::msleep(m_send_period);
-    }
+//    while (!m_send_buffer.is_empty())
+//    {
+//        //m_enable_send = true;
+//        send_next_packet();
+//        QThread::msleep(m_send_period);
+//    }
 }
 
 

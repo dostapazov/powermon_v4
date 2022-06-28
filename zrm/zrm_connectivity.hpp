@@ -20,12 +20,6 @@
 namespace zrm {
 
 
-#ifndef PROTOCOL_PT_LINE
-    constexpr unsigned long  SEND_PERIOD_DEFAULT  = 30;
-#else
-    constexpr unsigned long  SEND_PERIOD_DEFAULT  = 100;
-#endif
-
 
 using ZrmChannelAttributes = zrm::ZrmChannel::Attributes;
 
@@ -74,7 +68,7 @@ public:
     virtual bool       set_connection_string(const QString& conn_str) override;
 
     uint16_t           session_id            ();
-    void               set_session_id        (uint16_t ssid);
+    void               set_session_id        (uint16_t _ssid);
 
 
     void send_packet   (uint16_t channel, uint8_t type, size_t data_size, const void* data = Q_NULLPTR);
@@ -202,9 +196,9 @@ protected:
     void     writeToJson(QJsonObject& jobj);
     void     readFromJson (const QJsonObject& jobj);
 
-    unsigned long   m_send_period = SEND_PERIOD_DEFAULT;
+    unsigned long   m_send_period = 0;
 
-    bool            m_enable_send = false;
+    //bool            m_enable_send = false;
     uint32_t        m_recv_kadr_number;
     recv_buffer_t   m_recv_buffer;
     QTimer          m_send_timer ;
@@ -213,7 +207,8 @@ protected:
 
     mutable QMutex  m_zrm_mutex;
 
-    send_buffer_t   m_send_buffer;
+    //send_buffer_t   m_send_buffer;
+    uint16_t  ssid = 0;
     ZrmChannelsMap      m_channels;//Список каналов
     ZrmChannelsKeys  m_changed_channels;
     QString         m_name;
@@ -234,12 +229,13 @@ private:
 
 inline uint16_t  ZrmConnectivity::session_id    ()
 {
-    return m_send_buffer.session_id();
+    return ssid;//m_send_buffer.session_id();
 }
 
-inline void  ZrmConnectivity::set_session_id(uint16_t ssid)
+inline void  ZrmConnectivity::set_session_id(uint16_t _ssid)
 {
-    m_send_buffer.set_sesion_id(ssid);
+    ssid = _ssid;
+    //m_send_buffer.set_sesion_id(ssid);
 }
 
 inline void    ZrmConnectivity::send_session_start         (uint16_t channel, session_types_t  session_type)

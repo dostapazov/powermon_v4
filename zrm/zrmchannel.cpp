@@ -516,5 +516,10 @@ void   ZrmChannel::clearSend()
     m_SendQueue.swap(q);
 }
 
+bool   ZrmChannel::sendQueueCount() const
+{
+    return m_SendQueue.size();
+}
+
 
 } // namespace zrm

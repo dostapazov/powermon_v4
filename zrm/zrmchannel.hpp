@@ -99,6 +99,7 @@ public:
 
     void   send(uint16_t ssid, packet_types_t type, size_t dataSize, const void* data);
     bool   getNextSend(devproto::storage_t& dest);
+    bool   sendQueueCount() const;
     void   clearSend();
 
 
