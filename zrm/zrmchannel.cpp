@@ -489,4 +489,32 @@ std::string ZrmChannel::fan_param(const param_variant& pv)
     return fans;
 }
 
+void   ZrmChannel::send(uint16_t ssid, packet_types_t type, size_t dataSize, const void* data)
+{
+    m_SendQueue.emplace(make_send_packet(ssid, ++m_PacketNumber, m_channel, type, dataSize, data));
+}
+
+bool   ZrmChannel::getNextSend(devproto::storage_t& dest)
+{
+
+    if (m_SendQueue.empty())
+    {
+
+        dest.resize(0);
+        return false;
+    }
+
+    dest = std::move(m_SendQueue.front());
+    m_SendQueue.pop();
+    return true;
+}
+
+void   ZrmChannel::clearSend()
+{
+    m_PacketNumber = 0;
+    queue_t q{};
+    m_SendQueue.swap(q);
+}
+
+
 } // namespace zrm

@@ -314,6 +314,7 @@ void   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, s
     else
     {
         devproto::storage_t s = make_send_packet(m_send_buffer.session_id(), 0, channel, type, data_size, data);
+        mod->send(m_send_buffer.session_id(), static_cast<packet_types_t>(type), data_size, data);
         writeToDevice(s.data(), s.size());
         qDebug() << "Send packet new function";
     }

@@ -97,6 +97,10 @@ public:
     static std::string  trect_param(const param_variant& pv);
     static std::string  fan_param  (const param_variant& pv);
 
+    void   send(uint16_t ssid, packet_types_t type, size_t dataSize, const void* data);
+    bool   getNextSend(devproto::storage_t& dest);
+    void   clearSend();
+
 
 
 protected:
@@ -136,6 +140,7 @@ protected:
     using queue_t = std::queue<devproto::storage_t>;
 
     queue_t               m_SendQueue;
+    uint16_t              m_PacketNumber = 0;
 
 
 };
