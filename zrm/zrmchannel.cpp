@@ -114,6 +114,8 @@ void ZrmChannel::handle_conreq(const session_t* session)
     m_curr_params.clear();
     m_ping_timeout = 0;
     m_LastPacketNumber = -1;
+    m_PacketNumber = -1;
+    clearSend();
     param_set  ( PARAM_CON, pv );
 }
 
@@ -164,6 +166,13 @@ int ZrmChannel::handle_recv(const zrm::recv_header_t& recv_data)
             break;
     }
     m_LastPacketNumber = recv_data.proto_hdr.packet_number;
+
+    if (m_waitReceive)
+    {
+        m_waitReceive = false;
+        m_timeFromRecv.start();
+    }
+
     return int(m_chg_params.size());
 }
 
@@ -489,36 +498,64 @@ std::string ZrmChannel::fan_param(const param_variant& pv)
     return fans;
 }
 
-void   ZrmChannel::send(uint16_t ssid, packet_types_t type, size_t dataSize, const void* data)
+QByteArray ZrmChannel::make_send_packet
+(
+    uint16_t ssid, uint16_t packetNumber,
+    uint16_t channel, uint8_t packet_type,
+    uint16_t data_size, const void* data
+)
 {
-    m_SendQueue.emplace(make_send_packet(ssid, ++m_PacketNumber, m_channel, type, dataSize, data));
+    size_t sz  = send_header_t::need_size(size_t(data_size)) + sizeof (CRC_TYPE) ;
+    QByteArray packet(sz, Qt::Initialization::Uninitialized);
+
+    lpsend_header_t phdr = reinterpret_cast<lpsend_header_t> (packet.data());
+
+    phdr->init(proto_header(ssid, packetNumber, channel, packet_type), data_size, data);
+    *phdr->last_byte_as<CRC_TYPE>() = proto_header::crcCalc(phdr, phdr->size());
+    return packet;
 }
 
-bool   ZrmChannel::getNextSend(devproto::storage_t& dest)
+
+void   ZrmChannel::send(uint16_t ssid, packet_types_t type, size_t dataSize, const void* data)
+{
+    if (dataSize && data)
+    {
+        m_SendQueue.push_back(make_send_packet(ssid, ++m_PacketNumber, m_channel, type, dataSize, data));
+    }
+}
+
+
+
+QByteArray   ZrmChannel::getNextSend()
 {
 
     if (m_SendQueue.empty())
     {
-
-        dest.resize(0);
-        return false;
+        return QByteArray();
     }
-
-    dest = std::move(m_SendQueue.front());
-    m_SendQueue.pop();
-    return true;
+    m_waitReceive = true;
+    m_timeFromRecv.invalidate();
+    return m_SendQueue.takeFirst();
 }
 
 void   ZrmChannel::clearSend()
 {
+    m_waitReceive = false;
+    m_timeFromRecv.start();
     m_PacketNumber = 0;
-    queue_t q{};
-    m_SendQueue.swap(q);
+    m_SendQueue.clear();
 }
 
-bool   ZrmChannel::sendQueueCount() const
+bool   ZrmChannel::readyToSend(qint64 sentDelay) const
 {
-    return m_SendQueue.size();
+    if ( m_SendQueue.empty())
+        return false;
+    return !m_waitReceive && m_timeFromRecv.hasExpired(sentDelay);
+}
+
+bool   ZrmChannel::hasSend() const
+{
+    return m_SendQueue.empty();
 }
 
 

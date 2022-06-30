@@ -4,7 +4,8 @@
 #include "zrmproto.hpp"
 #include <tuple>
 #include <algorithm>
-#include <queue>
+#include <QByteArrayList>
+#include <QElapsedTimer>
 
 namespace zrm {
 
@@ -98,11 +99,17 @@ public:
     static std::string  fan_param  (const param_variant& pv);
 
     void   send(uint16_t ssid, packet_types_t type, size_t dataSize, const void* data);
-    bool   getNextSend(devproto::storage_t& dest);
-    bool   sendQueueCount() const;
+    QByteArray getNextSend();
+    bool   readyToSend(qint64 sentDelay) const;
+    bool   hasSend() const;
     void   clearSend();
 
-
+    static QByteArray make_send_packet
+    (
+        uint16_t ssid, uint16_t packetNumber,
+        uint16_t channel, uint8_t packet_type,
+        uint16_t data_size, const void* data
+    );
 
 protected:
     void     param_set           (zrm_param_t param, const param_variant& pv);
@@ -138,10 +145,12 @@ protected:
     method_exec_results_sensors_t m_exec_results_sensor;
 
     Attributes            m_Attributes;
-    using queue_t = std::queue<devproto::storage_t>;
 
-    queue_t               m_SendQueue;
+
+    QByteArrayList        m_SendQueue;
     uint16_t              m_PacketNumber = 0;
+    QElapsedTimer         m_timeFromRecv;
+    bool                  m_waitReceive = false;
 
 
 };

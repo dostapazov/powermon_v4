@@ -39,20 +39,6 @@ size_t  make_send_packet
     return sz;
 }
 
-devproto::storage_t  make_send_packet
-(
-    uint16_t ssid, uint16_t packetNumber,
-    uint16_t channel, uint8_t packet_type,
-    uint16_t data_size, const void* data
-)
-{
-    devproto::storage_t storage;
-    make_send_packet(storage, ssid, packetNumber, channel, packet_type, data_size, data);
-    return storage;
-}
-
-
-
 // Добавление в очередь кадра на отправку
 size_t   send_buffer_t::queue_packet         (uint16_t channel, uint8_t packet_type, uint16_t data_size, const void* data  )
 {

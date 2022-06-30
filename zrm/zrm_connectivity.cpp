@@ -20,9 +20,9 @@
 #include <QDebug>
 
 #ifndef PROTOCOL_PT_LINE
-    constexpr unsigned long  SEND_PERIOD_DEFAULT  = 30;
+    constexpr qint64  SEND_PERIOD_DEFAULT  = 10;
 #else
-    constexpr unsigned long  SEND_PERIOD_DEFAULT  = 100;
+    constexpr qint64  SEND_PERIOD_DEFAULT  = 100;
 #endif
 
 
@@ -221,7 +221,9 @@ void ZrmConnectivity::handle_recv   (const QByteArray& recv_data)
         m_watchdog_value.storeRelaxed(m_watchdog_limit);
 #endif
         on_channels_changed();
+        send_next_packet();
     }
+
 }
 
 
@@ -258,21 +260,24 @@ void ZrmConnectivity::send_next_packet()
 {
     send_timer_ctrl(false);
     QMutexLocker l(&m_zrm_mutex);
-
-    devproto::storage_t st;
     auto b = m_channels.begin();
     auto e = m_channels.end();
     while (b != e)
     {
         ZrmChannel* ch = b->data();
-        if (ch->getNextSend(st))
-        {
-            writeToDevice(st.data(), st.size());
-            break;
-        }
-        ++b;
-    }
 
+
+        if (!ch->readyToSend(SEND_PERIOD_DEFAULT))
+        {
+            ++b;
+            continue;
+        }
+
+        QByteArray data = ch->getNextSend();
+        writeToDevice(data.constData(), data.size());
+        break;
+
+    }
 
 
 //    if (m_send_buffer.raw_size())
@@ -372,8 +377,8 @@ void ZrmConnectivity::handle_connect(bool connected)
 void   ZrmConnectivity::send_timer_ctrl(bool start)
 {
     //Управление таймером передачи
-    m_send_timer.stop();
-    if (start ) // Запуск
+    //m_send_timer.stop();
+    if (start && !m_send_timer.isActive()) // Запуск
     {
         m_send_timer.start(std::chrono::milliseconds(m_send_period));
     }
@@ -556,6 +561,7 @@ int    ZrmConnectivity::channels_start      ()
         if (!mod.data())
             continue;
         ret = qMin(mod->ping_period(), ret);
+        mod->clearSend();
         send_session_start(mod->channel(), mod->session_request());
 
     }
