@@ -215,11 +215,7 @@ void ZrmConnectivity::handle_recv   (const QByteArray& recv_data)
     {
         send_timer_ctrl(true);
         //Обработать список ищменифшихся каналов
-#if QT_VERSION < QT_VERSION_CHECK(5,14,0)
-        m_watchdog_value.store(m_watchdog_limit);
-#else
-        m_watchdog_value.storeRelaxed(m_watchdog_limit);
-#endif
+        resetWatchDog();
         on_channels_changed();
         send_next_packet();
     }
