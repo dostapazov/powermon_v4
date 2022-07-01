@@ -67,14 +67,8 @@ public:
     virtual           ~ZrmConnectivity() override;
     virtual bool       set_connection_string(const QString& conn_str) override;
 
-    uint16_t           session_id            ();
-    void               set_session_id        (uint16_t _ssid);
-
-
     void send_packet   (uint16_t channel, uint8_t type, size_t data_size, const void* data = Q_NULLPTR);
     void send_packet(uint16_t channel, uint8_t type, const devproto::storage_t& data );
-    void send_session_start(uint16_t channel, session_types_t session_type);
-    void send_session_stop(uint16_t channel  );
 
     void               channels_clear        ();
     void               channel_add           ( uint16_t ch_num, zrm_work_mode_t work_mode);
@@ -182,7 +176,7 @@ protected:
     int     channels_start      ();
     void    channels_stop       (bool silent = false);
 
-    void    ping_module         (const ZrmChannel* mod);
+    void    ping_module         (ZrmChannel *mod);
 
     void    on_channels_changed  ();
     void    module_state_changed (ZrmChannelSharedPointer& mod, bool* pneed_request_method, bool* pneed_ping);
@@ -208,7 +202,6 @@ protected:
     mutable QMutex  m_zrm_mutex;
 
     //send_buffer_t   m_send_buffer;
-    uint16_t  ssid = 0;
     ZrmChannelsMap      m_channels;//Список каналов
     ZrmChannelsKeys  m_changed_channels;
     QString         m_name;
@@ -225,32 +218,6 @@ private:
     static void unregister_connectivity(ZrmConnectivity* instance);
 
 };
-
-
-inline uint16_t  ZrmConnectivity::session_id    ()
-{
-    return ssid;//m_send_buffer.session_id();
-}
-
-inline void  ZrmConnectivity::set_session_id(uint16_t _ssid)
-{
-    ssid = _ssid;
-    //m_send_buffer.set_sesion_id(ssid);
-}
-
-inline void    ZrmConnectivity::send_session_start         (uint16_t channel, session_types_t  session_type)
-{
-    uint8_t st = session_type;
-    if (!session_id())
-        set_session_id(555);
-
-    send_packet(channel, PT_CONREQ, sizeof(st), &st);
-}
-
-inline void    ZrmConnectivity::send_session_stop          (uint16_t channel  )
-{
-    return send_session_start(channel, ST_FINISH);
-}
 
 inline void   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, const devproto::storage_t& data )
 {

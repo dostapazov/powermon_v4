@@ -34,7 +34,7 @@ enum param_write_mode_t
 };
 
 // Session type
-enum session_types_t
+enum session_types_t : uint8_t
 {
     ST_FINISH    = 0x00,
     ST_CONTROL   = 0x01,

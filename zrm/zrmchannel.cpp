@@ -515,16 +515,18 @@ QByteArray ZrmChannel::make_send_packet
     return packet;
 }
 
+bool ZrmChannel::isWriteEnabled( uint8_t type)
+{
+    return (type != PT_DATAWRITE || !session_readonly());
+}
 
-void   ZrmChannel::send(uint16_t ssid, packet_types_t type, size_t dataSize, const void* data)
+void   ZrmChannel::send(packet_types_t type, size_t dataSize, const void* data)
 {
     if (dataSize && data)
     {
-        m_SendQueue.push_back(make_send_packet(ssid, ++m_PacketNumber, m_channel, type, dataSize, data));
+        m_SendQueue.push_back(make_send_packet(m_SessionId, ++m_PacketNumber, m_channel, type, dataSize, data));
     }
 }
-
-
 
 QByteArray   ZrmChannel::getNextSend()
 {
@@ -546,16 +548,29 @@ void   ZrmChannel::clearSend()
     m_SendQueue.clear();
 }
 
-bool   ZrmChannel::readyToSend(qint64 sentDelay) const
+bool ZrmChannel::readyToSend(qint64 sentDelay) const
 {
     if ( m_SendQueue.empty())
         return false;
     return !m_waitReceive && m_timeFromRecv.hasExpired(sentDelay);
 }
 
-bool   ZrmChannel::hasSend() const
+bool ZrmChannel::hasSend() const
 {
     return m_SendQueue.empty();
+}
+
+void ZrmChannel::startSession()
+{
+    clearSend();
+    uint8_t st = m_session_request;
+    send( PT_CONREQ, sizeof(st), &st);
+}
+
+void ZrmChannel::stopSession()
+{
+    uint8_t st = ST_FINISH;
+    send( PT_CONREQ, sizeof(st), &st);
 }
 
 

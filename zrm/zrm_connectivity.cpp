@@ -213,7 +213,6 @@ void ZrmConnectivity::handle_recv   (const QByteArray& recv_data)
 
     if (packet_count)
     {
-        send_timer_ctrl(true);
         //Обработать список ищменифшихся каналов
         resetWatchDog();
         on_channels_changed();
@@ -254,7 +253,6 @@ void ZrmConnectivity::writeToDevice(const void* data, size_t size)
 
 void ZrmConnectivity::send_next_packet()
 {
-    send_timer_ctrl(false);
     QMutexLocker l(&m_zrm_mutex);
     auto b = m_channels.begin();
     auto e = m_channels.end();
@@ -274,58 +272,10 @@ void ZrmConnectivity::send_next_packet()
         break;
 
     }
-
-
-//    if (m_send_buffer.raw_size())
-//    {
-//        if (m_enable_send )
-//        {
-//            auto proto = m_send_buffer();
-
-//#ifdef QT_DEBUG
-////      qDebug()<<tr("%1 : Отправка пакета  № %2 тип %3 размер данных %4 Канал %5")
-////                .arg(QDateTime::currentDateTime().toString("hh:mm:ss.zzz"))
-////                .arg(proto->proto_hdr.packet_number)
-////                .arg(proto->proto_hdr.type,0,16)
-////                .arg(proto->proto_hdr.data_size)
-////                .arg(proto->proto_hdr.channel)
-////                ;
-//#endif
-
-//            writeToDevice(proto, send_buffer_t::proto_size<qint64>(proto));
-//            send_timer_ctrl(true);
-//            // Не очень хорошо
-//            // Возможны задержки по другим каналам
-//            // Пережелать логику передачи и запрета передачи.
-//            // Перенести в канал
-//            m_enable_send = (proto->proto_hdr.type != PT_DATAREAD && proto->proto_hdr.type != PT_DATAREQ);
-
-
-//            static const QMetaMethod signal_send_packet = QMetaMethod::fromSignal(&ZrmConnectivity::sig_send_packet);
-//            if (isSignalConnected(signal_send_packet))
-//            {
-//                QByteArray packet_data(reinterpret_cast<const char*>(proto), send_buffer_t::proto_size<int>(proto, false) );
-//                emit sig_send_packet(packet_data);
-//            }
-//            m_send_buffer.remove_first();
-//        }
-//        else
-//        {
-//            //qDebug() << "send disable";
-//        }
-//    }
-//    else
-//        send_timer_ctrl(false);
-}
-
-bool isWriteEnabled( const ZrmChannel* mod, uint8_t type)
-{
-    return mod && (type != PT_DATAWRITE ||  !mod->session_readonly());
 }
 
 void   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, size_t data_size, const void* data )
 {
-
     if (!device_is_open())
     {
         return;
@@ -333,12 +283,12 @@ void   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, s
 
     QMutexLocker l(&m_zrm_mutex);
     auto mod = get_channel(channel);
-    if (!isWriteEnabled(mod.data(), type) )
+    if (!mod->isWriteEnabled( type) )
     {
         return;
     }
 
-    mod->send(ssid, static_cast<packet_types_t>(type), data_size, data);
+    mod->send(static_cast<packet_types_t>(type), data_size, data);
     if (!m_send_timer.isActive())
         send_next_packet();
 }
@@ -346,10 +296,7 @@ void   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, s
 
 void ZrmConnectivity::handle_connect(bool connected)
 {
-    send_timer_ctrl    (false);
     m_recv_buffer.clear();
-    //m_send_buffer.clear();
-    //m_enable_send  = true;
     m_recv_kadr_number = uint32_t(-1);
 
     if (connected)
@@ -551,15 +498,12 @@ ZrmChannelsKeys  ZrmConnectivity::get_changed_channels()
 int    ZrmConnectivity::channels_start      ()
 {
     int ret = INT_MAX;
+    send_timer_ctrl(true);
     QMutexLocker l (&m_zrm_mutex);
     for (const auto& mod : qAsConst(m_channels))
     {
-        if (!mod.data())
-            continue;
         ret = qMin(mod->ping_period(), ret);
-        mod->clearSend();
-        send_session_start(mod->channel(), mod->session_request());
-
+        mod->startSession();
     }
     m_ping_timer.setInterval(ret);
     return ret;
@@ -568,16 +512,17 @@ int    ZrmConnectivity::channels_start      ()
 void   ZrmConnectivity::channels_stop       (bool silent)
 {
     QMutexLocker l (&m_zrm_mutex);
-    //m_send_buffer.clear();
+    send_timer_ctrl(false);
+
     for (auto mod : qAsConst(m_channels))
     {
-        if (!mod.data())
-            continue;
         if (mod->session_active())
         {
             mod->session_reset();
             if (!silent)
-                send_session_stop(mod->channel());
+            {
+                mod->stopSession();
+            }
         }
     }
 
@@ -592,7 +537,7 @@ void   ZrmConnectivity::channels_stop       (bool silent)
 
 
 
-void   ZrmConnectivity::ping_module         (const ZrmChannel* mod)
+void   ZrmConnectivity::ping_module         (ZrmChannel* mod)
 {
 
     // Отправка запроса параметров устройству
@@ -604,7 +549,7 @@ void   ZrmConnectivity::ping_module         (const ZrmChannel* mod)
     }
     else
     {
-        send_session_start(mod->channel(), mod->session_request());
+        mod->startSession();
     }
 
 
@@ -656,11 +601,11 @@ bool   ZrmConnectivity::channel_remove        ( uint16_t     ch_num)
         auto mod = m_channels[ch_num];
         if (device_is_open())
         {
-            send_session_stop(ch_num);
+            mod->stopSession();
 
         }
-        mod.reset();
         m_channels.remove(ch_num);
+        mod.reset();
         ++m_connectivities_changed;
         channel_mark_changed(ch_num);
         return true;
@@ -884,11 +829,11 @@ bool  ZrmConnectivity::setChannelAttributes(uint16_t ch_num, const ZrmChannelAtt
 
 void              ZrmConnectivity::channel_read_eprom_method(uint16_t     ch_num, uint8_t met_number )
 {
-    qDebug() << "Request eprom method " << met_number;
     channel_write_param(ch_num, WM_PROCESS, PARAM_RD_EPROM_METHOD, &met_number, sizeof(met_number));
 }
 
-void ZrmConnectivity::channel_write_param(uint16_t ch_num, param_write_mode_t wr_mode, zrm_param_t param, const void* param_data, size_t param_data_sz)
+void ZrmConnectivity::channel_write_param(uint16_t ch_num, param_write_mode_t wr_mode, zrm_param_t param,
+                                          const void* param_data, size_t param_data_sz)
 {
     if (QThread::currentThread() != m_thread)
     {
@@ -1291,7 +1236,6 @@ int ZrmConnectivity::read_from_json(QString path_to_file)
     auto defaultConnect = []()
     {
         ZrmConnectivity* con = new ZrmConnectivity;
-        con->set_session_id(555);
         QMutexLocker l(&con->m_zrm_mutex);
         con->m_name = "Соединение - 1";
         con->set_connection_string("tcp=192.168.1.237:5000");
@@ -1317,7 +1261,6 @@ int ZrmConnectivity::read_from_json(QString path_to_file)
                 for (auto&& jobj : jdoc.array())
                 {
                     ZrmConnectivity* con = new ZrmConnectivity;
-                    con->set_session_id(555);
                     con->readFromJson(jobj.toObject());
                 }
             }

@@ -18,6 +18,7 @@ struct zrm_maskab_param_t
 
 
 constexpr uint32_t CHANNEL_DEFAULT_COLOR = 0x4682b4;
+constexpr uint16_t SESSION_ID_DEFAULT = 555;
 
 class ZrmChannel
 {
@@ -98,11 +99,16 @@ public:
     static std::string  trect_param(const param_variant& pv);
     static std::string  fan_param  (const param_variant& pv);
 
-    void   send(uint16_t ssid, packet_types_t type, size_t dataSize, const void* data);
+    void   send( packet_types_t type, size_t dataSize, const void* data);
     QByteArray getNextSend();
     bool   readyToSend(qint64 sentDelay) const;
     bool   hasSend() const;
     void   clearSend();
+
+    void   startSession();
+    void   stopSession();
+    bool isWriteEnabled( uint8_t type);
+
 
     static QByteArray make_send_packet
     (
@@ -151,6 +157,7 @@ protected:
     uint16_t              m_PacketNumber = 0;
     QElapsedTimer         m_timeFromRecv;
     bool                  m_waitReceive = false;
+    uint16_t              m_SessionId = SESSION_ID_DEFAULT;
 
 
 };
