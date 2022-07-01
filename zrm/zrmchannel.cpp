@@ -530,7 +530,6 @@ void   ZrmChannel::send(packet_types_t type, size_t dataSize, const void* data)
 
 QByteArray   ZrmChannel::getNextSend()
 {
-
     if (m_SendQueue.empty())
     {
         return QByteArray();
@@ -572,6 +571,32 @@ void ZrmChannel::stopSession()
     uint8_t st = ST_FINISH;
     send( PT_CONREQ, sizeof(st), &st);
 }
+
+void   ZrmChannel::query_params(size_t psize, const void* params)
+{
+    if (!psize || !params)
+    {
+        return;
+    }
+    params_t data;
+    data.reserve(1 + psize);
+    data.push_back(WM_NONE);
+    const char* params_ptr = reinterpret_cast<const char*>(params);
+    data.insert(data.end(), params_ptr, params_ptr + psize);
+    send(PT_DATAREQ, data.size(), data.data());
+
+    if (std::binary_search(data.begin(), data.end(), params_t::value_type(PARAM_METH_EXEC_RESULT), std::less<params_t::value_type>()) )
+    {
+        //Запрос результатов выполнения
+        results_clear();
+    }
+    if (std::binary_search(data.begin(), data.end(), params_t::value_type(PARAM_METHOD_STAGES), std::less<params_t::value_type>()) )
+    {
+        //Запрос результатов выполнения
+        method_clear();
+    }
+}
+
 
 
 } // namespace zrm

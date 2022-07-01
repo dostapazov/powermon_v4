@@ -99,7 +99,9 @@ public:
     static std::string  trect_param(const param_variant& pv);
     static std::string  fan_param  (const param_variant& pv);
 
+    void   query_params(size_t psize, const void* params);
     void   send( packet_types_t type, size_t dataSize, const void* data);
+
     QByteArray getNextSend();
     bool   readyToSend(qint64 sentDelay) const;
     bool   hasSend() const;

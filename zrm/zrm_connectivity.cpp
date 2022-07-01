@@ -862,25 +862,7 @@ void   ZrmConnectivity::channel_query_params       (uint16_t ch_num, const char*
 
     QMutexLocker l (&m_zrm_mutex);
     auto mod = get_channel(ch_num);
-    if (mod.data())
-    {
-        params_t data;
-        data.reserve(1 + psize);
-        data.push_back(WM_NONE);
-        data.insert(data.end(), params, params + psize);
-        send_packet(ch_num, PT_DATAREQ, data);
-
-        if (std::binary_search(data.begin(), data.end(), params_t::value_type(PARAM_METH_EXEC_RESULT), std::less<params_t::value_type>()) )
-        {
-            //Запрос результатов выполнения
-            mod->results_clear();
-        }
-        if (std::binary_search(data.begin(), data.end(), params_t::value_type(PARAM_METHOD_STAGES), std::less<params_t::value_type>()) )
-        {
-            //Запрос результатов выполнения
-            mod->method_clear();
-        }
-    }
+    mod->query_params(psize, params);
 }
 
 void   ZrmConnectivity::channel_query_param       (uint16_t chan, const zrm_param_t  param)
