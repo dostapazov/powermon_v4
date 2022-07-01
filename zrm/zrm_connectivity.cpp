@@ -1394,35 +1394,4 @@ void              ZrmConnectivity::set_name(const QString& cname)
     }
 }
 
-
-QString    ZrmConnectivity::hms2string(const zrm::method_hms& hms)
-{
-    QString str = QString("%1:%2:%3")
-                  .arg(std::get<0>(hms), 3, 10, QLatin1Char('0'))
-                  .arg(std::get<1>(hms), 2, 10, QLatin1Char('0'))
-                  .arg(std::get<2>(hms), 2, 10, QLatin1Char('0'));
-    return str;
-}
-
-zrm::method_hms ZrmConnectivity::string2hms(const QString& str)
-{
-    uint8_t hms[3] = {0};
-    QStringList sl = str.split(QChar(':'));
-    int cnt = qMin(3, sl.count());
-    int i = 0;
-    for (auto&& s : sl)
-    {
-        if (i < cnt)
-        {
-            hms[i++] = uint8_t(s.trimmed().toUInt());
-        }
-        else
-            break;
-    }
-    return std::make_tuple(hms[0], hms[1], hms[2]);
-}
-
-
-
-
 } // namespace zrm

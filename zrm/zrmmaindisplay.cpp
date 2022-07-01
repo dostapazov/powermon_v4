@@ -115,21 +115,21 @@ void ZrmMainDisplay::clear_controls()
     sbCurrLimit ->setValue(0.0);
     edCapacity  ->setValue(0.0);
     sbTemperature->setValue(0.0);
-    setEditText(lb_work_time, no_value);
-    setEditText (edTimeLimit, no_value);
-    setEditText (edMode, no_value);
+    pwm_utils::setEditText(lb_work_time, no_value);
+    pwm_utils::setEditText (edTimeLimit, no_value);
+    pwm_utils::setEditText (edMode, no_value);
     lbStageNum  ->setValue(0);
     lbStageTotal->setValue(0);
     lbCycleNum  ->setValue(0);
     sbCycleTotal->setValue(0);
-    setEditText (edMethodName, no_value, 0);
+    pwm_utils::setEditText (edMethodName, no_value, 0);
     bMethodAuto->setEnabled(false);
     bMethodAny->setEnabled(false);
     bMethodManual->setEnabled(false);
     bPause->setEnabled(false);
     bStart->setEnabled(false);
     bStop->setEnabled(false);
-    setEditText(edMode, tr("Не назначено устройство"), 0);
+    pwm_utils::setEditText(edMode, tr("Не назначено устройство"), 0);
     handle_error_state(0);
 }
 
@@ -138,7 +138,7 @@ void  ZrmMainDisplay::handle_error_state (uint32_t err_code)
     auto p = error_state->palette();
     p.setColor(QPalette::Text, Qt::red);
     error_state->setPalette(p);
-    setEditText(error_state, m_source->zrm_error_text(err_code), 0)  ;
+    pwm_utils::setEditText(error_state, m_source->zrm_error_text(err_code), 0)  ;
     bResetError->setVisible(err_code);
 }
 
@@ -156,10 +156,10 @@ void  ZrmMainDisplay::channel_param_changed(unsigned channel, const zrm::params_
                     update_state(param.second.udword);
                     break;
                 case zrm::PARAM_WTIME        :
-                    setEditText(lb_work_time, value.toString(), 0);
+                    pwm_utils::setEditText(lb_work_time, value.toString(), 0);
                     break;
                 case zrm::PARAM_LTIME        :
-                    setEditText(edTimeLimit, value.toString(), 0);
+                    pwm_utils::setEditText(edTimeLimit, value.toString(), 0);
                     break;
                 case zrm::PARAM_CUR          :
                     lbCurr->setValue(value.toDouble());
@@ -203,7 +203,7 @@ void  ZrmMainDisplay::channel_param_changed(unsigned channel, const zrm::params_
                     break;
 #else
                 case zrm::PARAM_ZRMMODE      :
-                    setEditText(edMode, m_source->zrm_mode_text(param.second.udword), 0);
+                    pwm_utils::setEditText(edMode, m_source->zrm_mode_text(param.second.udword), 0);
                     break;
 #endif
                 case zrm::PARAM_METHOD_STAGES:
@@ -301,7 +301,7 @@ void  ZrmMainDisplay::setup_method()
 
     method_name = method_name.remove(QChar('\u0000'));
 
-    setEditText(edMethodName, method_name, 0);
+    pwm_utils::setEditText(edMethodName, method_name, 0);
 
 
     //set_number_value(lbStageTotal, int(method.stages_count()), 2, infinity_symbol);
@@ -311,7 +311,7 @@ void  ZrmMainDisplay::setup_method()
     if (!m_manual_change)
     {
         QString time_limit_string = zrm_method_duration_text(method);
-        setEditText(edTimeLimit, time_limit_string, 0);
+        pwm_utils::setEditText(edTimeLimit, time_limit_string, 0);
     }
 
     auto param = m_source->param_get(m_channel, zrm::PARAM_STG_NUM);
@@ -401,7 +401,7 @@ void  ZrmMainDisplay::update_method_controls()
 }
 
 
-zrm::method_hms String2Duration(const QString& str)
+pwm_utils::method_hms String2Duration(const QString& str)
 {
     uint8_t hours = 0, minutes = 0, secunds = 0;
     QStringList sl = str.split(':');
@@ -429,11 +429,10 @@ zrm::method_hms String2Duration(const QString& str)
 
 void ZrmMainDisplay::set_method_duration(zrm::zrm_method_t& method, const QString& str)
 {
-    zrm::method_hms hms = String2Duration(str);
+    pwm_utils::method_hms hms = String2Duration(str);
     method.m_method.m_hours = std::get<0>(hms);
     method.m_method.m_minutes = std::get<1>(hms);
     method.m_method.m_secs = std::get<2>(hms);
-
 }
 
 void ZrmMainDisplay::currLimitChange()
@@ -553,13 +552,13 @@ void ZrmMainDisplay::manual_method()
 
 void    ZrmMainDisplay::on_connected         (bool con_state)
 {
-    setEditText(edMode, con_state ? QString() : tr("Нет связи"), 0);
+    pwm_utils::setEditText(edMode, con_state ? QString() : tr("Нет связи"), 0);
 }
 
 void    ZrmMainDisplay::on_ioerror           (const QString& error_string)
 {
     if (error_string.length())
-        setEditText(edMode, error_string, 0);
+        pwm_utils::setEditText(edMode, error_string, 0);
 }
 
 void ZrmMainDisplay::start()

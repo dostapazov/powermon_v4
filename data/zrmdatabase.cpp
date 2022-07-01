@@ -268,7 +268,7 @@ bool          ZrmDatabase::read_method_stages(QSqlDatabase& db, QVariant m_id, z
             stage.set_end_delta_volt     (rec.value(13).toDouble(), 1.0);
             stage.set_end_temp           (rec.value(14).toDouble());
 
-            auto hms = zrm::method_t::secunds2hms(rec.value(15).toUInt());
+            auto hms = pwm_utils::secunds2hms(rec.value(15).toUInt());
             stage.m_hours   = std::get<0>(hms);
             stage.m_minutes = std::get<1>(hms);
             stage.m_secs    = std::get<2>(hms);
@@ -528,7 +528,7 @@ bool ZrmDatabase::write_stage       (QSqlDatabase& db, const QVariant& method_id
     args[":finish_capacity_rate"]   =  stage.end_capacity(1.0);
     args[":finish_delta_volt_rate"] =  stage.end_delta_volt(1.0);
     args[":finish_temper"]    = stage.end_temp();
-    args[":finish_duration"]  = zrm::method_t::hms2secunds(stage.m_hours, stage.m_minutes, stage.m_secs);
+    args[":finish_duration"]  = pwm_utils::hms2secunds(stage.m_hours, stage.m_minutes, stage.m_secs);
     args[":finish_cell_volt"] = stage.end_cell_volt();
     args[":stage_flags"]      = stage.m_stage_flags;
     QSqlQuery query(db);

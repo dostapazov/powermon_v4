@@ -12,6 +12,7 @@
 #include <mutex>
 #include <math.h>
 #include <string.h>
+#include <powermon_utils.h>
 
 namespace zrm {
 
@@ -318,7 +319,7 @@ using  method_exec_results_sensors_t  = std::vector<stage_exec_result_sensors_t>
 constexpr int METHOD_NAME_SIZE = 33;
 constexpr uint16_t METHOD_UNKNOWN_ID = uint16_t(-1);
 constexpr uint16_t METHOD_MANUAL_ID = 0;
-using method_hms = std::tuple<uint8_t, uint8_t, uint8_t>;
+
 
 enum  method_kind_t { method_kind_unknown, method_kind_manual, method_kind_automatic };
 
@@ -376,9 +377,6 @@ struct method_t
     uint8_t  cycles         () { return m_cycles_count; }
     void     set_cycles     (uint8_t val) { m_cycles_count = val; }
     method_kind_t method_kind   ();
-    static   method_hms      secunds2hms(uint32_t duration);
-    static   uint32_t        hms2secunds(const method_hms& hms);
-    static   uint32_t        hms2secunds(uint8_t h, uint8_t m, uint8_t s);
     static   double          max_voltage() {return 1000;}
     static   double          max_capacity() {return 2000;}
     static   double          value_step  () {return 0.1; }
@@ -734,16 +732,13 @@ protected:
     uint16_t   m_session_id    = 0;
 };
 
-constexpr int SECUNDS_IN_MINUTE = 60;
-constexpr int SECUNDS_IN_HOUR = 60 * SECUNDS_IN_MINUTE;
 
 /* inline implementation*/
 
-
 inline void     method_t::set_duration(uint32_t value)
 {
-    div_t h   = div(int(value), SECUNDS_IN_HOUR);
-    div_t ms  = div(h.rem, SECUNDS_IN_MINUTE  );
+    div_t h   = div(int(value), pwm_utils::SECUNDS_IN_HOUR);
+    div_t ms  = div(h.rem, pwm_utils::SECUNDS_IN_MINUTE  );
     m_hours   = uint8_t(h.quot);
     m_minutes = uint8_t(ms.quot);
     m_secs    = uint8_t(ms.rem);
@@ -780,24 +775,6 @@ template <typename _Type>
 void  send_buffer_t::params_add(devproto::storage_t& data, param_write_mode_t wm, zrm_param_t  param, _Type value)
 {
     params_add(data, wm, param, sizeof (value), &value);
-}
-
-
-inline method_hms method_t::secunds2hms(uint32_t duration)
-{
-    div_t h  = div(int(duration), SECUNDS_IN_HOUR);
-    div_t ms = div(h.rem, SECUNDS_IN_MINUTE  );
-    return std::make_tuple(uint8_t(h.quot), uint8_t(ms.quot), uint8_t(ms.rem));
-}
-
-inline uint32_t  method_t::hms2secunds(uint8_t h, uint8_t m, uint8_t s)
-{
-    return h * SECUNDS_IN_HOUR + m * SECUNDS_IN_MINUTE + s;
-}
-
-inline uint32_t  method_t::hms2secunds(const method_hms& hms)
-{
-    return hms2secunds(std::get<0>(hms), std::get<1>(hms), std::get<2>(hms) );
 }
 
 } // end of namecpace zrm

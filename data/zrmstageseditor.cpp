@@ -405,7 +405,7 @@ void ZrmStagesEditor::sl_method_param_changed()
 
         if (src == edMethodTime)
         {
-            m_current_method.m_method.set_duration(zrm::method_t::hms2secunds(zrm::ZrmConnectivity::string2hms(edMethodTime->text())));
+            m_current_method.m_method.set_duration(pwm_utils::hms2secunds(pwm_utils::string2hms(edMethodTime->text())));
         }
         on_method_changed();
     }
@@ -445,7 +445,7 @@ void ZrmStagesEditor::setup_method    ()
     sbMCycleCount->setValue(m_current_method.m_method.cycles());
     edMMaxCurrent->setValue(m_current_method.m_method.current());
     edCapPercent->setValue (m_current_method.m_method.current_ratio(true));
-    edMethodTime->setText(zrm::ZrmConnectivity::hms2string(zrm::method_t::secunds2hms(m_current_method.m_method.duration())));
+    edMethodTime->setText(pwm_utils::hms2string(pwm_utils::secunds2hms(m_current_method.m_method.duration())));
     setup_stages();
 }
 

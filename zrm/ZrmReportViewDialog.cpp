@@ -321,7 +321,7 @@ void ZrmReportViewDialog::openReportFromBase()
     main_text += tr("<tr><td>%1</td> <td>%2 А*Ч</td></tr>").arg(total_energy < 0 ? tr("Из АКБ потреблено") : tr("в АКБ передано"))
                  .arg(fabs(total_energy), 0, 'f', 2);
 
-    auto hms = zrm::method_t::secunds2hms(uint32_t(rec.value("total_duration").toInt()));
+    auto hms = pwm_utils::secunds2hms(uint32_t(rec.value("total_duration").toInt()));
     main_text += tr("<tr><td>Время выполнения</td> <td>%1:%2:%3</td></tr>")
                  .arg(std::get<0>(hms), 2, 10, QChar('0'))
                  .arg(std::get<1>(hms), 2, 10, QChar('0'))
