@@ -171,6 +171,7 @@ int ZrmChannel::handle_recv(const zrm::recv_header_t& recv_data)
     {
         m_waitReceive = false;
         m_timeFromRecv.start();
+        m_RespondTime = m_timeFromSend.elapsed();
     }
 
     return int(m_chg_params.size());
@@ -224,7 +225,6 @@ void ZrmChannel::handle_data(const uint8_t* data, size_t size)
 
             /*case PARAM_LOG_POINT :
             break;*/
-
             default :
             {
                 param_variant pv;
@@ -498,7 +498,7 @@ std::string ZrmChannel::fan_param(const param_variant& pv)
     return fans;
 }
 
-QByteArray ZrmChannel::make_send_packet
+QByteArray ZrmChannel::makeSendPacket
 (
     uint16_t ssid, uint16_t packetNumber,
     uint16_t channel, uint8_t packet_type,
@@ -520,22 +520,32 @@ bool ZrmChannel::isWriteEnabled( uint8_t type)
     return (type != PT_DATAWRITE || !session_readonly());
 }
 
-void   ZrmChannel::send(packet_types_t type, size_t dataSize, const void* data)
+void   ZrmChannel::queuePacket(packet_types_t type, size_t dataSize, const void* data)
 {
     if (dataSize && data)
     {
-        m_SendQueue.push_back(make_send_packet(m_SessionId, ++m_PacketNumber, m_channel, type, dataSize, data));
+        m_LastPacketIsPing = false;
+        m_SendQueue.push_back(makeSendPacket(m_SessionId, ++m_PacketNumber, m_channel, type, dataSize, data));
     }
 }
 
-QByteArray   ZrmChannel::getNextSend()
+QByteArray   ZrmChannel::getNextPacket()
 {
     if (m_SendQueue.empty())
     {
         return QByteArray();
     }
+
+
+    if (m_SendQueue.count() == 1 && !m_LastPacketIsPing && session_active())
+    {
+        pingChannel();
+    }
+
     m_waitReceive = true;
     m_timeFromRecv.invalidate();
+    m_timeFromSend.start();
+
     return m_SendQueue.takeFirst();
 }
 
@@ -544,46 +554,50 @@ void   ZrmChannel::clearSend()
     m_waitReceive = false;
     m_timeFromRecv.start();
     m_PacketNumber = 0;
+    m_LastPacketIsPing = false;
     m_SendQueue.clear();
 }
 
 bool ZrmChannel::readyToSend(qint64 sentDelay) const
 {
-    if ( m_SendQueue.empty())
+    if ( m_SendQueue.empty() )
+    {
         return false;
+    }
     return !m_waitReceive && m_timeFromRecv.hasExpired(sentDelay);
 }
 
-bool ZrmChannel::hasSend() const
+bool ZrmChannel::hasPacket() const
 {
-    return m_SendQueue.empty();
+    return  m_SendQueue.empty() ;
 }
 
 void ZrmChannel::startSession()
 {
     clearSend();
     uint8_t st = m_session_request;
-    send( PT_CONREQ, sizeof(st), &st);
+    queuePacket( PT_CONREQ, sizeof(st), &st);
 }
 
 void ZrmChannel::stopSession()
 {
     uint8_t st = ST_FINISH;
-    send( PT_CONREQ, sizeof(st), &st);
+    queuePacket( PT_CONREQ, sizeof(st), &st);
 }
 
-void   ZrmChannel::query_params(size_t psize, const void* params)
+void   ZrmChannel::queryParams(size_t psize, const void* params)
 {
     if (!psize || !params)
     {
         return;
     }
+
     params_t data;
     data.reserve(1 + psize);
     data.push_back(WM_NONE);
     const char* params_ptr = reinterpret_cast<const char*>(params);
     data.insert(data.end(), params_ptr, params_ptr + psize);
-    send(PT_DATAREQ, data.size(), data.data());
+    queuePacket(PT_DATAREQ, data.size(), data.data());
 
     if (std::binary_search(data.begin(), data.end(), params_t::value_type(PARAM_METH_EXEC_RESULT), std::less<params_t::value_type>()) )
     {
@@ -597,6 +611,23 @@ void   ZrmChannel::query_params(size_t psize, const void* params)
     }
 }
 
+void   ZrmChannel::pingChannel()
+{
+    if (session_active())
+    {
+        queryParams(m_ctrl_params.size(), m_ctrl_params.data());
+        ping_reset();
+        m_LastPacketIsPing = true;
+    }
+    else
+    {
+        startSession();
+    }
+}
 
+qint64 ZrmChannel::getRespondTime()
+{
+    return m_RespondTime;
+}
 
 } // namespace zrm

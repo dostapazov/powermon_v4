@@ -99,20 +99,24 @@ public:
     static std::string  trect_param(const param_variant& pv);
     static std::string  fan_param  (const param_variant& pv);
 
-    void   query_params(size_t psize, const void* params);
-    void   send( packet_types_t type, size_t dataSize, const void* data);
+    /*   methods after refactoring */
 
-    QByteArray getNextSend();
+    qint64 getRespondTime();
+    void   queryParams(size_t psize, const void* params);
+    void   queuePacket( packet_types_t type, size_t dataSize, const void* data);
+
+    QByteArray getNextPacket();
     bool   readyToSend(qint64 sentDelay) const;
-    bool   hasSend() const;
+    bool   hasPacket() const;
     void   clearSend();
 
     void   startSession();
     void   stopSession();
-    bool isWriteEnabled( uint8_t type);
+    bool   isWriteEnabled( uint8_t type);
+    void   pingChannel();
 
 
-    static QByteArray make_send_packet
+    static QByteArray makeSendPacket
     (
         uint16_t ssid, uint16_t packetNumber,
         uint16_t channel, uint8_t packet_type,
@@ -158,8 +162,11 @@ protected:
     QByteArrayList        m_SendQueue;
     uint16_t              m_PacketNumber = 0;
     QElapsedTimer         m_timeFromRecv;
+    QElapsedTimer         m_timeFromSend;
+    qint64                m_RespondTime = 0;
     bool                  m_waitReceive = false;
     uint16_t              m_SessionId = SESSION_ID_DEFAULT;
+    bool                  m_LastPacketIsPing = false;
 
 
 };

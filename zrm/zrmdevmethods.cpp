@@ -76,23 +76,23 @@ void ZrmDevMethods::method_changed           (QTreeWidgetItem* item, QTreeWidget
     update_buttons_enabled();
 
 #ifdef QT_DEBUG
-    QObject* src = sender();
+//    QObject* src = sender();
 
-    if (src == dev_methods)
-    {
-        auto met = dev_method_get(item);
-        if (met)
-        {
-            //qDebug()<<QString("Устройство Метoд id %1 stages %2").arg(uint32_t( met->m_method.m_id )).arg( met->stages_count() );
-        }
-    }
+//    if (src == dev_methods)
+//    {
+//        auto met = dev_method_get(item);
+//        if (met)
+//        {
+//            //qDebug()<<QString("Устройство Метoд id %1 stages %2").arg(uint32_t( met->m_method.m_id )).arg( met->stages_count() );
+//        }
+//    }
 
-    if (src == spr_methods)
-    {
-        zrm::zrm_method_t met;
-        spr_methods->get_method(item, met, codec());
-        //qDebug()<<QString("Справочник Метoд id %1 stages %2").arg(uint32_t( met.m_method.m_id )).arg( met.stages_count() );
-    }
+//    if (src == spr_methods)
+//    {
+//        zrm::zrm_method_t met;
+//        spr_methods->get_method(item, met, codec());
+//        //qDebug()<<QString("Справочник Метoд id %1 stages %2").arg(uint32_t( met.m_method.m_id )).arg( met.stages_count() );
+//    }
 #endif
 }
 
@@ -205,7 +205,9 @@ void ZrmDevMethods::channel_param_changed(unsigned channel, const zrm::params_li
         {
             const zrm::zrm_method_t method = m_source->channel_get_method(m_channel, true);
             // избавляемся от дублей
-            if (0 == dev_methods->topLevelItemCount() || (*dev_method_get(dev_methods->topLevelItem(dev_methods->topLevelItemCount() - 1))).m_method.m_id != method.m_method.m_id)
+            if (0 == dev_methods->topLevelItemCount() ||
+                    (*dev_method_get(dev_methods->topLevelItem(dev_methods->topLevelItemCount() - 1))).m_method.m_id != method.m_method.m_id
+               )
             {
                 size_t name_len = method.m_method.m_name[zrm::METHOD_NAME_SIZE - 1] ? zrm::METHOD_NAME_SIZE : strlen(method.m_method.m_name);
                 auto item = ZrmMethodsTree::new_tree_item( to_utf(method.m_method.m_name, int(name_len) ), ZrmMethodsTree::table_method, int(method.m_method.m_id), false);

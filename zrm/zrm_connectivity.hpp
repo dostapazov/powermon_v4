@@ -70,6 +70,7 @@ public:
     void send_packet   (uint16_t channel, uint8_t type, size_t data_size, const void* data = Q_NULLPTR);
     void send_packet(uint16_t channel, uint8_t type, const devproto::storage_t& data );
 
+
     void               channels_clear        ();
     void               channel_add           ( uint16_t ch_num, zrm_work_mode_t work_mode);
     bool               channel_remove        ( uint16_t ch_num);
@@ -88,6 +89,7 @@ public:
     void               chanel_clear_changes  ( uint16_t     channel);
     zrm_cells_t        channel_cell_info     ( uint16_t     channel);
     void               channel_read_eprom_method(uint16_t     ch_num, uint8_t met_number);
+    qint64             channelRespondTime(uint16_t     ch_num);
 
     ZrmChannelsKeys     get_changed_channels();
     ZrmChannelSharedPointer get_channel   ( uint16_t   channel) const;
@@ -111,6 +113,7 @@ public:
     size_t             channel_write_method(uint16_t ch_num, const zrm_method_t& method, param_write_mode_t wr_mode = WM_PROCESS  );
     zrm_maskab_param_t channel_masakb_param(uint16_t ch_num);
     void               channel_set_masakb_param(uint16_t ch_num, const zrm_maskab_param_t& map);
+
 
     ZrmChannelAttributes channelAttributes(uint16_t ch_num) const ;
     bool  setChannelAttributes(uint16_t ch_num, const ZrmChannelAttributes& attrs);

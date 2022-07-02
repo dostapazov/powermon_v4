@@ -267,7 +267,7 @@ void ZrmConnectivity::send_next_packet()
             continue;
         }
 
-        QByteArray data = ch->getNextSend();
+        QByteArray data = ch->getNextPacket();
         writeToDevice(data.constData(), data.size());
         break;
 
@@ -288,7 +288,7 @@ void   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, s
         return;
     }
 
-    mod->send(static_cast<packet_types_t>(type), data_size, data);
+    mod->queuePacket(static_cast<packet_types_t>(type), data_size, data);
     if (!m_send_timer.isActive())
         send_next_packet();
 }
@@ -327,6 +327,14 @@ void   ZrmConnectivity::send_timer_ctrl(bool start)
     }
 
 }
+
+qint64      ZrmConnectivity::channelRespondTime(uint16_t     ch_num)
+{
+    QMutexLocker l (&m_zrm_mutex);
+    ZrmChannelSharedPointer mod = get_channel(ch_num);
+    return mod->getRespondTime();
+}
+
 
 void   ZrmConnectivity::handle_recv_channel (const recv_header_t& recv_hdr)
 {
@@ -382,14 +390,14 @@ void    ZrmConnectivity::on_channels_changed()
         if (need_request_method)
         {
             channel_query_param(channel, zrm_param_t::PARAM_METHOD_STAGES);
-            need_ping = true;
+//            need_ping = true;
         }
 
-        if (need_ping)
-        {
+//        if (need_ping)
+//        {
 
-            ping_module(mod.data());
-        }
+//            ping_module(mod.data());
+//        }
 
         if (is_channel_changed_connected)
             emit sig_channel_change(channel, mod->changes());
@@ -542,16 +550,7 @@ void   ZrmConnectivity::ping_module         (ZrmChannel* mod)
 
     // Отправка запроса параметров устройству
     //  qDebug()<<tr("%2 ping module channel %1 ").arg(mod->channel()).arg(QDateTime::currentDateTime().toString("mm:ss.zzz"));
-    mod->ping_reset();
-    if (mod->session_active())
-    {
-        channel_query_params(mod->channel(), mod->params_list());
-    }
-    else
-    {
-        mod->startSession();
-    }
-
+    mod->pingChannel();
 
 }
 
@@ -862,7 +861,7 @@ void   ZrmConnectivity::channel_query_params       (uint16_t ch_num, const char*
 
     QMutexLocker l (&m_zrm_mutex);
     auto mod = get_channel(ch_num);
-    mod->query_params(psize, params);
+    mod->queryParams(psize, params);
 }
 
 void   ZrmConnectivity::channel_query_param       (uint16_t chan, const zrm_param_t  param)
