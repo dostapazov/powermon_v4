@@ -44,10 +44,9 @@ void ZrmParamsView::init_params()
     appendParam(zrm::PARAM_VOUT, "Напряжение на выходе ЗРМ", true);
     appendParam(zrm::PARAM_MVOLT, "Макс. напряжение", false);
 
-    appendParam(zrm::PARAM_MCUR, "Макс. ток", true);
     appendParam(zrm::PARAM_MAX_CHP, "Макс. мощность заряда", false); //
+    appendParam(zrm::PARAM_MCUR, "Макс. ток", true);
     appendParam(zrm::PARAM_MCURD, "Макс. ток разряда", true); //
-    appendParam(zrm::PARAM_DPOW, "Макс. мощность разряда", false); //
 
     appendParam(zrm::PARAM_CUR_CONSUMPTION, "Потребляемый ток", true);
     appendParam(zrm::PARAM_VOLT_SUPPLY, "Напряжение питающей сети", true);
@@ -102,7 +101,7 @@ void ZrmParamsView::onActivate()
 void ZrmParamsView::onDeactivate()
 {
     ZrmChannelWidget::onDeactivate();
-    //m_request_timer.stop();
+    m_request_timer.stop();
 }
 
 void    ZrmParamsView::request()
