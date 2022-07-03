@@ -23,6 +23,7 @@
     constexpr qint64  SEND_PERIOD_DEFAULT  = 10;
 #else
     constexpr qint64  SEND_PERIOD_DEFAULT  = 100;
+    constexpr qint64  SEND_DELAY_DEFAULT   = 100;
 #endif
 
 
@@ -57,11 +58,11 @@ QChannelControlEvent::~QChannelControlEvent()
 
 }
 
-bool     ZrmConnectivity::meta_types_inited = false;
+bool       ZrmConnectivity::meta_types_inited = false;
 ZrmTextMap ZrmConnectivity::m_mode_text;
 ZrmTextMap ZrmConnectivity::m_error_text;
 ZrmTextMap ZrmConnectivity::m_warning_text;
-int      ZrmConnectivity::m_connectivities_changed = 0;
+int        ZrmConnectivity::m_connectivities_changed = 0;
 
 ZrmConnectivity::connectivity_list_t ZrmConnectivity::m_connectivity_list;
 
@@ -134,8 +135,16 @@ ZrmConnectivity::~ZrmConnectivity()
     unregister_connectivity(this);
 }
 
+void    ZrmConnectivity::set_send_period(unsigned long value)
+{
+    if (value)
+    {
+        m_send_period = value;
+        m_send_timer.setInterval(value);
+    }
+}
 
-bool     ZrmConnectivity::set_connection_string(const QString& conn_str)
+bool  ZrmConnectivity::set_connection_string(const QString& conn_str)
 {
     bool ret = QMultioDevWorker::set_connection_string(conn_str);
     if (ret)
@@ -163,8 +172,6 @@ void ZrmConnectivity::handle_write  (qint64 wr_bytes)
 {
 
     Q_UNUSED(wr_bytes)
-//qDebug()<<Q_FUNC_INFO<<QThread::currentThreadId();
-    //send_timer_ctrl(true);
     QMultioDevWorker::handle_write(wr_bytes);
 }
 
@@ -225,8 +232,6 @@ void ZrmConnectivity::sl_send_timer ()
     send_next_packet();
 }
 
-
-
 void ZrmConnectivity::writeToDevice(const void* data, size_t size)
 {
     static const QMetaMethod signal_send_packet = QMetaMethod::fromSignal(&ZrmConnectivity::sig_send_packet);
@@ -242,6 +247,11 @@ void ZrmConnectivity::writeToDevice(const void* data, size_t size)
     }
 }
 
+void ZrmConnectivity::writeToDevice(const QByteArray& data)
+{
+    writeToDevice(data.constData(), data.size());
+}
+
 /**
  * @brief ZrmConnectivity::send_next_packet
  * Отправка пакета из очереди
@@ -250,24 +260,23 @@ void ZrmConnectivity::writeToDevice(const void* data, size_t size)
 void ZrmConnectivity::send_next_packet()
 {
     QMutexLocker l(&m_zrm_mutex);
-    auto b = m_channels.begin();
-    auto e = m_channels.end();
-    while (b != e)
+
+    //Начать с последнего проверенного
+
+    QList<ZrmChannelSharedPointer> channels = m_channels.values();
+    for (int i = 0; i < channels.count(); i++)
     {
-        ZrmChannel* ch = b->data();
-
-
-        if (!ch->readyToSend(SEND_PERIOD_DEFAULT))
+        if (m_currentSendChannel >= channels.count())
+            m_currentSendChannel = 0;
+        auto channel = channels.at(m_currentSendChannel);
+        ++m_currentSendChannel;
+        if (channel->readyToSend())
         {
-            ++b;
-            continue;
+            writeToDevice(channel->getNextPacket());
+            break;
         }
-
-        QByteArray data = ch->getNextPacket();
-        writeToDevice(data.constData(), data.size());
-        break;
-
     }
+
 }
 
 void   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, size_t data_size, const void* data )
@@ -298,7 +307,7 @@ void ZrmConnectivity::handle_connect(bool connected)
 
     if (connected)
     {
-        int   time_out = channels_start();
+        int  time_out = channels_start();
         if (time_out)
         {
             m_ping_timer.start( time_out );
@@ -307,7 +316,7 @@ void ZrmConnectivity::handle_connect(bool connected)
     else
     {
         m_ping_timer.stop();
-        m_send_timer.stop();
+        send_timer_ctrl(false);
         channels_stop();
     }
     //m_send_buffer.set_packet_number(0);
@@ -317,12 +326,16 @@ void ZrmConnectivity::handle_connect(bool connected)
 void   ZrmConnectivity::send_timer_ctrl(bool start)
 {
     //Управление таймером передачи
-    //m_send_timer.stop();
-    if (start && !m_send_timer.isActive()) // Запуск
+    if (!start)
+    {
+        m_send_timer.stop();
+        return;
+    }
+
+    if (!m_send_timer.isActive()) // Запуск
     {
         m_send_timer.start(std::chrono::milliseconds(m_send_period));
     }
-
 }
 
 qint64      ZrmConnectivity::channelRespondTime(uint16_t     ch_num)

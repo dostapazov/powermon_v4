@@ -95,7 +95,7 @@ public:
     ZrmChannelSharedPointer get_channel   ( uint16_t   channel) const;
 
     unsigned long      send_period    () const             { return m_send_period ;}
-    void               set_send_period(unsigned long value) { m_send_period = value;}
+    void               set_send_period(unsigned long value);
 
     bool               channel_is_executing  (uint16_t ch_num) const;
     bool               channel_is_stopped  (uint16_t ch_num) const;
@@ -187,13 +187,14 @@ protected:
     size_t          channel_write_method (uint16_t ch_num);
 
     void writeToDevice(const void* data, size_t size);
+    void writeToDevice(const QByteArray& data);
 
     void     writeToJson(QJsonObject& jobj);
     void     readFromJson (const QJsonObject& jobj);
 
     unsigned long   m_send_period = 0;
+    int             m_currentSendChannel = 0;
 
-    //bool            m_enable_send = false;
     uint32_t        m_recv_kadr_number;
     recv_buffer_t   m_recv_buffer;
     QTimer          m_send_timer ;
@@ -203,9 +204,9 @@ protected:
     mutable QMutex  m_zrm_mutex;
 
     //send_buffer_t   m_send_buffer;
-    ZrmChannelsMap      m_channels;//Список каналов
+    ZrmChannelsMap   m_channels;//Список каналов
     ZrmChannelsKeys  m_changed_channels;
-    QString         m_name;
+    QString          m_name;
 
     static bool     meta_types_inited;
     static ZrmTextMap m_mode_text   ;

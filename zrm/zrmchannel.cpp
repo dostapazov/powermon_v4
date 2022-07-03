@@ -558,13 +558,13 @@ void   ZrmChannel::clearSend()
     m_SendQueue.clear();
 }
 
-bool ZrmChannel::readyToSend(qint64 sentDelay) const
+bool ZrmChannel::readyToSend() const
 {
     if ( m_SendQueue.empty() )
     {
         return false;
     }
-    return !m_waitReceive && m_timeFromRecv.hasExpired(sentDelay);
+    return !m_waitReceive && m_timeFromRecv.hasExpired(m_SendDelay);
 }
 
 bool ZrmChannel::hasPacket() const

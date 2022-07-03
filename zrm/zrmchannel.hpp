@@ -19,6 +19,11 @@ struct zrm_maskab_param_t
 
 constexpr uint32_t CHANNEL_DEFAULT_COLOR = 0x4682b4;
 constexpr uint16_t SESSION_ID_DEFAULT = 555;
+#ifndef PROTOCOL_PT_LINE
+    constexpr int      SEND_DELAY_DEFAULT   = 10;
+#else
+    constexpr int      SEND_DELAY_DEFAULT   = 100;
+#endif
 
 class ZrmChannel
 {
@@ -106,7 +111,7 @@ public:
     void   queuePacket( packet_types_t type, size_t dataSize, const void* data);
 
     QByteArray getNextPacket();
-    bool   readyToSend(qint64 sentDelay) const;
+    bool   readyToSend() const;
     bool   hasPacket() const;
     void   clearSend();
 
@@ -159,6 +164,7 @@ protected:
     Attributes            m_Attributes;
 
 
+    int                   m_SendDelay = SEND_DELAY_DEFAULT;
     QByteArrayList        m_SendQueue;
     uint16_t              m_PacketNumber = 0;
     QElapsedTimer         m_timeFromRecv;
