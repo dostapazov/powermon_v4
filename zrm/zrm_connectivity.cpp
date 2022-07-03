@@ -155,13 +155,9 @@ ZrmChannel* ZrmConnectivity::create_zrm_module(uint16_t number, zrm_work_mode_t 
 ZrmChannelSharedPointer   ZrmConnectivity::get_channel(uint16_t channel) const
 {
     QMutexLocker l(&m_zrm_mutex);
-    if (m_channels.contains(channel))
-    {
-        return m_channels[channel];
-    }
-    return ZrmChannelSharedPointer();
-}
 
+    return channel_exists(channel) ? m_channels[channel] : ZrmChannelSharedPointer();
+}
 
 void ZrmConnectivity::handle_write  (qint64 wr_bytes)
 {
@@ -276,12 +272,13 @@ void ZrmConnectivity::send_next_packet()
 
 void   ZrmConnectivity::send_packet           (uint16_t channel, uint8_t type, size_t data_size, const void* data )
 {
-    if (!device_is_open())
+    QMutexLocker l(&m_zrm_mutex);
+
+    if (!device_is_open() && !channel_exists(channel))
     {
         return;
     }
 
-    QMutexLocker l(&m_zrm_mutex);
     auto mod = get_channel(channel);
     if (!mod->isWriteEnabled( type) )
     {
@@ -332,7 +329,7 @@ qint64      ZrmConnectivity::channelRespondTime(uint16_t     ch_num)
 {
     QMutexLocker l (&m_zrm_mutex);
     ZrmChannelSharedPointer mod = get_channel(ch_num);
-    return mod->getRespondTime();
+    return mod.isNull() ? 0 : mod->getRespondTime();
 }
 
 
@@ -586,7 +583,7 @@ void   ZrmConnectivity::channel_add (uint16_t ch_num, zrm_work_mode_t work_mode)
     }
 }
 
-bool   ZrmConnectivity::channel_exists        ( uint16_t     ch_num)
+bool   ZrmConnectivity::channel_exists        ( uint16_t     ch_num) const
 {
     QMutexLocker l (&m_zrm_mutex);
     return m_channels.contains(ch_num);
@@ -740,16 +737,15 @@ void              ZrmConnectivity::channel_stop        (uint16_t ch_num)
     }
 }
 
-bool              ZrmConnectivity::channel_is_paused   (uint16_t chan) const
+bool    ZrmConnectivity::channel_is_paused   (uint16_t chan) const
 {
     QMutexLocker l(&m_zrm_mutex) ;
     auto mod = get_channel(chan);
-    return (mod.data()) ? m_channels[chan]->is_paused() : false;
+    return mod.data() ? mod->is_paused() : false;
 }
 
 void              ZrmConnectivity::channel_pause       (uint16_t ch_num)
 {
-
     QMutexLocker l(&m_zrm_mutex) ;
     auto mod = get_channel(ch_num);
     if (mod.data() && mod->is_executing())
@@ -861,7 +857,8 @@ void   ZrmConnectivity::channel_query_params       (uint16_t ch_num, const char*
 
     QMutexLocker l (&m_zrm_mutex);
     auto mod = get_channel(ch_num);
-    mod->queryParams(psize, params);
+    if (mod.data())
+        mod->queryParams(psize, params);
 }
 
 void   ZrmConnectivity::channel_query_param       (uint16_t chan, const zrm_param_t  param)
@@ -1067,13 +1064,18 @@ QVariant     ZrmConnectivity::param_get( zrm::zrm_param_t param, const zrm::para
     {
         switch (param)
         {
-            case zrm::PARAM_STATE      :
-                res =  pv.uword;
-                break;
             case zrm::PARAM_WTIME      :
             case zrm::PARAM_LTIME      :
                 res = QString::fromStdString(ZrmChannel::time_param(pv));
                 break;
+            case zrm::PARAM_TEMP       :
+            case zrm::PARAM_TRECT      :
+                res = QString::fromStdString( ZrmChannel::trect_param(pv) );
+                break;
+            case zrm::PARAM_FAN_PERCENT :
+                res = QString::fromStdString(ZrmChannel::fan_param(pv));
+                break;
+
 
             case zrm::PARAM_CUR        :
             case zrm::PARAM_LCUR       :
@@ -1100,14 +1102,8 @@ QVariant     ZrmConnectivity::param_get( zrm::zrm_param_t param, const zrm::para
             case zrm::PARAM_ERROR_STATE:
             case zrm::PARAM_FAULTL_DEV :
             case zrm::PARAM_MID        :
+            case zrm::PARAM_STATE      :
                 res = (pv.udword);
-                break;
-            case zrm::PARAM_TEMP       :
-            case zrm::PARAM_TRECT      :
-                res = QString::fromStdString( ZrmChannel::trect_param(pv) );
-                break;
-            case zrm::PARAM_FAN_PERCENT :
-                res = QString::fromStdString(ZrmChannel::fan_param(pv));
                 break;
 
             default:

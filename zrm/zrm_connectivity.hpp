@@ -74,7 +74,7 @@ public:
     void               channels_clear        ();
     void               channel_add           ( uint16_t ch_num, zrm_work_mode_t work_mode);
     bool               channel_remove        ( uint16_t ch_num);
-    bool               channel_exists        ( uint16_t ch_num);
+    bool               channel_exists        ( uint16_t ch_num) const;
     zrm_work_mode_t    channel_work_mode     ( uint16_t ch_num);
     void               channel_set_work_mode ( uint16_t ch_num, zrm_work_mode_t);
 
