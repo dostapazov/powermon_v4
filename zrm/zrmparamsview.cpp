@@ -83,6 +83,8 @@ void    ZrmParamsView::clear_controls()
     {
         item->setText(column_value, QString());
     }
+    if (respond)
+        respond->setText(column_value, QString());
 }
 
 void ZrmParamsView::onActivate()
@@ -110,7 +112,10 @@ void    ZrmParamsView::request()
     {
         m_source->channel_query_params(m_channel, m_orders);
         if (respond)
-            respond->setText(column_value, QString("%1 ms").arg( m_source->channelRespondTime(m_channel))) ;
+        {
+            qint64  tm = m_source->channelRespondTime(m_channel);
+            respond->setText(column_value, tm ?  QString("%1 ms").arg( tm ) : QString()) ;
+        }
     }
 }
 
