@@ -19,6 +19,9 @@ ZrmLogerChartUI::ZrmLogerChartUI(QWidget* parent) :
 
     timerChart.setInterval(CHART_UPDATE_PREIOD);
     connect(&timerChart, &QTimer::timeout, this, &ZrmLogerChartUI::updateChart);
+    stopTimer.setInterval(500);
+    stopTimer.setSingleShot(true);
+    connect(&stopTimer, &QTimer::timeout, &timerChart, &QTimer::stop);
     init_chart();
 }
 
@@ -50,11 +53,12 @@ void ZrmLogerChartUI::clearSeries()
 void ZrmLogerChartUI::handleParamState()
 {
     if (is_stopped())
-        timerChart.stop();
+        stopTimer.start();
     else
     {
         if (!timerChart.isActive())
         {
+            stopTimer.stop();
             timerChart.start();
             clearSeries();
             updateChart();

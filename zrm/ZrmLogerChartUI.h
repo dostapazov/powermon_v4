@@ -31,6 +31,7 @@ private:
     QtCharts::QLineSeries* u_series = nullptr;
     QtCharts::QLineSeries* i_series = nullptr;
     QTimer timerChart;
+    QTimer stopTimer;
     void clearSeries();
     void handleParamState();
 };
