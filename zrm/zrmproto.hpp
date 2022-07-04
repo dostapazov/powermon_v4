@@ -26,7 +26,7 @@ enum   sync_types_t
     , PS_CU = 0x5a // cu -> pc
 };
 
-enum param_write_mode_t
+enum param_write_mode_t : uint8_t
 {
     WM_NONE                   = 0,
     WM_CHECK_FOR_MODIFICATION = 1,
@@ -633,7 +633,7 @@ using recv_header_t = devproto::t_hdr<cu_prolog_t, proto_header, uint16_t> ;
 using lprecv_header_t = recv_header_t*;
 
 using recv_buffer_t  = devproto::proto_buffer<recv_header_t, CRC_TYPE>;
-using _send_buffer_t = devproto::proto_buffer<send_header_t, CRC_TYPE>;
+using send_buffer_t = devproto::proto_buffer<send_header_t, CRC_TYPE>;
 
 typedef devproto::storage_t                   params_t;
 
@@ -710,29 +710,6 @@ T    param_variant::value(bool as_signed) const
 
 typedef  std::map<zrm_param_t, param_variant> params_list_t;
 
-class   send_buffer_t : public _send_buffer_t
-{
-
-public:
-
-    explicit send_buffer_t(size_t sz = 1024): _send_buffer_t(sz) {}
-    size_t   queue_packet         (uint16_t channel, uint8_t packet_type, uint16_t data_size, const void* data = nullptr );
-    size_t   queue_request        (uint16_t channel,  const devproto::storage_t& param_list);
-    uint16_t session_id   ();
-    void     set_sesion_id(uint16_t session_id);
-    uint16_t packet_number();
-    void     set_packet_number(uint16_t pn);
-
-    static void  params_add(devproto::storage_t& data, param_write_mode_t wm, zrm_param_t  param, size_t val_sz = 0, const void* val_ptr = nullptr);
-    template <typename _Type>
-    static void  params_add(devproto::storage_t& data, param_write_mode_t wm, zrm_param_t  param, _Type value);
-
-protected:
-    uint16_t   m_packet_number = 0;
-    uint16_t   m_session_id    = 0;
-};
-
-
 /* inline implementation*/
 
 inline void     method_t::set_duration(uint32_t value)
@@ -749,32 +726,6 @@ inline method_kind_t method_t::method_kind   ()
     if (m_id)
         return m_id == uint16_t(-1) ? method_kind_unknown : method_kind_automatic;
     return method_kind_manual;
-}
-
-inline uint16_t send_buffer_t::session_id   ()
-{
-    return m_session_id;
-}
-
-inline void     send_buffer_t::set_sesion_id(uint16_t session_id)
-{
-    m_session_id = session_id;
-}
-
-inline uint16_t send_buffer_t::packet_number()
-{
-    return m_packet_number;
-}
-
-inline void     send_buffer_t::set_packet_number(uint16_t pn)
-{
-    m_packet_number =    pn;
-}
-
-template <typename _Type>
-void  send_buffer_t::params_add(devproto::storage_t& data, param_write_mode_t wm, zrm_param_t  param, _Type value)
-{
-    params_add(data, wm, param, sizeof (value), &value);
 }
 
 } // end of namecpace zrm
