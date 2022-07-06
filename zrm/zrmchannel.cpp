@@ -450,49 +450,38 @@ void     ZrmChannel::method_clear()
     param_set(PARAM_METHOD_STAGES, init_variant(0));
 }
 
-std::string  ZrmChannel::time_param(const param_variant& pv)
+QString ZrmChannel::time_param(const param_variant& pv)
 {
-    char text[128];
     if (pv.is_valid())
     {
-        snprintf (text, sizeof(text), "%02u:%02u:%02u", unsigned(pv.puchar[2]), unsigned(pv.puchar[1]), unsigned(pv.puchar[0]));
+        return QString::asprintf("%02u:%02u:%02u", unsigned(pv.puchar[2]), unsigned(pv.puchar[1]), unsigned(pv.puchar[0]));
     }
-    else
-    {
-        *text = 0;
-    }
-    return std::string(text);
+    return QString();
 }
 
-std::string ZrmChannel::trect_param(const param_variant& pv)
+QString ZrmChannel::trect_param(const param_variant& pv)
 {
-    std::string ret;
+    QString ret;
     size_t pcount = pv.size / sizeof(int32_t);
-    ret.reserve(pcount * 16);
     const int32_t* ptr = reinterpret_cast<const int32_t*>(pv.puchar);
     const int32_t* end = ptr + pcount;
-    char text[32];
     while (ptr < end)
     {
-        snprintf(text, sizeof(text), "%s%2.3f", ret.empty() ? "" : ", ", double(*ptr) / 1000.0);
-        ret += text;
+        ret += QString::asprintf( "%s%2.3f", ret.isEmpty() ? "" : ", ", double(*ptr) / 1000.0);
         ++ptr;
     }
 
     return ret;
 }
 
-std::string ZrmChannel::fan_param(const param_variant& pv)
+QString ZrmChannel::fan_param(const param_variant& pv)
 {
-    std::string fans;
+    QString fans;
     const uint8_t* beg = pv.puchar;
     const uint8_t* end = beg + pv.size;
     while (beg < end)
     {
-
-        char text[32];
-        snprintf(text, sizeof(text), "%s%d", (fans.empty() ? "" : ", "), static_cast<int>(*beg));
-        fans += text;
+        fans += QString::asprintf("%s%d", (fans.isEmpty() ? "" : ", "), static_cast<int>(*beg));
         ++beg;
     }
     return fans;

@@ -1004,14 +1004,14 @@ QVariant     ZrmConnectivity::param_get( zrm::zrm_param_t param, const zrm::para
         {
             case zrm::PARAM_WTIME      :
             case zrm::PARAM_LTIME      :
-                res = QString::fromStdString(ZrmChannel::time_param(pv));
+                res = ZrmChannel::time_param(pv);
                 break;
             case zrm::PARAM_TEMP       :
             case zrm::PARAM_TRECT      :
-                res = QString::fromStdString( ZrmChannel::trect_param(pv) );
+                res = ZrmChannel::trect_param(pv);
                 break;
             case zrm::PARAM_FAN_PERCENT :
-                res = QString::fromStdString(ZrmChannel::fan_param(pv));
+                res = ZrmChannel::fan_param(pv);
                 break;
 
 

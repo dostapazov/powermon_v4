@@ -94,7 +94,7 @@ public:
     int                channels_count();
 
     QVariant          param_get(uint16_t channel, zrm::zrm_param_t param);
-    QVariant          param_get(zrm::zrm_param_t param, const zrm::param_variant& pv);
+    static QVariant          param_get(zrm::zrm_param_t param, const zrm::param_variant& pv);
     method_exec_results_t results_get(uint16_t channel);
     method_exec_results_sensors_t results_sensors_get(uint16_t channel);
     QString           get_stage_type_name(uint16_t ch_num, zrm::stage_type_t type);

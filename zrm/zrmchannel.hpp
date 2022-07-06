@@ -101,9 +101,9 @@ public:
     void  setAttributes(const Attributes& attrs) {m_Attributes = attrs;}
     const Attributes& getAttributes() const {return m_Attributes;}
 
-    static std::string  time_param (const param_variant& pv);
-    static std::string  trect_param(const param_variant& pv);
-    static std::string  fan_param  (const param_variant& pv);
+    static QString  time_param (const param_variant& pv);
+    static QString trect_param(const param_variant& pv);
+    static QString  fan_param  (const param_variant& pv);
 
     /*   methods after refactoring */
 
