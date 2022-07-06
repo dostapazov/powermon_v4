@@ -520,18 +520,20 @@ bool ZrmChannel::isWriteEnabled( uint8_t type)
     return (type != PT_DATAWRITE || !session_readonly());
 }
 
-void   ZrmChannel::queuePacket(packet_types_t type, size_t dataSize, const void* data)
+bool   ZrmChannel::queuePacket(packet_types_t type, size_t dataSize, const void* data)
 {
-    if (dataSize && data && isWriteEnabled(type))
-    {
-        m_LastPacketIsPing = false;
-        m_SendQueue.push_back(makeSendPacket(m_SessionId, ++m_PacketNumber, m_channel, type, dataSize, data));
-    }
+    if (!dataSize || !data ||  !isWriteEnabled(type))
+        return false;
+
+    m_LastPacketIsPing = false;
+    m_SendQueue.push_back(makeSendPacket(m_SessionId, ++m_PacketNumber, m_channel, type, dataSize, data));
+
+    return true;
 }
 
-void   ZrmChannel::queuePacket( packet_types_t type, const QByteArray& data)
+bool ZrmChannel::queuePacket( packet_types_t type, const QByteArray& data)
 {
-    queuePacket(type, data.size(), data.constData());
+    return queuePacket(type, data.size(), data.constData());
 }
 
 QByteArray   ZrmChannel::getNextPacket()
@@ -701,5 +703,36 @@ void  ZrmChannel::paramsAdd(QByteArray& data, param_write_mode_t wm, zrm_param_t
 
 }
 
+bool ZrmChannel::write_method()
+{
+    return write_method(method_get(), WM_PROCESS);
+}
+
+bool ZrmChannel::write_method(const zrm_method_t& method, param_write_mode_t wr_mode  )
+{
+    if ( method.m_stages.size())
+    {
+
+        QByteArray dta;
+        method_t method_hdr(method.m_method);
+        method_hdr.m_stages = uint8_t(method.m_stages.size());
+
+        pack_method_t pm(method_hdr);
+        size_t data_size = sizeof(pm) + size_t(method.stages_count()) * sizeof (stages_t::value_type);
+        dta.reserve(int(data_size));
+        dta.append(reinterpret_cast<const char*>(&pm), sizeof(pm));
+
+        for (auto stage : method.m_stages)
+        {
+            stage.m_method_id = method.m_method.m_id;//Гарантирует принадлежность методу
+            dta.append(reinterpret_cast<const char*>(&stage), sizeof(stage));
+        }
+
+        dta = makeParam( wr_mode, PARAM_METHOD_STAGES, dta.size(), dta.constData());
+        queuePacket(PT_DATAWRITE, dta);
+
+    }
+    return false;
+}
 
 } // namespace zrm

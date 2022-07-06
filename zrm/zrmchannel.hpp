@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <QByteArrayList>
 #include <QElapsedTimer>
+#include <QString>
 
 namespace zrm {
 
@@ -108,8 +109,8 @@ public:
 
     qint64 getRespondTime();
     void   queryParams(size_t psize, const void* params);
-    void   queuePacket( packet_types_t type, size_t dataSize, const void* data);
-    void   queuePacket( packet_types_t type, const QByteArray& data);
+    bool   queuePacket( packet_types_t type, size_t dataSize, const void* data);
+    bool   queuePacket( packet_types_t type, const QByteArray& data);
 
     QByteArray getNextPacket();
     bool   readyToSend() const;
@@ -120,6 +121,9 @@ public:
     void   stopSession();
     bool   isWriteEnabled( uint8_t type);
     void   pingChannel();
+
+    bool write_method(const zrm_method_t& method, param_write_mode_t wr_mode  );
+    bool write_method( );
 
 
     static QByteArray makeSendPacket

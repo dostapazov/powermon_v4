@@ -28,31 +28,31 @@ void ZrmParamsView::appendParam(zrm::zrm_param_t param, const QString& text, boo
 
 void ZrmParamsView::init_params()
 {
-    appendParam(zrm::PARAM_VRDEV, "Версия блока", false);
-    appendParam(zrm::PARAM_RVDEV, "Модификация блока", false);
-    appendParam(zrm::PARAM_RVSW, "Версия ПО", false);
-    appendParam(zrm::PARAM_SOFT_REV, "Модификация ПО", false);
+    appendParam(zrm::PARAM_VRDEV, tr("Версия блока"), false);
+    appendParam(zrm::PARAM_RVDEV, tr("Модификация блока"), false);
+    appendParam(zrm::PARAM_RVSW, tr("Версия ПО"), false);
+    appendParam(zrm::PARAM_SOFT_REV, tr("Модификация ПО"), false);
 
-    appendParam(zrm::PARAM_CUR, "Ток", true);
-    appendParam(zrm::PARAM_LCUR, "Ограничение тока", true);
-    appendParam(zrm::PARAM_VOLT, "Напряжение", true);
-    appendParam(zrm::PARAM_LVOLT, "Оганичение напряжения", true);
-    appendParam(zrm::PARAM_CAP, "Ёмкость", true);
-    appendParam(zrm::PARAM_STG_NUM, "Номер этапа", true);
-    appendParam(zrm::PARAM_LOOP_NUM, "Номер цикла", true);
-    appendParam(zrm::PARAM_TRECT, "Температура", true);
-    appendParam(zrm::PARAM_VOUT, "Напряжение на выходе ЗРМ", true);
-    appendParam(zrm::PARAM_MVOLT, "Макс. напряжение", false);
+    appendParam(zrm::PARAM_CUR, tr("Ток"), true);
+    appendParam(zrm::PARAM_LCUR, tr("Ограничение тока"), true);
+    appendParam(zrm::PARAM_VOLT, tr("Напряжение"), true);
+    appendParam(zrm::PARAM_LVOLT, tr("Оганичение напряжения"), true);
+    appendParam(zrm::PARAM_CAP, tr("Ёмкость"), true);
+    appendParam(zrm::PARAM_STG_NUM, tr("Номер этапа"), true);
+    appendParam(zrm::PARAM_LOOP_NUM, tr("Номер цикла"), true);
+    appendParam(zrm::PARAM_TRECT, tr("Температура"), true);
+    appendParam(zrm::PARAM_VOUT, tr("Напряжение на выходе ЗРМ"), true);
+    appendParam(zrm::PARAM_MVOLT, tr("Макс. напряжение"), false);
 
-    appendParam(zrm::PARAM_MAX_CHP, "Макс. мощность заряда", false); //
-    appendParam(zrm::PARAM_MCUR, "Макс. ток", true);
-    appendParam(zrm::PARAM_MCURD, "Макс. ток разряда", true); //
+    appendParam(zrm::PARAM_MAX_CHP, tr("Макс. мощность заряда"), false); //
+    appendParam(zrm::PARAM_MCUR, tr("Макс. ток"), true);
+    appendParam(zrm::PARAM_MCURD, tr("Макс. ток разряда"), true); //
 
-    appendParam(zrm::PARAM_CUR_CONSUMPTION, "Потребляемый ток", true);
-    appendParam(zrm::PARAM_VOLT_SUPPLY, "Напряжение питающей сети", true);
-    appendParam(zrm::PARAM_VOLT_HIGH_VOLT_BUS, "Напряжение высоковольтной шины", true);
-    appendParam(zrm::PARAM_FAN_PERCENT, "Вентиляторы", true);
-    respond =   new QTreeWidgetItem(zrm_params, QStringList() << "Время ответа канала");
+    appendParam(zrm::PARAM_CUR_CONSUMPTION, tr("Потребляемый ток"), true);
+    appendParam(zrm::PARAM_VOLT_SUPPLY, tr("Напряжение питающей сети"), true);
+    appendParam(zrm::PARAM_VOLT_HIGH_VOLT_BUS, tr("Напряжение высоковольтной шины"), true);
+    appendParam(zrm::PARAM_FAN_PERCENT, tr("Вентиляторы"), true);
+    respond =   new QTreeWidgetItem(zrm_params, QStringList() << tr("Время ответа канала"));
 }
 
 

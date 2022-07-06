@@ -844,13 +844,10 @@ void ZrmConnectivity::channel_write_param(uint16_t ch_num, param_write_mode_t wr
         qApp->postEvent(this, new QChannelControlEvent(ctrl_write_param, ch_num, wr_mode, param, param_data, param_data_sz));
         return;
     }
-//    devproto::storage_t data;
-//    send_buffer_t::params_add(data, wr_mode, param, param_data_sz, param_data);
 
     QByteArray data = ZrmChannel::makeParam( wr_mode, param, param_data_sz, param_data);
     auto chan = get_channel(ch_num);
     chan->queuePacket(PT_DATAWRITE, data.size(), data.data());
-    //send_packet(ch_num, PT_DATAWRITE, data);
 }
 
 
@@ -944,22 +941,7 @@ size_t ZrmConnectivity::channel_write_method(uint16_t ch_num, const zrm_method_t
     auto mod = get_channel(ch_num);
     if (mod.data() && method.m_stages.size())
     {
-        devproto::storage_t data;
-        QByteArray dta;
-        method_t method_hdr(method.m_method);
-        method_hdr.m_stages = uint8_t(method.m_stages.size());
-
-        pack_method_t pm(method_hdr);
-        size_t data_size = sizeof(pm) + size_t(method.stages_count()) * sizeof (stages_t::value_type);
-        dta.reserve(int(data_size));
-        dta.append(reinterpret_cast<const char*>(&pm), sizeof(pm));
-
-        for (auto stage : method.m_stages)
-        {
-            stage.m_method_id = method.m_method.m_id;//Гарантирует принадлежность методу
-            dta.append(reinterpret_cast<const char*>(&stage), sizeof(stage));
-        }
-        channel_write_param(ch_num, wr_mode, PARAM_METHOD_STAGES, dta.constData(), size_t(dta.size()));
+        mod->write_method(method, wr_mode);
     }
     return 0;
 }
@@ -971,8 +953,8 @@ size_t ZrmConnectivity::channel_write_method(uint16_t ch_num)
     auto mod = get_channel(ch_num);
     if (mod.data())
     {
-        zrm_method_t& method = mod->method_get();
-        return channel_write_method(ch_num, method, WM_PROCESS);
+
+        return mod->write_method();
     }
     return 0;
 }
@@ -1173,7 +1155,6 @@ void    load_text(const QString& file_name, ZrmTextMap& dest)
         }
     }
 }
-
 
 QString      ZrmConnectivity::zrm_work_mode_name( zrm_work_mode_t  wm)
 {
