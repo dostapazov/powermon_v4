@@ -23,33 +23,6 @@ namespace zrm {
 
 using ZrmChannelAttributes = zrm::ZrmChannel::Attributes;
 
-enum channel_ctrl_t
-{ctrl_request_param, ctrl_write_param };
-
-class QChannelControlEvent : public QEvent
-{
-    QChannelControlEvent(): QEvent(QEvent::User) {}
-public:
-    explicit QChannelControlEvent(uint16_t channel, channel_ctrl_t ctrl)
-        : QEvent(QEvent::User), m_control(ctrl), m_channel(channel) {}
-    explicit QChannelControlEvent(channel_ctrl_t ctrl, uint16_t channel, param_write_mode_t wr_mode, zrm_param_t param, const void* data, size_t sz );
-    virtual ~QChannelControlEvent() override;
-    uint16_t channel() const {return m_channel;}
-    uint32_t control() const {return m_control;}
-    param_write_mode_t wr_mode() {return m_wr_mode;}
-    zrm_param_t        param () {return m_param;}
-    const QByteArray&  data  () const    {return m_data;}
-    size_t             data_size() const {return size_t(m_data.size());}
-
-private:
-    uint32_t           m_control = ctrl_request_param;
-    uint16_t           m_channel = 0;
-    param_write_mode_t m_wr_mode;
-    zrm_param_t        m_param;
-    QByteArray         m_data ;
-
-};
-
 using    ZrmChannelSharedPointer =  QSharedPointer<ZrmChannel>       ;
 using    ZrmTextMap       =  QMap<uint32_t, QString>         ;
 using    ZrmChannelsMap   =  QMap<uint16_t, ZrmChannelSharedPointer> ;
@@ -155,13 +128,13 @@ signals:
     void sig_change_color(unsigned channel, QString color);
 
 protected slots:
-    void     sl_send_timer ();
     void     sl_ping_timer ();
     void     sl_wcdg_timer ();
+    void     send_next_packet();
 
 protected:
 
-    void    send_next_packet();
+
     void    notifyRecv(const recv_header_t& recvHeader);
     virtual  void    handle_recv     (const QByteArray& recv_data) override;
     virtual  void    handle_connect  (bool connected  ) override;
@@ -180,8 +153,6 @@ protected:
     void    on_channels_changed  ();
     void    module_state_changed (ZrmChannelSharedPointer& mod, bool* pneed_request_method, bool* pneed_ping);
     void    send_timer_ctrl      (bool start);
-    virtual bool    event(QEvent* ev) override;
-    virtual void    channel_control_event(QChannelControlEvent* ctrl_event);
     size_t          channel_write_method (uint16_t ch_num);
 
     void writeToDevice(const void* data, size_t size);

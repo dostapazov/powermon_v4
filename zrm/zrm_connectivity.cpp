@@ -40,24 +40,6 @@ static void  meta_types_init(bool& inited)
 
 namespace zrm {
 
-QChannelControlEvent::QChannelControlEvent(channel_ctrl_t ctrl, uint16_t channel, param_write_mode_t wr_mode, zrm_param_t param, const void* data, size_t sz )
-    : QEvent   ( QEvent::User )
-    , m_control( ctrl   )
-    , m_channel( channel)
-    , m_wr_mode( wr_mode)
-    , m_param  ( param  )
-{
-    if (sz && data)
-    {
-        m_data.append(reinterpret_cast<const char*>(data), int(sz));
-    }
-}
-
-QChannelControlEvent::~QChannelControlEvent()
-{
-
-}
-
 bool       ZrmConnectivity::meta_types_inited = false;
 ZrmTextMap ZrmConnectivity::m_mode_text;
 ZrmTextMap ZrmConnectivity::m_error_text;
@@ -118,7 +100,7 @@ ZrmConnectivity::ZrmConnectivity(const QString& conn_name, QObject* parent)
     meta_types_init(meta_types_inited);
     register_connectivity(this);
     m_send_timer.moveToThread(m_thread);
-    connect(&m_send_timer, &QTimer::timeout, this, &ZrmConnectivity::sl_send_timer);
+    connect(&m_send_timer, &QTimer::timeout, this, &ZrmConnectivity::send_next_packet);
     connect(m_thread, &QThread::finished, &m_send_timer, &QTimer::stop);
 
     m_ping_timer.moveToThread(m_thread);
@@ -224,13 +206,6 @@ void ZrmConnectivity::handle_recv   (const QByteArray& recv_data)
 
 }
 
-
-
-void ZrmConnectivity::sl_send_timer ()
-{
-    // Отправка очередного пакета
-    send_next_packet();
-}
 
 void ZrmConnectivity::writeToDevice(const void* data, size_t size)
 {
@@ -836,14 +811,16 @@ void              ZrmConnectivity::channel_read_eprom_method(uint16_t     ch_num
 void ZrmConnectivity::channel_write_param(uint16_t ch_num, param_write_mode_t wr_mode, zrm_param_t param,
                                           const void* param_data, size_t param_data_sz)
 {
+    QMutexLocker l (&m_zrm_mutex);
+
     if (!channel_exists(ch_num))
         return;
 
-    if (QThread::currentThread() != m_thread)
-    {
-        qApp->postEvent(this, new QChannelControlEvent(ctrl_write_param, ch_num, wr_mode, param, param_data, param_data_sz));
-        return;
-    }
+//    if (QThread::currentThread() != m_thread)
+//    {
+//        qApp->postEvent(this, new QChannelControlEvent(ctrl_write_param, ch_num, wr_mode, param, param_data, param_data_sz));
+//        return;
+//    }
 
     QByteArray data = ZrmChannel::makeParam( wr_mode, param, param_data_sz, param_data);
     auto chan = get_channel(ch_num);
@@ -859,16 +836,13 @@ void   ZrmConnectivity::channel_query_params       (uint16_t ch_num, const param
 
 void   ZrmConnectivity::channel_query_params       (uint16_t ch_num, const char* params, size_t psize)
 {
-    if (QThread::currentThread() != m_thread)
-    {
-        qApp->postEvent(this, new QChannelControlEvent(ctrl_request_param, ch_num, WM_NONE, zrm_param_t::PARAM_CON, params,  psize ));
+    if (!channel_exists(ch_num))
         return;
-    }
 
     QMutexLocker l (&m_zrm_mutex);
-    auto mod = get_channel(ch_num);
-    if (mod.data())
-        mod->queryParams(psize, params);
+    auto chan = get_channel(ch_num);
+
+    chan->queryParams(psize, params);
 }
 
 void   ZrmConnectivity::channel_query_param       (uint16_t chan, const zrm_param_t  param)
@@ -970,37 +944,6 @@ zrm_cells_t   ZrmConnectivity::channel_cell_info     (uint16_t     channel)
         ret = mod->cells_get();
     }
     return ret;
-}
-
-void    ZrmConnectivity::channel_control_event(QChannelControlEvent* ctrl_event)
-{
-    switch (ctrl_event->control())
-    {
-        case ctrl_write_param   :
-            channel_write_param  (ctrl_event->channel(), ctrl_event->wr_mode(), ctrl_event->param(), ctrl_event->data().constData(), ctrl_event->data_size());
-            break;
-        case ctrl_request_param :
-            channel_query_params (ctrl_event->channel(), ctrl_event->data().constData(), size_t(ctrl_event->data().size()));
-            break;
-        default:
-            break;
-    }
-    ctrl_event->accept();
-}
-
-bool    ZrmConnectivity::event(QEvent* ev)
-{
-    if (ev->type() == QEvent::User)
-    {
-        QChannelControlEvent* ce = dynamic_cast<QChannelControlEvent*>(ev);
-        if (ce)
-        {
-            //qDebug()<<Q_FUNC_INFO<<QThread::currentThreadId();
-            channel_control_event(ce);
-            return true;
-        }
-    }
-    return QMultioDevWorker::event(ev);
 }
 
 int            ZrmConnectivity::channels_count()
