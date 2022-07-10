@@ -1,6 +1,7 @@
 #include "ZrmChannelView.h"
-
+#include <zrmparamcvt.h>
 #include <QPainter>
+
 
 ZrmChannelView::ZrmChannelView(QWidget* parent) :
     ZrmBaseWidget(parent)
@@ -41,15 +42,16 @@ void ZrmChannelView::channel_param_changed(unsigned channel, const zrm::params_l
     {
         for (auto param : params_list)
         {
-            QVariant value = m_source->param_get(m_channel, param.first);
+
             switch (param.first)
             {
                 case zrm::PARAM_VOLT         :
-                    volt = value.toDouble();
+
+                    volt = ZrmParamCvt::toDouble(param.second).toDouble();
                     repaint();
                     break;
                 case zrm::PARAM_CUR          :
-                    curr = value.toDouble();
+                    curr = ZrmParamCvt::toDouble(param.second).toDouble();
                     repaint();
                     break;
                 case zrm::PARAM_ERROR_STATE  :

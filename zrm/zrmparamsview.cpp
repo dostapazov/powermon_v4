@@ -1,5 +1,5 @@
 #include "zrmparamsview.h"
-
+#include <zrmparamcvt.h>
 #include <QMessageBox>
 
 ZrmParamsView::ZrmParamsView(QWidget* parent) :
@@ -67,8 +67,7 @@ void ZrmParamsView::channel_param_changed(unsigned channel, const zrm::params_li
 
             if (item != m_items.end())
             {
-                QVariant value = m_source->param_get(m_channel, param.first);
-                QString str = value.toString();
+                QString str = ZrmParamCvt::toVariant(param.first, param.second).toString();
                 item.value()->setText(column_value, str);
             }
         }

@@ -637,6 +637,8 @@ using send_buffer_t = devproto::proto_buffer<send_header_t, CRC_TYPE>;
 
 typedef devproto::storage_t                   params_t;
 
+constexpr int DEFAULT_DOUBLE_PRECISION = 3;
+
 struct param_variant
 {
     param_variant() = default;
@@ -658,7 +660,6 @@ struct param_variant
     bool is_valid() const {return size && size <= sizeof(puchar);}
     template <typename T>
     T    value(bool as_signed) const;
-
 };
 
 template <typename T>

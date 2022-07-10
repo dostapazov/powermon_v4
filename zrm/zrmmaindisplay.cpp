@@ -5,6 +5,7 @@
 #include <qscreen.h>
 #include <QGraphicsDropShadowEffect>
 #include <powermon_utils.h>
+#include <zrmparamcvt.h>
 #include "ui_constraints.hpp"
 
 
@@ -149,44 +150,44 @@ void  ZrmMainDisplay::channel_param_changed(unsigned channel, const zrm::params_
     {
         for (auto param : params_list)
         {
-            QVariant value = m_source->param_get(m_channel, param.first);
+
             switch (param.first)
             {
                 case zrm::PARAM_STATE        :
                     update_state(param.second.udword);
                     break;
                 case zrm::PARAM_WTIME        :
-                    pwm_utils::setEditText(lb_work_time, value.toString(), 0);
+                    pwm_utils::setEditText(lb_work_time, ZrmParamCvt::toTime(param.second).toString(), 0);
                     break;
                 case zrm::PARAM_LTIME        :
-                    pwm_utils::setEditText(edTimeLimit, value.toString(), 0);
+                    pwm_utils::setEditText(edTimeLimit, ZrmParamCvt::toTime(param.second).toString(), 0);
                     break;
                 case zrm::PARAM_CUR          :
-                    lbCurr->setValue(value.toDouble());
+                    lbCurr->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
                     break;
                 case zrm::PARAM_LCUR         :
-                    sbCurrLimit->setValue(value.toDouble());
+                    sbCurrLimit->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
                     break;
                 case zrm::PARAM_VOLT         :
-                    lbVolt->setValue(value.toDouble());
+                    lbVolt->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
                     break;
                 case zrm::PARAM_LVOLT        :
-                    sbVoltLimit->setValue(value.toDouble());
+                    sbVoltLimit->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
                     break;
                 case zrm::PARAM_CAP          :
-                    set_number_value(edCapacity, value.toDouble(), 3);
+                    set_number_value(edCapacity, ZrmParamCvt::toDouble(param.second).toDouble(), zrm::DEFAULT_DOUBLE_PRECISION);
                     break;
                 case zrm::PARAM_MAXTEMP      :
-                    sbTemperature->setValue(value.toDouble());
+                    sbTemperature->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
                     break;
                 case zrm::PARAM_STG_NUM      :
-                    lbStageNum->setValue(int(param.second.sdword));
+                    lbStageNum->setValue(param.second.value<int>(true));
                     break;
                 case zrm::PARAM_LOOP_NUM     :
-                    lbCycleNum->setValue(int(param.second.sdword));
+                    lbCycleNum->setValue(param.second.value<int>(true));
                     break;
                 case zrm::PARAM_ERROR_STATE  :
-                    handle_error_state(param.second.udword);
+                    handle_error_state(param.second.value<uint32_t>(false));
                     break;
 
 #ifdef DEF_RUPREHT
@@ -314,9 +315,9 @@ void  ZrmMainDisplay::setup_method()
         pwm_utils::setEditText(edTimeLimit, time_limit_string, 0);
     }
 
-    auto param = m_source->param_get(m_channel, zrm::PARAM_STG_NUM);
+    auto param = m_source->get_param(m_channel, zrm::PARAM_STG_NUM);
     //set_number_value(lbStageNum, param.toInt(), 2);
-    lbStageNum->setValue(param.toInt());
+    lbStageNum->setValue(param.value<int>(false));
     update_method_controls();
     m_manual_change = false;
 
@@ -460,7 +461,7 @@ void ZrmMainDisplay::voltLimitChange()
 double ZrmMainDisplay::getManualVoltage()
 {
     double voltage = sbVoltLimit->value();
-    double voltLimit = m_source->param_get(m_channel, zrm::zrm_param_t::PARAM_MVOLT).toDouble();
+    double voltLimit = ZrmParamCvt::toDouble(param_get(zrm::zrm_param_t::PARAM_MVOLT)).toDouble();
     if (!qFuzzyIsNull(voltLimit))
         voltage = qMin(sbVoltLimit->value(), voltLimit);
     return voltage;
@@ -468,7 +469,7 @@ double ZrmMainDisplay::getManualVoltage()
 
 double ZrmMainDisplay::getManualCurrent(bool charge)
 {
-    double currLimit = m_source->param_get(m_channel, charge ? zrm::zrm_param_t::PARAM_MCUR : zrm::zrm_param_t::PARAM_MCURD ).toDouble();
+    double currLimit = ZrmParamCvt::toDouble( param_get(charge ? zrm::zrm_param_t::PARAM_MCUR : zrm::zrm_param_t::PARAM_MCURD )).toDouble();
     double current = sbCurrLimit->value();
     if (!qFuzzyIsNull(currLimit))
         current = qMin(sbCurrLimit->value(), currLimit);

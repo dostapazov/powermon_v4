@@ -94,7 +94,7 @@ bool     ZrmChannel::params_is_changed   (zrm_param_t param) const
     return m_chg_params.count(param);
 }
 
-param_variant     ZrmChannel::param_get          (zrm_param_t param ) const
+param_variant     ZrmChannel::getParameter          (zrm_param_t param ) const
 {
     param_variant pvar;
     //locker_t l(m_mut);
@@ -127,7 +127,7 @@ oper_state_t ZrmChannel::get_state(bool prev) const
         state = m_prev_state;
     else
     {
-        state.state = param_get(PARAM_STATE).uword;
+        state.state = getParameter(PARAM_STATE).uword;
     }
     return state;
 }
@@ -408,7 +408,7 @@ zrm_cells_t ZrmChannel::cells_get() const
 session_t ZrmChannel::session               () const
 {
     session_t sess(uint16_t(-1));
-    auto param = param_get(PARAM_CON);
+    auto param = getParameter(PARAM_CON);
     if (param.is_valid())
         sess.value = param.udword;
     return sess;
@@ -450,42 +450,6 @@ void     ZrmChannel::method_clear()
     param_set(PARAM_METHOD_STAGES, init_variant(0));
 }
 
-QString ZrmChannel::time_param(const param_variant& pv)
-{
-    if (pv.is_valid())
-    {
-        return QString::asprintf("%02u:%02u:%02u", unsigned(pv.puchar[2]), unsigned(pv.puchar[1]), unsigned(pv.puchar[0]));
-    }
-    return QString();
-}
-
-QString ZrmChannel::trect_param(const param_variant& pv)
-{
-    QString ret;
-    size_t pcount = pv.size / sizeof(int32_t);
-    const int32_t* ptr = reinterpret_cast<const int32_t*>(pv.puchar);
-    const int32_t* end = ptr + pcount;
-    while (ptr < end)
-    {
-        ret += QString::asprintf( "%s%2.3f", ret.isEmpty() ? "" : ", ", double(*ptr) / 1000.0);
-        ++ptr;
-    }
-
-    return ret;
-}
-
-QString ZrmChannel::fan_param(const param_variant& pv)
-{
-    QString fans;
-    const uint8_t* beg = pv.puchar;
-    const uint8_t* end = beg + pv.size;
-    while (beg < end)
-    {
-        fans += QString::asprintf("%s%d", (fans.isEmpty() ? "" : ", "), static_cast<int>(*beg));
-        ++beg;
-    }
-    return fans;
-}
 
 QByteArray ZrmChannel::makeSendPacket
 (

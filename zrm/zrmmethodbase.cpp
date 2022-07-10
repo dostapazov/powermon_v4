@@ -1,4 +1,5 @@
 #include "zrmmethodbase.h"
+#include <zrmparamcvt.h>
 
 constexpr int STAGE_NUMBER_COLUMN = 0;
 constexpr int STAGE_TYPE_COLUMN   = 1;
@@ -27,10 +28,10 @@ void  ZrmMethodBase::channel_param_changed(unsigned channel, const zrm::params_l
                     set_current_stage(param.second.sword);
                     break;
                 case zrm::PARAM_WTIME         :
-                    lb_time_work->setText(param_get(param.first).toString());
+                    lb_time_work->setText(ZrmParamCvt::toTime(param.second).toString());
                     break;
                 case zrm::PARAM_LOOP_NUM      :
-                    set_number_value(lb_cycle_num, param.second.sword, 2, no_value);
+                    set_number_value(lb_cycle_num, param.second.value<int>(true), 2, no_value);
                     break;
                 case zrm::PARAM_METHOD_STAGES :
                     setup_method();
@@ -122,8 +123,8 @@ void ZrmMethodBase::setup_method    ()
     {
         stage_add(stage, met_volt, met_curr, met_cap );
     }
-    auto param = m_source->param_get(m_channel, zrm::PARAM_STG_NUM);
-    set_current_stage(param.toInt());
+    auto param = param_get( zrm::PARAM_STG_NUM).value<int>(true);
+    set_current_stage(param);
     m_method_id = method.m_method.m_id;
 }
 

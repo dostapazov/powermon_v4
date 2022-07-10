@@ -72,7 +72,7 @@ void ZrmReadyAccum::handle_error_state(zrm::ZrmConnectivity* __conn, unsigned ch
     {
         m_source = con;
         for (auto&& chan : con->channels())
-            if (param_get(chan, zrm::PARAM_ERROR_STATE).toUInt())
+            if (param_get(chan, zrm::PARAM_ERROR_STATE).value<uint32_t>(false))
                 ++error_count;
     }
     m_source = nullptr;

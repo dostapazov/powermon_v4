@@ -81,10 +81,14 @@ void  ZrmLogerChartUI::channel_param_changed(unsigned channel, const zrm::params
                     break;
                 case zrm::PARAM_MCUR :
                 case zrm::PARAM_MCURD :
-                    m_chart->axes(Qt::Vertical, i_series)[0]->setRange(-m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble(), m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble());
-                    break;
+                {
+                    double minValue = param_get(zrm::PARAM_MCURD).value<double>(false);
+                    double maxValue = param_get(zrm::PARAM_MCUR).value<double>(false);
+                    m_chart->axes(Qt::Vertical, i_series)[0]->setRange(-minValue, maxValue);
+                }
+                break;
                 case zrm::PARAM_MVOLT :
-                    m_chart->axes(Qt::Vertical, u_series)[0]->setRange(0, m_source->param_get(m_channel, zrm::PARAM_MVOLT).toDouble());
+                    m_chart->axes(Qt::Vertical, u_series)[0]->setRange(0, param_get(zrm::PARAM_MVOLT).value<double>(false));
                     break;
                 default:
                     break;
@@ -140,8 +144,8 @@ void ZrmLogerChartUI::updateChart()
 {
     this->setUpdatesEnabled(false);
     qint64 t = QDateTime::currentDateTime().toMSecsSinceEpoch();
-    i_series->append(t, m_source->param_get(m_channel, zrm::PARAM_CUR).toDouble());
-    u_series->append(t, m_source->param_get(m_channel, zrm::PARAM_VOLT).toDouble());
+    i_series->append(t, param_get( zrm::PARAM_CUR).value<double>(false));
+    u_series->append(t, param_get( zrm::PARAM_VOLT).value<double>(false));
 
     constexpr qint64 TIME_LENGTH = 1000 * 60;
     constexpr int    MAX_SERIES_COUNT = TIME_LENGTH / CHART_UPDATE_PREIOD;

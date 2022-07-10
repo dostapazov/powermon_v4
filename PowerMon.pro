@@ -80,6 +80,7 @@ SOURCES += \
 	zrm/zrmcellview.cpp \
 	zrm/zrmchannel.cpp \
 	zrm/zrmdevmethods.cpp \
+	zrm/zrmparamcvt.cpp \
 	zrm/zrmparamsview.cpp \
 	zrm/zrmproto.cpp \
 	data/zrmdatasource.cpp \
@@ -125,6 +126,7 @@ HEADERS += \
 	zrm/zrmcellview.h \
 	zrm/zrmchannel.hpp \
 	zrm/zrmdevmethods.h \
+	zrm/zrmparamcvt.h \
 	zrm/zrmparamsview.h \
 		zrm/zrmproto.hpp \
 	data/zrmdatasource.h \

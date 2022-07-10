@@ -18,6 +18,7 @@
 #include <QDateTime>
 #include <QColor>
 #include <QDebug>
+#include <zrmparamcvt.h>
 
 #ifndef PROTOCOL_PT_LINE
     constexpr qint64  SEND_PERIOD_DEFAULT  = 10;
@@ -989,80 +990,86 @@ method_exec_results_sensors_t ZrmConnectivity::results_sensors_get(uint16_t chan
     return  method_exec_results_sensors_t();
 }
 
-template < typename T>
-double value ( T v, double p)
+//template < typename T>
+//double value ( T v, double p)
+//{
+//    return double(v) / pow(10.0, p);
+//}
+
+//QVariant     ZrmConnectivity::param_get( zrm::zrm_param_t param, const zrm::param_variant& pv)
+//{
+//    QVariant res;
+//    if (pv.is_valid())
+//    {
+//        switch (param)
+//        {
+//            case zrm::PARAM_WTIME      :
+//            case zrm::PARAM_LTIME      :
+//                res = ZrmParamCvt::toTime(pv);
+//                break;
+//            case zrm::PARAM_TEMP       :
+//            case zrm::PARAM_TRECT      :
+//                res = ZrmParamCvt::toTemperature(pv);
+//                break;
+//            case zrm::PARAM_FAN_PERCENT :
+//                res = ZrmParamCvt::toFan(pv);
+//                break;
+
+
+//            case zrm::PARAM_CUR        :
+//            case zrm::PARAM_LCUR       :
+//            case zrm::PARAM_VOLT       :
+//            case zrm::PARAM_LVOLT      :
+//            case zrm::PARAM_CAP        :
+//            case zrm::PARAM_MVOLT      :
+//            case zrm::PARAM_MCUR       :
+//            case zrm::PARAM_MCURD      :
+//            case zrm::PARAM_DPOW       :
+//            case zrm::PARAM_MAXTEMP    :
+//            case zrm::PARAM_MAX_CHP    :
+//            case zrm::PARAM_TCONV      :
+//            case zrm::PARAM_VOUT       :
+//            case zrm::PARAM_CUR_CONSUMPTION :
+//            case zrm::PARAM_VOLT_SUPPLY :
+//            case zrm::PARAM_VOLT_HIGH_VOLT_BUS :
+//                res =  ZrmParamCvt::toDouble(pv, 3);
+//                break;
+
+
+//            case zrm::PARAM_STG_NUM    :
+//            case zrm::PARAM_LOOP_NUM   :
+//            case zrm::PARAM_ERROR_STATE:
+//            case zrm::PARAM_FAULTL_DEV :
+//            case zrm::PARAM_MID        :
+//            case zrm::PARAM_STATE      :
+//            default:
+//                res = ZrmParamCvt::toUint32(pv);
+//                break;
+//        }
+//    }
+//    return res;
+//}
+
+//QVariant     ZrmConnectivity::param_get(uint16_t channel, zrm::zrm_param_t param)
+//{
+//    QVariant res;
+//    QMutexLocker l(&m_zrm_mutex);
+//    if (m_channels.contains(channel))
+//    {
+//        auto mod = m_channels[channel];
+//        if (mod.data())
+//            res = param_get(param, mod->getParameter(param));
+//    }
+//    return    res  ;
+//}
+
+zrm::param_variant ZrmConnectivity::get_param(uint16_t channel, zrm::zrm_param_t param)
 {
-    return double(v) / pow(10.0, p);
-}
-
-QVariant     ZrmConnectivity::param_get( zrm::zrm_param_t param, const zrm::param_variant& pv)
-{
-    QVariant res;
-    if (pv.is_valid())
-    {
-        switch (param)
-        {
-            case zrm::PARAM_WTIME      :
-            case zrm::PARAM_LTIME      :
-                res = ZrmChannel::time_param(pv);
-                break;
-            case zrm::PARAM_TEMP       :
-            case zrm::PARAM_TRECT      :
-                res = ZrmChannel::trect_param(pv);
-                break;
-            case zrm::PARAM_FAN_PERCENT :
-                res = ZrmChannel::fan_param(pv);
-                break;
-
-
-            case zrm::PARAM_CUR        :
-            case zrm::PARAM_LCUR       :
-            case zrm::PARAM_VOLT       :
-            case zrm::PARAM_LVOLT      :
-            case zrm::PARAM_CAP        :
-            case zrm::PARAM_MVOLT      :
-            case zrm::PARAM_MCUR       :
-            case zrm::PARAM_MCURD      :
-            case zrm::PARAM_DPOW       :
-            case zrm::PARAM_MAXTEMP    :
-            case zrm::PARAM_MAX_CHP    :
-            case zrm::PARAM_TCONV      :
-            case zrm::PARAM_VOUT       :
-            case zrm::PARAM_CUR_CONSUMPTION :
-            case zrm::PARAM_VOLT_SUPPLY :
-            case zrm::PARAM_VOLT_HIGH_VOLT_BUS :
-                res = value(pv.value<double>(true), 3);
-                break;
-
-
-            case zrm::PARAM_STG_NUM    :
-            case zrm::PARAM_LOOP_NUM   :
-            case zrm::PARAM_ERROR_STATE:
-            case zrm::PARAM_FAULTL_DEV :
-            case zrm::PARAM_MID        :
-            case zrm::PARAM_STATE      :
-                res = (pv.udword);
-                break;
-
-            default:
-                res = (pv.udword);
-                break;
-        }
-    }
-    return res;
-}
-
-QVariant     ZrmConnectivity::param_get(uint16_t channel, zrm::zrm_param_t param)
-{
-    QVariant res;
     QMutexLocker l(&m_zrm_mutex);
-    if (m_channels.contains(channel))
-    {
-        auto mod = m_channels[channel];
-        if (mod.data())
-            res = param_get(param, mod->param_get(param));
-    }
-    return    res  ;
+    if (!m_channels.contains(channel))
+        return zrm::param_variant();
+
+    return m_channels[channel]->getParameter(param);
 }
 
 

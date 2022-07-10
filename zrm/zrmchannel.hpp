@@ -70,7 +70,7 @@ public:
     void     params_request_remove(const params_t&   params);
     bool     param_is_requested   (zrm_param_t param);
     const params_t&   params_list          () const;
-    param_variant     param_get            (zrm_param_t param) const;
+    param_variant     getParameter            (zrm_param_t param) const;
     bool     params_is_changed    (zrm_param_t param) const;
     const params_list_t& params_current     () const;
 
@@ -101,9 +101,6 @@ public:
     void  setAttributes(const Attributes& attrs) {m_Attributes = attrs;}
     const Attributes& getAttributes() const {return m_Attributes;}
 
-    static QString  time_param (const param_variant& pv);
-    static QString trect_param(const param_variant& pv);
-    static QString  fan_param  (const param_variant& pv);
 
     /*   methods after refactoring */
 

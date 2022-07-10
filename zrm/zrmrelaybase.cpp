@@ -59,7 +59,7 @@ void ZrmRelayBase::update_controls()
     if (m_source && m_channel)
     {
         //qDebug()<<QString("%3 %1 %2").arg(m_source->name()).arg(m_channel).arg(this->objectName());
-        QVariant v = param_get(zrm::PARAM_STATE).toUInt();
+        QVariant v = param_get(zrm::PARAM_STATE).value<uint32_t>(false);
         update_state(v.toUInt());
         //handle_error_state(param_get(zrm::PARAM_ERROR_STATE).toUInt());
     }
