@@ -991,7 +991,7 @@ method_exec_results_sensors_t ZrmConnectivity::results_sensors_get(uint16_t chan
 }
 
 
-zrm::param_variant ZrmConnectivity::get_param(uint16_t channel, zrm::zrm_param_t param)
+zrm::param_variant ZrmConnectivity::getParameter(uint16_t channel, zrm::zrm_param_t param)
 {
     QMutexLocker l(&m_zrm_mutex);
     if (!m_channels.contains(channel))

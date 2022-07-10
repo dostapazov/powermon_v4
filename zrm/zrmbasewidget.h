@@ -52,7 +52,7 @@ public:
     bool          channel_is_paused   (uint16_t channel);
 
     zrm::param_variant      param_get  ( uint16_t channel, zrm::zrm_param_t param)
-    {return (m_source && channel) ? m_source->get_param(channel, param) : zrm::param_variant();}
+    {return (m_source && channel) ? m_source->getParameter(channel, param) : zrm::param_variant();}
 
 
     static QLatin1String  codec_name();

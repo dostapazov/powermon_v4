@@ -315,7 +315,7 @@ void  ZrmMainDisplay::setup_method()
         pwm_utils::setEditText(edTimeLimit, time_limit_string, 0);
     }
 
-    auto param = m_source->get_param(m_channel, zrm::PARAM_STG_NUM);
+    auto param = m_source->getParameter(m_channel, zrm::PARAM_STG_NUM);
     //set_number_value(lbStageNum, param.toInt(), 2);
     lbStageNum->setValue(param.value<int>(false));
     update_method_controls();
