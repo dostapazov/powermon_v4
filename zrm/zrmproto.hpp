@@ -270,6 +270,11 @@ union oper_state_t
         uint8_t reserv         : 3;
     } state_bits;
     uint16_t state = 0;
+    bool       is_executing() const { return state_bits.auto_on;}
+    bool       is_paused () const   { return state_bits.start_pause;}
+
+    bool       is_stopped() const   { return !(state_bits.auto_on | state_bits.start_pause);}
+
 };
 
 

@@ -266,10 +266,13 @@ uint16_t  ZrmChannel::handle_results (uint16_t data_size, const uint8_t* beg, co
 {
     const stage_exec_result_t* res_beg = reinterpret_cast<const stage_exec_result_t*>(beg);
     const stage_exec_result_t* res_end = reinterpret_cast<const stage_exec_result_t*>(end);
-    if ( data_size < 0xFF )
+
+    if ( data_size < std::numeric_limits<uint8_t>::max() )
+    {
         res_end = res_beg + data_size / sizeof (*res_beg);
+    }
     data_size = 0;
-    //qDebug()<<"ZrmModule::Handle results";
+
     while (res_beg < res_end)
     {
         auto ptr_beg = m_exec_results.begin();
@@ -283,7 +286,8 @@ uint16_t  ZrmChannel::handle_results (uint16_t data_size, const uint8_t* beg, co
         data_size += sizeof (*res_beg);
     }
     std::sort(m_exec_results.begin(), m_exec_results.end());
-    param_set(PARAM_METHOD_STAGES, init_variant(m_exec_results.size()));
+    param_set(PARAM_METH_EXEC_RESULT, init_variant(m_exec_results.size()));
+//   qDebug() << "ZrmModule::Handle results " << m_exec_results.size();
     return data_size;
 }
 
@@ -434,7 +438,8 @@ int ZrmChannel::results_get  (method_exec_results_t& res) const
 
 void      ZrmChannel::results_clear()
 {
-    //locker_t l(m_mut);
+//    locker_t l(m_mut);
+//    qDebug() << Q_FUNC_INFO;
     m_exec_results.clear();
     param_set(PARAM_METH_EXEC_RESULT, param_variant());
     m_exec_results_sensor.clear();

@@ -328,8 +328,8 @@ void ZrmMainDisplay::update_state    (uint32_t state)
     zrm::oper_state_t oper_state;
     oper_state.state = uint16_t(state);
 
-    bool stopped = is_stopped();
-    bool paused  = is_paused ();
+    bool stopped = oper_state.is_stopped();
+    bool paused  = oper_state.is_paused();
 //  qDebug()<<QString("Update state %1").arg(state,4,16,QLatin1Char('0'));
 //  qDebug()<< tr(" auto on %1  is_stopped  %2 ").arg(oper_state.state_bits.auto_on).arg(stopped);
 #ifdef DEF_RUPREHT
