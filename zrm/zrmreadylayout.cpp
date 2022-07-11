@@ -22,7 +22,6 @@ void         ZrmReadyLayout::clear()
         delete li->widget();
         delete li;
     }
-
 }
 
 
@@ -77,7 +76,13 @@ QSize ZrmReadyLayout::minimumSize() const
 {
     QSize sz(100, 50);
     for (auto i : m_items)
-        sz = sz.expandedTo(i->widget()->minimumSize());
+    {
+        QWidget* w = i->widget();
+        //w->adjustSize();
+        QSize wsz = w->minimumSize();
+        sz.setWidth( qMax(sz.width(), wsz.width())); // sz.expandedTo(wsz);
+        sz.setHeight(qMax(sz.height(), wsz.height()));
+    }
     m_min_width  = sz.width();
     m_min_height = sz.height();
     return sz;
@@ -89,20 +94,29 @@ void  ZrmReadyLayout::setGeometry(const QRect& rect)
     do_layout(rect);
 }
 
-void ZrmReadyLayout::do_layout(const QRect& rect) const
+void ZrmReadyLayout::setOrientation(Qt::Orientation orient)
+{
+    if (m_orientation != orient)
+    {
+        m_orientation = orient;
+        do_layout(geometry());
+    }
+}
+
+void ZrmReadyLayout::doHorizontalPlacement(const QRect& rect)
 {
     int sp = spacing();
     QRect r = this->alignmentRect(rect);
     int x = r.left() + sp;
     int y = r.top () + sp;
     int max_x = 0;
-    for (auto litem : m_items)
+    for (auto&& litem : m_items)
     {
         auto* w = dynamic_cast<ZrmBaseWidget*>(litem->widget());
         w->setGeometry(QRect(x, y, m_min_width, m_min_height));
         x += sp + m_min_width;
         max_x = qMax(max_x, x);
-        if (x + m_min_width + sp > r.right() && x > r.left() + sp)
+        if ((x + m_min_width + sp) > r.right() && x > (r.left() + sp))
         {
             x = r.left() + sp;
             y += m_min_height + sp;
@@ -112,4 +126,52 @@ void ZrmReadyLayout::do_layout(const QRect& rect) const
     m_hint_height = (x == r.left() + sp) ? y : y + m_min_height + sp;
 
     parentWidget()->setMinimumHeight(m_hint_height);
+
+    parentWidget()->setMinimumWidth(m_hint_width);
+}
+
+void ZrmReadyLayout::doVerticalPlacement(const QRect& rect)
+{
+    int sp = spacing();
+    QRect r = this->alignmentRect(rect);
+    int x = r.left() + sp;
+    int y = r.top () + sp;
+    int max_x = 0;
+    int max_y = 0;
+    for (auto&& litem : m_items)
+    {
+        QWidget* w = litem->widget();
+
+        w->setGeometry(QRect(x, y, m_min_width, m_min_height));
+        y += (sp + m_min_height);
+        max_y = qMax(max_y, y);
+        max_x = qMax(max_x, x);
+
+        if ( (y + m_min_height + sp) > r.bottom() && y > (r.top() + sp))
+        {
+            x += (m_min_width + sp);
+            y = r.top() + sp;
+        }
+    }
+    m_hint_height = max_y;
+    m_hint_width  = max_x;
+
+    parentWidget()->setMinimumHeight(m_hint_height);
+    parentWidget()->setMinimumWidth(m_hint_width);
+    qDebug() << Q_FUNC_INFO << " r " << rect;
+    qDebug() << " parent " << parentWidget()->geometry();
+
+}
+
+void ZrmReadyLayout::do_layout(const QRect& rect)
+{
+
+    if (m_orientation == Qt::Orientation::Horizontal)
+    {
+        doHorizontalPlacement(rect);
+    }
+    else
+    {
+        doVerticalPlacement(rect);
+    }
 }

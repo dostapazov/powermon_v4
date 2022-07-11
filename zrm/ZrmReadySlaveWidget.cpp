@@ -22,6 +22,7 @@ ZrmReadySlaveWidget::ZrmReadySlaveWidget(QWidget* parent) :
     setLayout(l);
 
     m_ready_layout = new ZrmReadyLayout(ready_widget);
+    m_ready_layout->setOrientation(Qt::Horizontal);
     m_ready_layout->set_scroll_area(ready_area);
     ready_widget->setLayout(m_ready_layout);
 }
