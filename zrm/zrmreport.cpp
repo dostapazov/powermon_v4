@@ -44,7 +44,7 @@ QString ZrmReport::make_report(const QString& a_maker_name, const QString& a_akb
     qreal   total_energy      = 0;
 
     QStringList  main_text ;
-    QString      doc_title  = tr("Отчет об обслуживании АКБ от %1").arg(QDateTime::currentDateTime().toString("dd-MM-yyyy"));
+    QString      doc_title  = tr("Отчет об обслуживании АКБ от %1").arg(QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss"));
     QString      maker_name = a_maker_name.isEmpty() ? tr("__________________________________") : a_maker_name;
     QString      akb_type   = a_akb_type.isEmpty  () ? tr("________________") : a_akb_type;
     QString      akb_number = a_akb_number.isEmpty() ? tr("________________") : a_akb_number;
@@ -345,6 +345,7 @@ void ZrmReport::channel_param_changed(unsigned channel, const zrm::params_list_t
                 case zrm::PARAM_METH_EXEC_RESULT_SENSOR :
                 case zrm::PARAM_METH_EXEC_RESULT :
                 {
+                    //qDebug() << "Handle results " << param.first;
                     gen_result_report();
                     getSensors();
                     if (zrm::PARAM_METH_EXEC_RESULT == param.first)
@@ -395,8 +396,12 @@ void ZrmReport::getSensors()
 
 void ZrmReport::channel_session      (unsigned ch_num)
 {
+    //qDebug() << Q_FUNC_INFO;
     if (m_source && m_channel == ch_num && m_source->channel_session(m_channel).is_active())
+    {
+        //qDebug() << " query results";
         m_source->channel_query_param(m_channel, zrm::PARAM_METH_EXEC_RESULT);
+    }
 
 }
 
@@ -489,7 +494,7 @@ void ZrmReport::make_chart(const zrm::method_exec_results_t& results)
     seriesC->append(timeTotal, CAP);
     for (auto res : results)
     {
-        qreal CAP  = qreal(res.capcacity ) / 1000.0;
+        CAP  = qreal(res.capcacity ) / 1000.0;
         qreal Iend = qreal(res.curr_end  ) / 1000.0;
         qreal Uend = qreal(res.volt_end  ) / 1000.0;
         uint32_t time = uint32_t(res.duration[0]) * 3600 + uint32_t(res.duration[1]) * 60 + uint32_t(res.duration[2]);
@@ -514,14 +519,14 @@ void ZrmReport::make_chart(const zrm::method_exec_results_t& results)
         }
         if (max == min)
             max++;
-        auto axe = chart->axes(Qt::Vertical, series).first();
+        auto axe = chart->axes(Qt::Vertical, series).constFirst();
         axe->setRange(min, max);
     };
 
     if (!seriesI->points().isEmpty())
     {
-        axisTime->setMin(QDateTime::fromMSecsSinceEpoch(seriesI->points().first().x()));
-        axisTime->setMax(QDateTime::fromMSecsSinceEpoch(seriesI->points().last().x()));
+        axisTime->setMin(QDateTime::fromMSecsSinceEpoch(seriesI->points().constFirst().x()));
+        axisTime->setMax(QDateTime::fromMSecsSinceEpoch(seriesI->points().constLast().x()));
     }
 
     chart->update();
@@ -536,16 +541,14 @@ void ZrmReport::onState(uint32_t state)
     if (currentState.is_executing())
     {
         result_text->clear();
+        clear_chart();
         requestTimer.stop();
         return;
     }
     if (changes.is_stopped() && currentState.is_stopped())
     {
-        qDebug() << Q_FUNC_INFO << " stopped!!!";
+        //qDebug() << Q_FUNC_INFO << " stopped!!!";
         requestTimer.start();
     }
-
-
-
 }
 

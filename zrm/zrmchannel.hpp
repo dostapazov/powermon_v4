@@ -105,6 +105,7 @@ public:
     /*   methods after refactoring */
 
     qint64 getRespondTime();
+    void   queryParam(zrm_param_t param);
     void   queryParams(size_t psize, const void* params);
     bool   queuePacket( packet_types_t type, size_t dataSize, const void* data);
     bool   queuePacket( packet_types_t type, const QByteArray& data);

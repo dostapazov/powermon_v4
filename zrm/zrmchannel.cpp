@@ -550,6 +550,11 @@ void ZrmChannel::stopSession()
     queuePacket( PT_CONREQ, sizeof(st), &st);
 }
 
+void   ZrmChannel::queryParam(zrm_param_t param)
+{
+    queryParams(sizeof(param), &param);
+}
+
 void   ZrmChannel::queryParams(size_t psize, const void* params)
 {
     if (!psize || !params)

@@ -86,9 +86,6 @@ void ZrmConnectivity::unregister_connectivity(ZrmConnectivity* instance)
     }
 }
 
-
-
-
 ZrmConnectivity::ZrmConnectivity(const QString& conn_name, QObject* parent)
     : QMultioDevWorker(parent)
     , m_zrm_mutex      (QMutex::Recursive)
@@ -204,9 +201,7 @@ void ZrmConnectivity::handle_recv   (const QByteArray& recv_data)
         on_channels_changed();
         send_next_packet();
     }
-
 }
-
 
 void ZrmConnectivity::writeToDevice(const void* data, size_t size)
 {
@@ -290,7 +285,6 @@ void ZrmConnectivity::handle_connect(bool connected)
         send_timer_ctrl(false);
         channels_stop();
     }
-    //m_send_buffer.set_packet_number(0);
     QMultioDevWorker::handle_connect(connected);
 }
 
@@ -328,7 +322,6 @@ void   ZrmConnectivity::handle_recv_channel (const recv_header_t& recv_hdr)
     }
 }
 
-
 /**
  * @brief ZrmConnectivity::on_channels_changed
  * Обработка изменений канала
@@ -347,11 +340,10 @@ void    ZrmConnectivity::on_channels_changed()
             continue;
 
         bool need_request_method = false;
-        bool need_ping           = false;
         if (mod->params_is_changed(PARAM_CON) && mod->session_active() && mod->ping_check(0))
         {
-            qDebug() << "channels_changed session --> " << mod->session().session_param.ssID;
-            qDebug() << "request method stages";
+//            qDebug() << "channels_changed session --> " << mod->session().session_param.ssID;
+//            qDebug() << "request method stages";
             need_request_method = true;
             channel_refresh_info(channel);
 
@@ -359,7 +351,7 @@ void    ZrmConnectivity::on_channels_changed()
 
         if (mod->params_is_changed(PARAM_STATE))
         {
-            module_state_changed ( mod, &need_request_method, & need_ping);
+            module_state_changed ( mod, &need_request_method);
         }
 
         if (mod->params_is_changed(PARAM_MID) && mod->get_state().state_bits.auto_on)
@@ -370,15 +362,10 @@ void    ZrmConnectivity::on_channels_changed()
 
         if (need_request_method)
         {
-            channel_query_param(channel, zrm_param_t::PARAM_METHOD_STAGES);
-//            need_ping = true;
+            mod->queryParam(zrm_param_t::PARAM_METHOD_STAGES);
+            //channel_query_param(channel, zrm_param_t::PARAM_METHOD_STAGES);
         }
 
-//        if (need_ping)
-//        {
-
-//            ping_module(mod.data());
-//        }
 
         if (is_channel_changed_connected)
             emit sig_channel_change(channel, mod->changes());
@@ -417,7 +404,7 @@ void    ZrmConnectivity::channel_refresh_info   (uint16_t  channel)
  * Изменение состояния модуля старт/стоп/пауза
  * если нулевые адреса pneed_request_method && pneed_ping то запрос метода и ping выполняются самостоятельно
  */
-void   ZrmConnectivity::module_state_changed (ZrmChannelSharedPointer& mod, bool* pneed_request_method, bool* pneed_ping)
+void   ZrmConnectivity::module_state_changed (ZrmChannelSharedPointer& mod, bool* pneed_request_method)
 {
 
     auto prev_state = mod->get_state(true );
@@ -427,41 +414,29 @@ void   ZrmConnectivity::module_state_changed (ZrmChannelSharedPointer& mod, bool
 
     if (ch.state_bits.auto_on || ch.state_bits.start_pause )
     {
-        bool need_ping = false;
         if (curr_state.state_bits.auto_on)
         {
             //Стал активен запрашиваем метод
             //qDebug()<<"request methods";
-            need_ping = true;
 
             if (pneed_request_method)
                 *pneed_request_method = true;
             else
             {
-                channel_query_param( mod->channel(), PARAM_METHOD_STAGES);
+                mod->queryParam(PARAM_METHOD_STAGES);
+                //channel_query_param( mod->channel(), PARAM_METHOD_STAGES);
             }
         }
         else
         {
             //Стал неактивен запрашиваем результат выполнения
             //qDebug()<<"request results";
-            if (!curr_state.state_bits.auto_on && !curr_state.state_bits.start_pause)
-            {
-                channel_query_param( mod->channel(), PARAM_METH_EXEC_RESULT);
-                need_ping = true;
-                QThread::msleep(100);
-            }
+//            if (!curr_state.state_bits.auto_on && !curr_state.state_bits.start_pause)
+//            {
+//                channel_query_param( mod->channel(), PARAM_METH_EXEC_RESULT);
+//            }
         }
 
-        if (pneed_ping)
-        {
-            *pneed_ping = need_ping;
-        }
-        else
-        {
-            if (need_ping)
-                ping_module(mod.data());
-        }
     }
 
 }
