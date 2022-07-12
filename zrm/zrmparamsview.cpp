@@ -32,6 +32,7 @@ void ZrmParamsView::init_params()
     appendParam(zrm::PARAM_RVDEV, tr("Модификация блока"), false);
     appendParam(zrm::PARAM_RVSW, tr("Версия ПО"), false);
     appendParam(zrm::PARAM_SOFT_REV, tr("Модификация ПО"), false);
+    appendParam(zrm::PARAM_SERNM, tr("Заводской номер"), false);
 
     appendParam(zrm::PARAM_CUR, tr("Ток"), true);
     appendParam(zrm::PARAM_LCUR, tr("Ограничение тока"), true);
@@ -52,6 +53,12 @@ void ZrmParamsView::init_params()
     appendParam(zrm::PARAM_VOLT_SUPPLY, tr("Напряжение питающей сети"), true);
     appendParam(zrm::PARAM_VOLT_HIGH_VOLT_BUS, tr("Напряжение высоковольтной шины"), true);
     appendParam(zrm::PARAM_FAN_PERCENT, tr("Вентиляторы"), true);
+
+    appendParam(zrm::PARAM_TRYCT, tr("Кол-во попыток запуска"), true);
+    appendParam(zrm::PARAM_RSTTO, tr("Таймаут между перезапусками"), true);
+    appendParam(zrm::PARAM_VSTRT, tr("Напряжение автозапуска"), true);
+    appendParam(zrm::PARAM_MEMFR, tr("Свободная память"), true);
+
     respond =   new QTreeWidgetItem(zrm_params, QStringList() << tr("Время ответа канала"));
 }
 

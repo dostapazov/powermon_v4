@@ -174,8 +174,8 @@ void ZrmReadyLayout::doVerticalPlacement(const QRect& rect)
 
     parentWidget()->setMinimumHeight(m_hint_height);
     parentWidget()->setMinimumWidth(m_hint_width);
-    qDebug() << Q_FUNC_INFO << " r " << rect;
-    qDebug() << " parent " << parentWidget()->geometry();
+//    qDebug() << Q_FUNC_INFO << " r " << rect;
+//    qDebug() << " parent " << parentWidget()->geometry();
 
 }
 

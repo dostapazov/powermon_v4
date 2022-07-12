@@ -396,10 +396,10 @@ void ZrmReport::getSensors()
 
 void ZrmReport::channel_session      (unsigned ch_num)
 {
-    //qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO;
     if (m_source && m_channel == ch_num && m_source->channel_session(m_channel).is_active())
     {
-        //qDebug() << " query results";
+        qDebug() << " query results";
         m_source->channel_query_param(m_channel, zrm::PARAM_METH_EXEC_RESULT);
     }
 
@@ -534,10 +534,14 @@ void ZrmReport::make_chart(const zrm::method_exec_results_t& results)
 
 void ZrmReport::onState(uint32_t state)
 {
-
     zrm::oper_state_t changes ;
     changes.state = currentState.state ^ state;
+    qDebug() << Q_FUNC_INFO << " -> " << Qt::hex << state << " - " << Qt::hex << changes.state;
+
     currentState.state = state;
+    if (!changes.state)
+        return;
+
     if (currentState.is_executing())
     {
         result_text->clear();
@@ -545,7 +549,8 @@ void ZrmReport::onState(uint32_t state)
         requestTimer.stop();
         return;
     }
-    if (changes.is_stopped() && currentState.is_stopped())
+
+    if (changes.is_executing() && !currentState.is_paused() && currentState.is_stopped())
     {
         //qDebug() << Q_FUNC_INFO << " stopped!!!";
         requestTimer.start();

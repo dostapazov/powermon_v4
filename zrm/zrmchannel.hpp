@@ -238,18 +238,17 @@ inline void   ZrmChannel::clear_changes()
 
 inline bool       ZrmChannel::is_executing() const
 {
-    return get_state().state_bits.auto_on;
+    return get_state().is_executing();
 }
 
 inline bool       ZrmChannel::is_paused () const
 {
-    return get_state().state_bits.start_pause;
+    return get_state().is_paused();
 }
 
 inline bool       ZrmChannel::is_stopped() const
 {
-    auto   st = get_state();
-    return !(st.state_bits.auto_on | st.state_bits.start_pause);
+    return get_state().is_stopped();
 }
 
 inline const params_list_t& ZrmChannel::params_current() const
