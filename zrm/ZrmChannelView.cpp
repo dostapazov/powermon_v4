@@ -1,27 +1,28 @@
-#include "ZrmChannel.h"
-
+#include "ZrmChannelView.h"
+#include <zrmparamcvt.h>
 #include <QPainter>
 
-ZrmChannel::ZrmChannel(QWidget* parent) :
+
+ZrmChannelView::ZrmChannelView(QWidget* parent) :
     ZrmBaseWidget(parent)
 {
     setMinimumSize(184, 82);
 }
 
-void ZrmChannel::set_active(bool active)
+void ZrmChannelView::set_active(bool active)
 {
     bActive = active;
     repaint();
 }
 
-void ZrmChannel::bind(zrm::ZrmConnectivity* src, uint16_t chan, bool _connect_signals)
+void ZrmChannelView::bind(zrm::ZrmConnectivity* src, uint16_t chan, bool _connect_signals)
 {
     if (src == m_source && m_channel == chan)
         update_controls();
     ZrmBaseWidget::bind(src, chan, _connect_signals);
 }
 
-void ZrmChannel::clear_controls()
+void ZrmChannelView::clear_controls()
 {
     handle_error_state(0);
     volt = 0.;
@@ -29,27 +30,28 @@ void ZrmChannel::clear_controls()
     repaint();
 }
 
-void ZrmChannel::update_controls()
+void ZrmChannelView::update_controls()
 {
     if (m_source && m_channel)
         channel_param_changed(m_channel, m_source->channel_params(m_channel));
 }
 
-void ZrmChannel::channel_param_changed(unsigned channel, const zrm::params_list_t& params_list)
+void ZrmChannelView::channel_param_changed(unsigned channel, const zrm::params_list_t& params_list)
 {
     if (channel == m_channel && m_source)
     {
         for (auto param : params_list)
         {
-            QVariant value = m_source->param_get(m_channel, param.first);
+
             switch (param.first)
             {
                 case zrm::PARAM_VOLT         :
-                    volt = value.toDouble();
+
+                    volt = ZrmParamCvt::toDouble(param.second).toDouble();
                     repaint();
                     break;
                 case zrm::PARAM_CUR          :
-                    curr = value.toDouble();
+                    curr = ZrmParamCvt::toDouble(param.second).toDouble();
                     repaint();
                     break;
                 case zrm::PARAM_ERROR_STATE  :
@@ -63,7 +65,7 @@ void ZrmChannel::channel_param_changed(unsigned channel, const zrm::params_list_
     ZrmBaseWidget::channel_param_changed(channel, params_list);
 }
 
-void ZrmChannel::channel_session(unsigned ch_num)
+void ZrmChannelView::channel_session(unsigned ch_num)
 {
     if (m_source && ch_num == m_channel)
     {
@@ -78,18 +80,18 @@ void ZrmChannel::channel_session(unsigned ch_num)
     }
 }
 
-void ZrmChannel::handle_error_state(unsigned err_code)
+void ZrmChannelView::handle_error_state(unsigned err_code)
 {
     setToolTip(m_source->zrm_error_text(err_code));
 }
 
-void ZrmChannel::mousePressEvent(QMouseEvent* event)
+void ZrmChannelView::mousePressEvent(QMouseEvent* event)
 {
     emit clicked();
     ZrmBaseWidget::mousePressEvent(event);
 }
 
-void ZrmChannel::paintEvent(QPaintEvent* event)
+void ZrmChannelView::paintEvent(QPaintEvent* event)
 {
     QPainter p(this);
     QFont f = p.font();
@@ -116,8 +118,11 @@ void ZrmChannel::paintEvent(QPaintEvent* event)
 
     // шкаф / устройство
     // длинна текста
-    int box = m_source->channel_box_number(m_channel);
-    int device = m_source->channel_device_number(m_channel);
+    zrm::ZrmChannelAttributes attrs = m_source->channelAttributes(m_channel);
+
+    int box = attrs.box_number;
+    int device = attrs.device_number;
+
     strValue = (box > 0) ? QString::number(box) : "";
     if (box > 0 && device > 0)
         strValue += " : ";

@@ -67,7 +67,7 @@ SOURCES += \
 		main.cpp \
 		mainwindow.cpp \
 	utils/powermon_utils.cpp \
-	zrm/ZrmChannel.cpp \
+	zrm/ZrmChannelView.cpp \
 	zrm/ZrmLogerChart.cpp \
 	zrm/ZrmLogerChartUI.cpp \
 	zrm/ZrmParams.cpp \
@@ -78,10 +78,11 @@ SOURCES += \
 	zrm/zrm_connectivity.cpp \
 	zrm/zrmcalibrate.cpp \
 	zrm/zrmcellview.cpp \
+	zrm/zrmchannel.cpp \
 	zrm/zrmdevmethods.cpp \
+	zrm/zrmparamcvt.cpp \
 	zrm/zrmparamsview.cpp \
 	zrm/zrmproto.cpp \
-	zrm/zrmmodule.cpp \
 	data/zrmdatasource.cpp \
 	data/zrmmethodchoose.cpp \
 	data/zrmmethodeditor.cpp \
@@ -111,7 +112,7 @@ HEADERS += \
 	data/zrmstageseditor.h \
 		mainwindow.h \
 	utils/powermon_utils.h \
-	zrm/ZrmChannel.h \
+	zrm/ZrmChannelView.h \
 	zrm/ZrmLogerChart.h \
 	zrm/ZrmLogerChartUI.h \
 	zrm/ZrmParams.h \
@@ -123,10 +124,11 @@ HEADERS += \
 		zrm/zrm_connectivity.hpp \
 	zrm/zrmcalibrate.h \
 	zrm/zrmcellview.h \
+	zrm/zrmchannel.hpp \
 	zrm/zrmdevmethods.h \
+	zrm/zrmparamcvt.h \
 	zrm/zrmparamsview.h \
 		zrm/zrmproto.hpp \
-		zrm/zrmmodule.hpp \
 	data/zrmdatasource.h \
 	data/zrmmethodchoose.h \
 	data/zrmmethodeditor.h \

@@ -1,43 +1,45 @@
 #include "zrmchannelmimimal.h"
-
 #include <QGraphicsDropShadowEffect>
+#include <zrmparamcvt.h>
 
 ZrmChannelMimimal::ZrmChannelMimimal(QWidget* parent) :
     ZrmGroupWidget(parent)
 {
     setupUi(this);
     set_active(false);
-    connect(btStop, &QAbstractButton::clicked, this, &ZrmChannelMimimal::stop);
-    ed_time->setVisible(false);
-    for (auto&& w : findChildren<QWidget*>())
+    extraPanel->setVisible(false);
+    for (auto&& w : frame->findChildren<QWidget*>())
     {
-        if (w != btStop)
-        {
-            w->installEventFilter(this);
-            w->setMouseTracking  (true);
-        }
+        if (w == btStop || w == bExpand)
+            continue;
+        w->installEventFilter(this);
+        w->setMouseTracking  (true);
     }
 
+    connect(btStop, &QAbstractButton::clicked, this, &ZrmChannelMimimal::stop);
+    connect(bExpand, &QAbstractButton::toggled, this, &ZrmChannelMimimal::expand);
 }
-
 
 void ZrmChannelMimimal::set_active(bool active)
 {
+    QWidget* shadowWidget = frame;
     if (active)
     {
         frame->setFrameShadow(QFrame::Shadow::Sunken);
-        QGraphicsDropShadowEffect* shadow = new QGraphicsDropShadowEffect();
-        shadow->setOffset(4);
-        shadow->setBlurRadius(5);
-        shadow->setColor(Qt::gray);
-        setGraphicsEffect(shadow);
+        addShadow(shadowWidget, 4, 5, Qt::GlobalColor::darkBlue);
     }
     else
     {
         frame->setFrameShadow(QFrame::Shadow::Raised);
-        QScopedPointerDeleteLater::cleanup(graphicsEffect());
-        setGraphicsEffect(nullptr);
+        QScopedPointerDeleteLater::cleanup(shadowWidget->graphicsEffect());
+        shadowWidget->setGraphicsEffect(nullptr);
     }
+}
+
+QString getDevText(int box, int dev)
+{
+    QString empty(" ");
+    return QString("%1-%2").arg((box ? QString::number(box) : empty), (dev ? QString::number(dev) : empty));
 }
 
 void ZrmChannelMimimal::bind(zrm::ZrmConnectivity* src, uint16_t chan, bool _connect_signals)
@@ -46,26 +48,13 @@ void ZrmChannelMimimal::bind(zrm::ZrmConnectivity* src, uint16_t chan, bool _con
         disconnect(m_source, SIGNAL(sig_change_color(unsigned, QString)), this, SLOT(setColor(unsigned, QString)));
     if (src == m_source && m_channel == chan)
         update_controls();
-    ZrmGroupWidget::bind(src, chan, _connect_signals);
-
-    QString str = "Нет связи";
     if (m_source && m_channel)
     {
-        auto sess = m_source->channel_session(m_channel);
-        str = channel_name(m_channel);
-        str += sess.is_active() ? QString(" [ ID %1 ]").arg(sess.session_param.ssID, 4, 16, QLatin1Char('0')).toUpper() : tr(" [ нет соединения ]");
         connect(m_source, &zrm::ZrmConnectivity::sig_change_color, this, &ZrmChannelMimimal::setColor);
-        setColor(m_channel, m_source->channel_color(m_channel));
-        int box = m_source->channel_box_number(m_channel);
-        int device = m_source->channel_device_number(m_channel);
-        QString strName = (box > 0) ? QString::number(box) : "";
-        if (box > 0 && device > 0)
-            strName += " : ";
-        if (device > 0)
-            strName += QString::number(device);
-        name->setText(strName);
     }
-    setToolTip(str);
+
+    ZrmGroupWidget::bind(src, chan, _connect_signals);
+
 }
 
 void ZrmChannelMimimal::setColor(unsigned channel, QString color)
@@ -73,7 +62,7 @@ void ZrmChannelMimimal::setColor(unsigned channel, QString color)
     if (m_channel == channel)
     {
         QString style = QString("QFrame { background-color: %1 ; }").arg(color);
-        setStyleSheet(style);
+        frame->setStyleSheet(style);
     }
 }
 
@@ -91,8 +80,23 @@ void  ZrmChannelMimimal::clear_controls  ()
 
 void  ZrmChannelMimimal::update_controls()
 {
+    QString str = "Нет связи";
     if (m_source && m_channel)
+    {
         channel_param_changed(m_channel, m_source->channel_params(m_channel));
+        auto sess = m_source->channel_session(m_channel);
+        str = channel_name(m_channel);
+        str += sess.is_active() ? QString(" [ ID %1 ]").arg(sess.session_param.ssID, 4, 16, QLatin1Char('0')).toUpper() : tr(" [ нет соединения ]");
+
+        zrm::ZrmChannelAttributes attrs = m_source->channelAttributes(m_channel);
+
+        QColor color(QRgb(attrs.color));
+        setColor(m_channel, color.name());
+        name->setText(getDevText(attrs.box_number, attrs.device_number));
+
+    }
+    setToolTip(str);
+
 }
 
 void ZrmChannelMimimal::update_state    (uint32_t state)
@@ -112,22 +116,24 @@ void  ZrmChannelMimimal::channel_param_changed(unsigned channel, const zrm::para
     {
         for (auto param : params_list)
         {
-            QVariant value = m_source->param_get(m_channel, param.first);
+
             switch (param.first)
             {
                 case zrm::PARAM_STATE        :
                     update_state(param.second.udword);
                     break;
                 case zrm::PARAM_VOLT         :
-                    volt->setValue(value.toDouble());
+                    volt->setValue( ZrmParamCvt::toDouble(param.second).toDouble());
                     break;
                 case zrm::PARAM_CUR          :
-                    curr->setValue(value.toDouble());
+                    curr->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
                     break;
                 case zrm::PARAM_WTIME        :
-                    ed_time ->setText(value.toString());
+                    ed_time ->setText(ZrmParamCvt::toTime(param.second).toString());
                     break;
-                //case zrm::PARAM_STG_NUM      : set_number_value(lbStageNum, int(param.second.sdword), 2);break;
+                case zrm::PARAM_STG_NUM      :
+                    set_number_value(lbStageNum, param.second.value<int>(false), 2, "--");
+                    break;
                 case zrm::PARAM_ERROR_STATE  :
                     handle_error_state(param.second.udword);
                     break;
@@ -156,18 +162,14 @@ void  ZrmChannelMimimal::channel_session(unsigned ch_num)
             m_source->channel_subscribe_params(m_channel, params, true);
             volt->setSpecialValueText( QString() );
             curr->setSpecialValueText( QString() );
-
         }
-
     }
 }
-
 
 void ZrmChannelMimimal::handle_error_state(unsigned err_code)
 {
     setToolTip(m_source->zrm_error_text(err_code));
 }
-
 
 void ZrmChannelMimimal::mousePressEvent(QMouseEvent* event)
 {
@@ -200,17 +202,17 @@ zrm::zrm_work_mode_t ZrmChannelMimimal::work_mode()
 
 bool  ZrmChannelMimimal::eventFilter(QObject* target, QEvent* event)
 {
-    switch (event->type())
-    {
-        case QEvent::MouseButtonRelease :
-            emit clicked();
-            break;
-        case QEvent::MouseButtonPress   :
-            emit clicked();
-            break;
-        default :
-            break;
-    }
+//    switch (event->type())
+//    {
+//        case QEvent::MouseButtonRelease :
+//            emit clicked();
+//            break;
+//        case QEvent::MouseButtonPress   :
+//            emit clicked();
+//            break;
+//        default :
+//            break;
+//    }
     return ZrmBaseWidget::eventFilter(target, event);
 }
 
@@ -222,3 +224,10 @@ void ZrmChannelMimimal::update_ui()
     btStop->setMaximumHeight(48);
 #endif
 }
+
+void ZrmChannelMimimal::expand(bool checked)
+{
+    extraPanel->setVisible(checked);
+    bExpand->setArrowType(checked ? Qt::ArrowType::UpArrow : Qt::ArrowType::DownArrow);
+}
+

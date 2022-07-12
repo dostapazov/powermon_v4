@@ -7,7 +7,6 @@
 class ZrmMethodBase : public ZrmChannelWidget, private Ui::ZrmMethodBase
 {
     Q_OBJECT
-    Q_PROPERTY ( bool details READ is_details_enabled WRITE set_details_enable MEMBER m_details_visible CONSTANT)
 public:
     explicit ZrmMethodBase(QWidget* parent = nullptr);
     bool     is_details_enabled();

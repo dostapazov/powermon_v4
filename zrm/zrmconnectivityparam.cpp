@@ -46,8 +46,6 @@ ZrmConnectivityParam::ZrmConnectivityParam(QWidget* parent) :
 
     hdr->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
     hdr->setSectionResizeMode(1, QHeaderView::ResizeMode::ResizeToContents);
-    connect(conn_params, &mutli_iodev_params::param_apply, this, &ZrmConnectivityParam::conn_param_apply);
-    connect(conn_params, &mutli_iodev_params::param_undo, this, &ZrmConnectivityParam::conn_param_undo );
     conn_params->enable_apply(true);
     conn_params->enable_undo (true);
 
@@ -59,6 +57,12 @@ ZrmConnectivityParam::ZrmConnectivityParam(QWidget* parent) :
         tb->setProperty(tb_func_id, ++i);
         connect(tb, &QToolButton::clicked, this, &ZrmConnectivityParam::tool_buttons_clicked);
     }
+    connect(conn_params, &mutli_iodev_params::param_apply, this, &ZrmConnectivityParam::conn_param_apply);
+    connect(conn_params, &mutli_iodev_params::param_undo, this, &ZrmConnectivityParam::conn_param_undo );
+    connect(boxNumber, QOverload<int>::of(&QSpinBox::valueChanged), this, &ZrmConnectivityParam::onAttributesChanged);
+    connect(deviceNumber, QOverload<int>::of(&QSpinBox::valueChanged), this, &ZrmConnectivityParam::onAttributesChanged);
+    connect(buttonColor, &QAbstractButton::released, this, &ZrmConnectivityParam::selectChunnelColor);
+
     tw_connectivity->setItemDelegate( new zcp_item_delegate(this));
 }
 
@@ -161,9 +165,11 @@ QTreeWidgetItem* ZrmConnectivityParam::create_channel_item(zrm::ZrmConnectivity*
         chann_item->setData(0, WorkMode, wm);
         chann_item->setText(1, QString::number(chan_number));
         chann_item->setData(1, Qt::UserRole, chan_number);
-        chann_item->setData(0, BoxNumber, conn->channel_box_number(chan_number));
-        chann_item->setData(0, DeviceNumber, conn->channel_device_number(chan_number));
-        chann_item->setData(0, Color, conn->channel_color(chan_number));
+        zrm::ZrmChannelAttributes attrs = conn->channelAttributes(chan_number);
+
+        chann_item->setData(0, BoxNumber, attrs.box_number);
+        chann_item->setData(0, DeviceNumber, attrs.device_number);
+        chann_item->setData(0, Color, QColor(QRgb(attrs.color)).name());
         return chann_item;
     }
     return nullptr;
@@ -251,11 +257,13 @@ void ZrmConnectivityParam::on_tw_connectivity_currentItemChanged(QTreeWidgetItem
 void ZrmConnectivityParam::setup_channel(QTreeWidgetItem* item)
 {
     SignalBlocker sb(channel_page->findChildren<QWidget*>());
+    sb.block(buttonColor);
+
     auto wm = channel_work_mode(item);
     int idx = channel_type->findData(wm);
     channel_type->setCurrentIndex(idx);
-    spinBoxBoxNumber->setValue(item->data(0, BoxNumber).toInt());
-    spinBoxDeviceNumber->setValue(item->data(0, DeviceNumber).toInt());
+    boxNumber->setValue(item->data(0, BoxNumber).toInt());
+    deviceNumber->setValue(item->data(0, DeviceNumber).toInt());
     setButtonColor(item->data(0, Color).toString());
 }
 
@@ -371,7 +379,7 @@ void  ZrmConnectivityParam::do_connection_add()
 void  ZrmConnectivityParam::do_channel_add          (QTreeWidgetItem* item, zrm::ZrmConnectivity* conn)
 {
     //Добваление Канала
-    zrm::channels_key_t channels = conn->channels();
+    zrm::ZrmChannelsKeys channels = conn->channels();
     uint16_t last_number = channels.size() ?  channels.last() : 0;
     if (last_number < zrm::MAX_CHANNEL_NUMBER)
     {
@@ -536,68 +544,75 @@ void ZrmConnectivityParam::on_channel_type_currentIndexChanged(int index)
     }
 }
 
-void ZrmConnectivityParam::on_spinBoxBoxNumber_valueChanged(int arg1)
+
+void ZrmConnectivityParam::onAttributesChanged()
 {
+    QObject* src = sender();
     QTreeWidgetItem* current = tw_connectivity->currentItem();
     if (current && current->parent())
     {
-        current->setData(0, BoxNumber, arg1);
         zrm::ZrmConnectivity* conn = connectivity(current);
-        if (conn)
-            conn->channel_set_box_number(channel_number(current), arg1);
+        int channelNumber = channel_number(current);
+        zrm::ZrmChannelAttributes attrs = conn->channelAttributes(channelNumber) ;
+        if (src == boxNumber)
+        {
+
+            attrs.box_number = boxNumber->value();
+            current->setData(0, BoxNumber, attrs.box_number);
+        }
+
+        if (src == deviceNumber)
+        {
+            attrs.device_number = deviceNumber->value();
+            current->setData(0, DeviceNumber, attrs.device_number);
+        }
+
+        if (src == buttonColor)
+        {
+            QColor color (buttonColor->property("color").toString());
+            attrs.color = color.rgb();
+        }
+        conn->setChannelAttributes(channelNumber, attrs);
     }
 }
 
-void ZrmConnectivityParam::on_spinBoxDeviceNumber_valueChanged(int arg1)
+void ZrmConnectivityParam::selectChunnelColor()
 {
     QTreeWidgetItem* current = tw_connectivity->currentItem();
     if (current && current->parent())
     {
-        current->setData(0, DeviceNumber, arg1);
-        zrm::ZrmConnectivity* conn = connectivity(current);
-        if (conn)
-            conn->channel_set_device_number(channel_number(current), arg1);
-    }
-}
-
-void ZrmConnectivityParam::on_pushButtonColor_clicked()
-{
-    QTreeWidgetItem* current = tw_connectivity->currentItem();
-    if (current && current->parent())
-    {
-        QColor color = QColorDialog::getColor(pushButtonColor->property("color").toString());
+        QColor color = QColorDialog::getColor(buttonColor->property("color").toString());
         if (color.isValid())
         {
             QString strColor = color.name();
             setButtonColor(strColor);
-            current->setData(0, Color, strColor);
-            zrm::ZrmConnectivity* conn = connectivity(current);
-            if (conn)
-                conn->channel_set_color(channel_number(current), strColor);
+            onAttributesChanged();
         }
     }
 }
 
 void ZrmConnectivityParam::setButtonColor(QString color)
 {
-    pushButtonColor->setProperty("color", color);
+    buttonColor->setProperty("color", color);
     QString style = QString("background-color: %1 ;").arg(color);
-    pushButtonColor->setStyleSheet(style);
+    buttonColor->setStyleSheet(style);
 }
 
 void ZrmConnectivityParam::updateMonitor()
 {
     QTreeWidgetItem* item = tw_connectivity->currentItem();
-    uint16_t chan ;
-    zrm::ZrmConnectivity* conn = nullptr;
-    if (item)
+    if (!item)
     {
-        conn = connectivity(item);
-        chan = channel_number(item);
-        if (item->childCount())
-            chan = item->child(0)->data(1, Qt::UserRole).toUInt();
-        else
-            chan = item->data(1, Qt::UserRole).toUInt();
+        zrm_mon->bind(nullptr, 0);
+        return;
     }
-    zrm_mon->bind(conn, item ? chan : 0);
+
+    zrm::ZrmConnectivity* conn = connectivity(item);
+    uint16_t chan ;
+    if (item->childCount())
+        chan = item->child(0)->data(1, Qt::UserRole).toUInt();
+    else
+        chan = item->data(1, Qt::UserRole).toUInt();
+    zrm_mon->bind(conn, chan );
+
 }

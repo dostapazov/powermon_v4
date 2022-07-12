@@ -402,8 +402,8 @@ void ReportItemDelegate::paint(QPainter* painter,
         break;
         case 5 :
         {
-            auto hms = zrm::method_t::secunds2hms(index.data().toUInt());
-            QString str = zrm::ZrmConnectivity::hms2string(hms);
+            auto hms = pwm_utils::secunds2hms(index.data().toUInt());
+            QString str = pwm_utils::hms2string(hms);
             custom_paint(painter, option, str);
         }
         break;

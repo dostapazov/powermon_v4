@@ -5,6 +5,7 @@
 #include <qscreen.h>
 #include <QGraphicsDropShadowEffect>
 #include <powermon_utils.h>
+#include <zrmparamcvt.h>
 #include "ui_constraints.hpp"
 
 
@@ -115,21 +116,21 @@ void ZrmMainDisplay::clear_controls()
     sbCurrLimit ->setValue(0.0);
     edCapacity  ->setValue(0.0);
     sbTemperature->setValue(0.0);
-    setEditText(lb_work_time, no_value);
-    setEditText (edTimeLimit, no_value);
-    setEditText (edMode, no_value);
+    pwm_utils::setEditText(lb_work_time, no_value);
+    pwm_utils::setEditText (edTimeLimit, no_value);
+    pwm_utils::setEditText (edMode, no_value);
     lbStageNum  ->setValue(0);
     lbStageTotal->setValue(0);
     lbCycleNum  ->setValue(0);
     sbCycleTotal->setValue(0);
-    setEditText (edMethodName, no_value, 0);
+    pwm_utils::setEditText (edMethodName, no_value, 0);
     bMethodAuto->setEnabled(false);
     bMethodAny->setEnabled(false);
     bMethodManual->setEnabled(false);
     bPause->setEnabled(false);
     bStart->setEnabled(false);
     bStop->setEnabled(false);
-    setEditText(edMode, tr("Не назначено устройство"), 0);
+    pwm_utils::setEditText(edMode, tr("Не назначено устройство"), 0);
     handle_error_state(0);
 }
 
@@ -138,7 +139,7 @@ void  ZrmMainDisplay::handle_error_state (uint32_t err_code)
     auto p = error_state->palette();
     p.setColor(QPalette::Text, Qt::red);
     error_state->setPalette(p);
-    setEditText(error_state, m_source->zrm_error_text(err_code), 0)  ;
+    pwm_utils::setEditText(error_state, m_source->zrm_error_text(err_code), 0)  ;
     bResetError->setVisible(err_code);
 }
 
@@ -149,44 +150,44 @@ void  ZrmMainDisplay::channel_param_changed(unsigned channel, const zrm::params_
     {
         for (auto param : params_list)
         {
-            QVariant value = m_source->param_get(m_channel, param.first);
+
             switch (param.first)
             {
                 case zrm::PARAM_STATE        :
                     update_state(param.second.udword);
                     break;
                 case zrm::PARAM_WTIME        :
-                    setEditText(lb_work_time, value.toString(), 0);
+                    pwm_utils::setEditText(lb_work_time, ZrmParamCvt::toTime(param.second).toString(), 0);
                     break;
                 case zrm::PARAM_LTIME        :
-                    setEditText(edTimeLimit, value.toString(), 0);
+                    pwm_utils::setEditText(edTimeLimit, ZrmParamCvt::toTime(param.second).toString(), 0);
                     break;
                 case zrm::PARAM_CUR          :
-                    lbCurr->setValue(value.toDouble());
+                    lbCurr->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
                     break;
                 case zrm::PARAM_LCUR         :
-                    sbCurrLimit->setValue(value.toDouble());
+                    sbCurrLimit->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
                     break;
                 case zrm::PARAM_VOLT         :
-                    lbVolt->setValue(value.toDouble());
+                    lbVolt->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
                     break;
                 case zrm::PARAM_LVOLT        :
-                    sbVoltLimit->setValue(value.toDouble());
+                    sbVoltLimit->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
                     break;
                 case zrm::PARAM_CAP          :
-                    set_number_value(edCapacity, value.toDouble(), 3);
+                    set_number_value(edCapacity, ZrmParamCvt::toDouble(param.second).toDouble(), zrm::DEFAULT_DOUBLE_PRECISION);
                     break;
                 case zrm::PARAM_MAXTEMP      :
-                    sbTemperature->setValue(value.toDouble());
+                    sbTemperature->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
                     break;
                 case zrm::PARAM_STG_NUM      :
-                    lbStageNum->setValue(int(param.second.sdword));
+                    lbStageNum->setValue(param.second.value<int>(true));
                     break;
                 case zrm::PARAM_LOOP_NUM     :
-                    lbCycleNum->setValue(int(param.second.sdword));
+                    lbCycleNum->setValue(param.second.value<int>(true));
                     break;
                 case zrm::PARAM_ERROR_STATE  :
-                    handle_error_state(param.second.udword);
+                    handle_error_state(param.second.value<uint32_t>(false));
                     break;
 
 #ifdef DEF_RUPREHT
@@ -203,7 +204,7 @@ void  ZrmMainDisplay::channel_param_changed(unsigned channel, const zrm::params_
                     break;
 #else
                 case zrm::PARAM_ZRMMODE      :
-                    setEditText(edMode, m_source->zrm_mode_text(param.second.udword), 0);
+                    pwm_utils::setEditText(edMode, m_source->zrm_mode_text(param.second.udword), 0);
                     break;
 #endif
                 case zrm::PARAM_METHOD_STAGES:
@@ -301,7 +302,7 @@ void  ZrmMainDisplay::setup_method()
 
     method_name = method_name.remove(QChar('\u0000'));
 
-    setEditText(edMethodName, method_name, 0);
+    pwm_utils::setEditText(edMethodName, method_name, 0);
 
 
     //set_number_value(lbStageTotal, int(method.stages_count()), 2, infinity_symbol);
@@ -311,12 +312,12 @@ void  ZrmMainDisplay::setup_method()
     if (!m_manual_change)
     {
         QString time_limit_string = zrm_method_duration_text(method);
-        setEditText(edTimeLimit, time_limit_string, 0);
+        pwm_utils::setEditText(edTimeLimit, time_limit_string, 0);
     }
 
-    auto param = m_source->param_get(m_channel, zrm::PARAM_STG_NUM);
+    auto param = m_source->getParameter(m_channel, zrm::PARAM_STG_NUM);
     //set_number_value(lbStageNum, param.toInt(), 2);
-    lbStageNum->setValue(param.toInt());
+    lbStageNum->setValue(param.value<int>(false));
     update_method_controls();
     m_manual_change = false;
 
@@ -327,8 +328,8 @@ void ZrmMainDisplay::update_state    (uint32_t state)
     zrm::oper_state_t oper_state;
     oper_state.state = uint16_t(state);
 
-    bool stopped = is_stopped();
-    bool paused  = is_paused ();
+    bool stopped = oper_state.is_stopped();
+    bool paused  = oper_state.is_paused();
 //  qDebug()<<QString("Update state %1").arg(state,4,16,QLatin1Char('0'));
 //  qDebug()<< tr(" auto on %1  is_stopped  %2 ").arg(oper_state.state_bits.auto_on).arg(stopped);
 #ifdef DEF_RUPREHT
@@ -401,7 +402,7 @@ void  ZrmMainDisplay::update_method_controls()
 }
 
 
-zrm::method_hms String2Duration(const QString& str)
+pwm_utils::method_hms String2Duration(const QString& str)
 {
     uint8_t hours = 0, minutes = 0, secunds = 0;
     QStringList sl = str.split(':');
@@ -429,11 +430,10 @@ zrm::method_hms String2Duration(const QString& str)
 
 void ZrmMainDisplay::set_method_duration(zrm::zrm_method_t& method, const QString& str)
 {
-    zrm::method_hms hms = String2Duration(str);
+    pwm_utils::method_hms hms = String2Duration(str);
     method.m_method.m_hours = std::get<0>(hms);
     method.m_method.m_minutes = std::get<1>(hms);
     method.m_method.m_secs = std::get<2>(hms);
-
 }
 
 void ZrmMainDisplay::currLimitChange()
@@ -461,7 +461,7 @@ void ZrmMainDisplay::voltLimitChange()
 double ZrmMainDisplay::getManualVoltage()
 {
     double voltage = sbVoltLimit->value();
-    double voltLimit = m_source->param_get(m_channel, zrm::zrm_param_t::PARAM_MVOLT).toDouble();
+    double voltLimit = ZrmParamCvt::toDouble(param_get(zrm::zrm_param_t::PARAM_MVOLT)).toDouble();
     if (!qFuzzyIsNull(voltLimit))
         voltage = qMin(sbVoltLimit->value(), voltLimit);
     return voltage;
@@ -469,7 +469,7 @@ double ZrmMainDisplay::getManualVoltage()
 
 double ZrmMainDisplay::getManualCurrent(bool charge)
 {
-    double currLimit = m_source->param_get(m_channel, charge ? zrm::zrm_param_t::PARAM_MCUR : zrm::zrm_param_t::PARAM_MCURD ).toDouble();
+    double currLimit = ZrmParamCvt::toDouble( param_get(charge ? zrm::zrm_param_t::PARAM_MCUR : zrm::zrm_param_t::PARAM_MCURD )).toDouble();
     double current = sbCurrLimit->value();
     if (!qFuzzyIsNull(currLimit))
         current = qMin(sbCurrLimit->value(), currLimit);
@@ -553,13 +553,13 @@ void ZrmMainDisplay::manual_method()
 
 void    ZrmMainDisplay::on_connected         (bool con_state)
 {
-    setEditText(edMode, con_state ? QString() : tr("Нет связи"), 0);
+    pwm_utils::setEditText(edMode, con_state ? QString() : tr("Нет связи"), 0);
 }
 
 void    ZrmMainDisplay::on_ioerror           (const QString& error_string)
 {
     if (error_string.length())
-        setEditText(edMode, error_string, 0);
+        pwm_utils::setEditText(edMode, error_string, 0);
 }
 
 void ZrmMainDisplay::start()

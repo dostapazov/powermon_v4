@@ -12,6 +12,7 @@
 #include <mutex>
 #include <math.h>
 #include <string.h>
+#include <powermon_utils.h>
 
 namespace zrm {
 
@@ -25,7 +26,7 @@ enum   sync_types_t
     , PS_CU = 0x5a // cu -> pc
 };
 
-enum param_write_mode_t
+enum param_write_mode_t : uint8_t
 {
     WM_NONE                   = 0,
     WM_CHECK_FOR_MODIFICATION = 1,
@@ -34,7 +35,7 @@ enum param_write_mode_t
 };
 
 // Session type
-enum session_types_t
+enum session_types_t : uint8_t
 {
     ST_FINISH    = 0x00,
     ST_CONTROL   = 0x01,
@@ -168,6 +169,8 @@ enum packet_types_t
     PT_CONCONF   = 0x11
 };
 
+using  pCrcFunc = CRC_TYPE(*)(const void*, size_t);
+
 struct proto_header
 {
     uint16_t session_id;
@@ -178,6 +181,7 @@ struct proto_header
     proto_header(uint16_t _session_id, uint16_t _number, uint16_t _channel, uint8_t _type);
     size_t   operator()() const {return size_t(data_size);}
     void     operator()(size_t _dsz) { data_size = uint16_t(_dsz);}
+    static   pCrcFunc crcCalc;
 };
 
 inline proto_header::proto_header(uint16_t _session_id, uint16_t _number, uint16_t _channel, uint8_t _type)
@@ -212,6 +216,7 @@ struct proto_header
     proto_header(uint16_t _session_id, uint16_t _number, uint16_t _channel, uint8_t _type);
     size_t operator()() const { return size_t(data_size); }
     void operator()(size_t _dsz) { data_size = uint16_t(_dsz); }
+    static   pCrcFunc crcCalc;
 };
 
 inline proto_header::proto_header(uint16_t _session_id, uint16_t _number, uint16_t _channel, uint8_t _type)
@@ -224,25 +229,24 @@ inline proto_header::proto_header(uint16_t _session_id, uint16_t _number, uint16
 
 #endif
 
-using  pCrcFunc = CRC_TYPE(*)(const void*, size_t);
 
 union session_t
+    {
+        struct
+        {
+            uint8_t  mode;
+            uint8_t  error;
+            uint16_t ssID;
+        } session_param;
+        uint32_t    value;
+        session_t(uint16_t id, uint8_t a_mode = ST_FINISH,  uint8_t a_error = 0)
 {
-    struct
-    {
-        uint8_t  mode;
-        uint8_t  error;
-        uint16_t ssID;
-    } session_param;
-    uint32_t    value;
-    session_t(uint16_t id, uint8_t a_mode = ST_FINISH,  uint8_t a_error = 0)
-    {
-        session_param.mode = a_mode ;
-        session_param.error = (a_error);
-        session_param.ssID = (id);
-    }
-    bool is_active   () const { return session_param.mode != ST_FINISH;}
-    bool is_read_only() const { return session_param.mode != ST_CONTROL;}
+    session_param.mode = a_mode ;
+    session_param.error = (a_error);
+    session_param.ssID = (id);
+}
+bool is_active   () const { return session_param.mode != ST_FINISH;}
+bool is_read_only() const { return session_param.mode != ST_CONTROL;}
 };
 
 
@@ -266,6 +270,11 @@ union oper_state_t
         uint8_t reserv         : 3;
     } state_bits;
     uint16_t state = 0;
+    bool       is_executing() const { return state_bits.auto_on;}
+    bool       is_paused () const   { return state_bits.start_pause;}
+
+    bool       is_stopped() const   { return !(state_bits.auto_on | state_bits.start_pause);}
+
 };
 
 
@@ -315,7 +324,7 @@ using  method_exec_results_sensors_t  = std::vector<stage_exec_result_sensors_t>
 constexpr int METHOD_NAME_SIZE = 33;
 constexpr uint16_t METHOD_UNKNOWN_ID = uint16_t(-1);
 constexpr uint16_t METHOD_MANUAL_ID = 0;
-using method_hms = std::tuple<uint8_t, uint8_t, uint8_t>;
+
 
 enum  method_kind_t { method_kind_unknown, method_kind_manual, method_kind_automatic };
 
@@ -373,9 +382,6 @@ struct method_t
     uint8_t  cycles         () { return m_cycles_count; }
     void     set_cycles     (uint8_t val) { m_cycles_count = val; }
     method_kind_t method_kind   ();
-    static   method_hms      secunds2hms(uint32_t duration);
-    static   uint32_t        hms2secunds(const method_hms& hms);
-    static   uint32_t        hms2secunds(uint8_t h, uint8_t m, uint8_t s);
     static   double          max_voltage() {return 1000;}
     static   double          max_capacity() {return 2000;}
     static   double          value_step  () {return 0.1; }
@@ -625,13 +631,18 @@ typedef std::vector<zrm_cell_t> zrm_cells_t;
 
 #pragma pack(pop)
 
-typedef devproto::t_hdr<pc_prolog_t, proto_header, uint16_t> send_header_t, *lpsend_header_t;
-typedef devproto::t_hdr<cu_prolog_t, proto_header, uint16_t> recv_header_t, *lprecv_header_t;
+using send_header_t = devproto::t_hdr<pc_prolog_t, proto_header, uint16_t>;
+using lpsend_header_t = send_header_t*;
+
+using recv_header_t = devproto::t_hdr<cu_prolog_t, proto_header, uint16_t> ;
+using lprecv_header_t = recv_header_t*;
 
 using recv_buffer_t  = devproto::proto_buffer<recv_header_t, CRC_TYPE>;
-using _send_buffer_t = devproto::proto_buffer<send_header_t, CRC_TYPE>;
+using send_buffer_t = devproto::proto_buffer<send_header_t, CRC_TYPE>;
 
 typedef devproto::storage_t                   params_t;
+
+constexpr int DEFAULT_DOUBLE_PRECISION = 3;
 
 struct param_variant
 {
@@ -654,7 +665,6 @@ struct param_variant
     bool is_valid() const {return size && size <= sizeof(puchar);}
     template <typename T>
     T    value(bool as_signed) const;
-
 };
 
 template <typename T>
@@ -706,39 +716,12 @@ T    param_variant::value(bool as_signed) const
 
 typedef  std::map<zrm_param_t, param_variant> params_list_t;
 
-
-class   send_buffer_t : public _send_buffer_t
-{
-
-public:
-
-    explicit send_buffer_t(size_t sz = 1024): _send_buffer_t(sz) {}
-    size_t   queue_packet         (uint16_t channel, uint8_t packet_type, uint16_t data_size, const void* data = nullptr );
-    size_t   queue_request        (uint16_t channel,  const devproto::storage_t& param_list);
-    uint16_t session_id   ();
-    void     set_sesion_id(uint16_t session_id);
-    uint16_t packet_number();
-    void     set_packet_number(uint16_t pn);
-
-    static void  params_add(devproto::storage_t& data, param_write_mode_t wm, zrm_param_t  param, size_t val_sz = 0, const void* val_ptr = nullptr);
-    template <typename _Type>
-    static void  params_add(devproto::storage_t& data, param_write_mode_t wm, zrm_param_t  param, _Type value);
-
-protected:
-    uint16_t   m_packet_number = 0;
-    uint16_t   m_session_id    = 0;
-};
-
-constexpr int SECUNDS_IN_MINUTE = 60;
-constexpr int SECUNDS_IN_HOUR = 60 * SECUNDS_IN_MINUTE;
-
 /* inline implementation*/
-
 
 inline void     method_t::set_duration(uint32_t value)
 {
-    div_t h   = div(int(value), SECUNDS_IN_HOUR);
-    div_t ms  = div(h.rem, SECUNDS_IN_MINUTE  );
+    div_t h   = div(int(value), pwm_utils::SECUNDS_IN_HOUR);
+    div_t ms  = div(h.rem, pwm_utils::SECUNDS_IN_MINUTE  );
     m_hours   = uint8_t(h.quot);
     m_minutes = uint8_t(ms.quot);
     m_secs    = uint8_t(ms.rem);
@@ -749,50 +732,6 @@ inline method_kind_t method_t::method_kind   ()
     if (m_id)
         return m_id == uint16_t(-1) ? method_kind_unknown : method_kind_automatic;
     return method_kind_manual;
-}
-
-inline uint16_t send_buffer_t::session_id   ()
-{
-    return m_session_id;
-}
-
-inline void     send_buffer_t::set_sesion_id(uint16_t session_id)
-{
-    m_session_id = session_id;
-}
-
-inline uint16_t send_buffer_t::packet_number()
-{
-    return m_packet_number;
-}
-
-inline void     send_buffer_t::set_packet_number(uint16_t pn)
-{
-    m_packet_number =    pn;
-}
-
-template <typename _Type>
-void  send_buffer_t::params_add(devproto::storage_t& data, param_write_mode_t wm, zrm_param_t  param, _Type value)
-{
-    params_add(data, wm, param, sizeof (value), &value);
-}
-
-
-inline method_hms method_t::secunds2hms(uint32_t duration)
-{
-    div_t h  = div(int(duration), SECUNDS_IN_HOUR);
-    div_t ms = div(h.rem, SECUNDS_IN_MINUTE  );
-    return std::make_tuple(uint8_t(h.quot), uint8_t(ms.quot), uint8_t(ms.rem));
-}
-
-inline uint32_t  method_t::hms2secunds(uint8_t h, uint8_t m, uint8_t s)
-{
-    return h * SECUNDS_IN_HOUR + m * SECUNDS_IN_MINUTE + s;
-}
-
-inline uint32_t  method_t::hms2secunds(const method_hms& hms)
-{
-    return hms2secunds(std::get<0>(hms), std::get<1>(hms), std::get<2>(hms) );
 }
 
 } // end of namecpace zrm

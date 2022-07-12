@@ -51,15 +51,15 @@ public:
     bool          channel_is_executing(uint16_t channel);
     bool          channel_is_paused   (uint16_t channel);
 
-    QVariant      param_get  ( uint16_t channel, zrm::zrm_param_t param)
-    {return (m_source && channel) ? m_source->param_get(channel, param) : QVariant();}
+    zrm::param_variant      param_get  ( uint16_t channel, zrm::zrm_param_t param)
+    {return (m_source && channel) ? m_source->getParameter(channel, param) : zrm::param_variant();}
 
 
     static QLatin1String  codec_name();
     static void           set_codec_name  (const QLatin1String& str);
     static QString        to_utf(const char* str, int len);
     static QTextCodec*    codec();
-    static void           addShadow(QWidget* w, qreal offset, qreal blurRadius);
+    static void           addShadow(QWidget* w, qreal offset, qreal blurRadius, QColor color = Qt::GlobalColor::gray);
     template <typename T>
     static void setWidgetsShadow(QWidget* parent, qreal offset, qreal blurRadius);
 
@@ -115,7 +115,7 @@ class ZrmChannelWidget: public ZrmBaseWidget
     Q_OBJECT
 public:
     ZrmChannelWidget     (QWidget* parent): ZrmBaseWidget(parent) {}
-    QVariant param_get   (zrm::zrm_param_t param) {return ZrmBaseWidget::param_get(uint16_t(channel()), param);}
+    zrm::param_variant param_get   (zrm::zrm_param_t param) {return ZrmBaseWidget::param_get(uint16_t(channel()), param);}
     bool     is_stopped  ();
     bool     is_paused   ();
     bool     is_executing();

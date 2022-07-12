@@ -1,4 +1,5 @@
 #include "ZrmLogerChartUI.h"
+#include <zrmparamcvt.h>
 
 #include <signal_bloker.hpp>
 
@@ -19,6 +20,9 @@ ZrmLogerChartUI::ZrmLogerChartUI(QWidget* parent) :
 
     timerChart.setInterval(CHART_UPDATE_PREIOD);
     connect(&timerChart, &QTimer::timeout, this, &ZrmLogerChartUI::updateChart);
+    stopTimer.setInterval(500);
+    stopTimer.setSingleShot(true);
+    connect(&stopTimer, &QTimer::timeout, &timerChart, &QTimer::stop);
     init_chart();
 }
 
@@ -50,11 +54,12 @@ void ZrmLogerChartUI::clearSeries()
 void ZrmLogerChartUI::handleParamState()
 {
     if (is_stopped())
-        timerChart.stop();
+        stopTimer.start();
     else
     {
         if (!timerChart.isActive())
         {
+            stopTimer.stop();
             timerChart.start();
             clearSeries();
             updateChart();
@@ -77,10 +82,14 @@ void  ZrmLogerChartUI::channel_param_changed(unsigned channel, const zrm::params
                     break;
                 case zrm::PARAM_MCUR :
                 case zrm::PARAM_MCURD :
-                    m_chart->axes(Qt::Vertical, i_series)[0]->setRange(-m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble(), m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble());
-                    break;
+                {
+                    double minValue = ZrmParamCvt::toDouble(param_get(zrm::PARAM_MCURD)).toDouble();
+                    double maxValue = ZrmParamCvt::toDouble(param_get(zrm::PARAM_MCUR)).toDouble();
+                    m_chart->axes(Qt::Vertical, i_series)[0]->setRange(-minValue, maxValue);
+                }
+                break;
                 case zrm::PARAM_MVOLT :
-                    m_chart->axes(Qt::Vertical, u_series)[0]->setRange(0, m_source->param_get(m_channel, zrm::PARAM_MVOLT).toDouble());
+                    m_chart->axes(Qt::Vertical, u_series)[0]->setRange(0, ZrmParamCvt::toDouble(param.second).toDouble());
                     break;
                 default:
                     break;
@@ -136,8 +145,8 @@ void ZrmLogerChartUI::updateChart()
 {
     this->setUpdatesEnabled(false);
     qint64 t = QDateTime::currentDateTime().toMSecsSinceEpoch();
-    i_series->append(t, m_source->param_get(m_channel, zrm::PARAM_CUR).toDouble());
-    u_series->append(t, m_source->param_get(m_channel, zrm::PARAM_VOLT).toDouble());
+    i_series->append(t, ZrmParamCvt::toDouble(param_get( zrm::PARAM_CUR)).toDouble());
+    u_series->append(t, ZrmParamCvt::toDouble(param_get( zrm::PARAM_VOLT)).toDouble());
 
     constexpr qint64 TIME_LENGTH = 1000 * 60;
     constexpr int    MAX_SERIES_COUNT = TIME_LENGTH / CHART_UPDATE_PREIOD;

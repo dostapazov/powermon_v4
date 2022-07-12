@@ -26,6 +26,9 @@ ZrmDevMethods::ZrmDevMethods(QWidget* parent) :
     spr_methods->setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
     //spr_methods->show_method_params(false);
     spr_methods->setEditable(true);
+    QHeaderView* hw = dev_methods->header();
+    hw->setSectionResizeMode(Column::methodNumber, QHeaderView::ResizeToContents);
+    hw->setSectionResizeMode(Column::methodName, QHeaderView::Stretch);
 }
 
 
@@ -76,23 +79,23 @@ void ZrmDevMethods::method_changed           (QTreeWidgetItem* item, QTreeWidget
     update_buttons_enabled();
 
 #ifdef QT_DEBUG
-    QObject* src = sender();
+//    QObject* src = sender();
 
-    if (src == dev_methods)
-    {
-        auto met = dev_method_get(item);
-        if (met)
-        {
-            //qDebug()<<QString("Устройство Метoд id %1 stages %2").arg(uint32_t( met->m_method.m_id )).arg( met->stages_count() );
-        }
-    }
+//    if (src == dev_methods)
+//    {
+//        auto met = dev_method_get(item);
+//        if (met)
+//        {
+//            //qDebug()<<QString("Устройство Метoд id %1 stages %2").arg(uint32_t( met->m_method.m_id )).arg( met->stages_count() );
+//        }
+//    }
 
-    if (src == spr_methods)
-    {
-        zrm::zrm_method_t met;
-        spr_methods->get_method(item, met, codec());
-        //qDebug()<<QString("Справочник Метoд id %1 stages %2").arg(uint32_t( met.m_method.m_id )).arg( met.stages_count() );
-    }
+//    if (src == spr_methods)
+//    {
+//        zrm::zrm_method_t met;
+//        spr_methods->get_method(item, met, codec());
+//        //qDebug()<<QString("Справочник Метoд id %1 stages %2").arg(uint32_t( met.m_method.m_id )).arg( met.stages_count() );
+//    }
 #endif
 }
 
@@ -138,6 +141,11 @@ void  ZrmDevMethods::dev_method_set   (QTreeWidgetItem* item, const zrm::zrm_met
             dest = new zrm::zrm_method_t;
             qlonglong long_val = reinterpret_cast<qlonglong>(dest);
             item->setData(ZrmMethodsTree::column_name, method_role, QVariant(long_val));
+            QTreeWidget* tw = item->treeWidget();
+            int number =  tw ? tw->indexOfTopLevelItem(item) : dev_methods->topLevelItemCount();
+            QString methodName = item->text(ZrmMethodsTree::column_name);
+            item->setText(0, QString("%1.").arg(number + 1));
+            item->setText(1, methodName);
         }
         *dest = src_metod;
     }
@@ -146,7 +154,7 @@ void  ZrmDevMethods::dev_method_set   (QTreeWidgetItem* item, const zrm::zrm_met
 
 zrm::zrm_method_t* ZrmDevMethods::dev_method_get   (QTreeWidgetItem* item)
 {
-    zrm::zrm_method_t* res = Q_NULLPTR;
+
     if (item)
     {
         QVariant v = item->data(ZrmMethodsTree::column_name, method_role);
@@ -156,14 +164,11 @@ zrm::zrm_method_t* ZrmDevMethods::dev_method_get   (QTreeWidgetItem* item)
             bool ok = false;
             auto ll = v.toLongLong(&ok);
             if (ok && ll )
-                res = reinterpret_cast<zrm::zrm_method_t*>(ll);
+                return  reinterpret_cast<zrm::zrm_method_t*>(ll);
         }
     }
-    return res;
+    return Q_NULLPTR;
 }
-
-
-
 
 void ZrmDevMethods::method_add()
 {
@@ -205,7 +210,9 @@ void ZrmDevMethods::channel_param_changed(unsigned channel, const zrm::params_li
         {
             const zrm::zrm_method_t method = m_source->channel_get_method(m_channel, true);
             // избавляемся от дублей
-            if (0 == dev_methods->topLevelItemCount() || (*dev_method_get(dev_methods->topLevelItem(dev_methods->topLevelItemCount() - 1))).m_method.m_id != method.m_method.m_id)
+            if (0 == dev_methods->topLevelItemCount() ||
+                    (*dev_method_get(dev_methods->topLevelItem(dev_methods->topLevelItemCount() - 1))).m_method.m_id != method.m_method.m_id
+               )
             {
                 size_t name_len = method.m_method.m_name[zrm::METHOD_NAME_SIZE - 1] ? zrm::METHOD_NAME_SIZE : strlen(method.m_method.m_name);
                 auto item = ZrmMethodsTree::new_tree_item( to_utf(method.m_method.m_name, int(name_len) ), ZrmMethodsTree::table_method, int(method.m_method.m_id), false);

@@ -641,7 +641,7 @@ bool      ZrmMethodsTree::get_method
         method.set_voltage ( volt * volt_rate     );
         method.set_capacity( capacity );
         method.m_cycles_count   =  uint8_t(item->data(column_name, role_cycle_count).toUInt());
-        auto hms = zrm::method_t::secunds2hms(item->data(column_name, role_duration).toUInt());
+        auto hms = pwm_utils::secunds2hms(item->data(column_name, role_duration).toUInt());
         method.m_hours   = std::get<0>(hms);
         method.m_minutes = std::get<1>(hms);
         method.m_secs    = std::get<1>(hms);
@@ -767,7 +767,7 @@ size_t    ZrmMethodsTree::read_stages(QTreeWidgetItem* item, zrm::stages_t& stag
                     stage.set_end_delta_volt     (rec.value(13).toDouble(), 1.0);
                     stage.set_end_temp           (rec.value(14).toDouble());
 
-                    auto hms = zrm::method_t::secunds2hms(rec.value(15).toUInt());
+                    auto hms = pwm_utils::secunds2hms(rec.value(15).toUInt());
                     stage.m_hours   = std::get<0>(hms);
                     stage.m_minutes = std::get<1>(hms);
                     stage.m_secs    = std::get<2>(hms);

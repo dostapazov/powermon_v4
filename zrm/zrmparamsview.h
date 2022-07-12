@@ -23,13 +23,15 @@ protected slots:
 
 protected:
     void init_params();
-    void appendParam(zrm::zrm_param_t, const QString& text);
+    void appendParam(zrm::zrm_param_t, const QString& text, bool ordered);
     using params_items_t  =  QMap<zrm::zrm_param_t, QTreeWidgetItem* >;
 private:
     void onActivate() override;
     void onDeactivate() override;
     zrm::params_t    m_orders;
+    zrm::params_t    m_query_parms;
     params_items_t   m_items;
+    QTreeWidgetItem* respond = nullptr;
     QTimer           m_request_timer;
 
 };

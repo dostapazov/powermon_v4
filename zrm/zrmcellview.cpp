@@ -181,7 +181,7 @@ void ZrmCellView::update_controls()
     ZrmChannelWidget::update_controls();
     if (m_source && m_channel)
     {
-        uint16_t ccnt = uint16_t(param_get(zrm::PARAM_CCNT).toUInt());
+        uint16_t ccnt = param_get(zrm::PARAM_CCNT).value<uint16_t>(false);
         cell_params(ccnt);
         channel_session(m_channel);
         channel_param_changed(m_channel, m_source->channel_params(m_channel));
