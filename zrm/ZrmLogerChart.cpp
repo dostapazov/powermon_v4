@@ -120,11 +120,11 @@ void ZrmLogerChart::getLog()
     // получить время лога
     if (m_source && channel() == m_channel && m_source->channel_session(m_channel).is_active())
     {
-        quint8 wr_value = static_cast<quint8>(spinBoxLogCount->value());
-        m_source->channel_write_param(m_channel, zrm::WM_PROCESS_AND_WRITE, zrm::PARAM_LOG_ID, &wr_value, sizeof(wr_value));
-        /*QByteArray ba(7, 0x0000);
-        memcpy(ba.data(), &wr_value, 1);
-        m_source->channel_write_param(m_channel, zrm::WM_PROCESS_AND_WRITE, zrm::PARAM_LOG_ID, ba.data(), 7);*/
+        //quint8 wr_value = static_cast<quint8>(spinBoxLogCount->value());
+        //m_source->channel_write_param(m_channel, zrm::WM_PROCESS_AND_WRITE, zrm::PARAM_LOG_ID, &wr_value, sizeof(wr_value));
+        QByteArray ba(7, 0x0000);
+        *ba.data() = static_cast<QByteArray::value_type>(spinBoxLogCount->value());
+        m_source->channel_write_param(m_channel, zrm::WM_PROCESS_AND_WRITE, zrm::PARAM_LOG_ID, ba.constData(), ba.size());
     }
 }
 
