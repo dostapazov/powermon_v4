@@ -43,6 +43,7 @@ private:
     QScrollArea*          m_scroll_area  = Q_NULLPTR;
     void doHorizontalPlacement(const QRect& rect) ;
     void doVerticalPlacement(const QRect& rect) ;
+    int getMaximumWidth();
 };
 
 inline int          ZrmReadyLayout::count() const

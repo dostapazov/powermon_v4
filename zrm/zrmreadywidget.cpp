@@ -13,7 +13,7 @@ ZrmReadyWidget::ZrmReadyWidget(QWidget* parent) :
     m_ready_layout = new ZrmReadyLayout(ready_widget);
     m_ready_layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
     m_ready_layout->set_scroll_area(ready_area);
-    m_ready_layout->setSpacing(8);
+    m_ready_layout->setSpacing(4);
     ready_widget->setLayout(m_ready_layout);
 
 }
