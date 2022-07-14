@@ -160,22 +160,21 @@ void ZrmReadyLayout::doVerticalPlacement(const QRect& rect)
         {
             x += (max_row_with + sp);
             y = r.top() + sp;
+
         }
 
         w->setGeometry(QRect(x, y, max_row_with, widgetHeight));
         y += (sp + widgetHeight);
-
-        max_y = qMax(max_y, y);
-        max_x = qMax(max_x, x);
-
     }
+
+    max_y = qMax(max_y, y);
+    max_x = qMax(max_x, x);
+
     m_hint_height = max_y;
     m_hint_width  = max_x;
 
+    parentWidget()->setMinimumWidth(m_hint_width + max_row_with);
     parentWidget()->setMinimumHeight(m_hint_height);
-    parentWidget()->setMinimumWidth(m_hint_width);
-//    qDebug() << Q_FUNC_INFO << " r " << rect;
-//    qDebug() << " parent " << parentWidget()->geometry();
 
 }
 
