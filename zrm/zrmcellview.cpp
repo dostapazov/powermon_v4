@@ -48,7 +48,7 @@ void ZrmCellView::channel_param_changed(unsigned channel, const zrm::params_list
         if ((ptr = params_list.find(zrm::PARAM_CELL)) != end )
         {
             cell_params(ptr->second.uword);
-            cellParams(ptr->second.value<uint16_t>(false));
+            cellParams(ptr->second.uword);
         }
     }
     ZrmChannelWidget::channel_param_changed(channel, params_list);
@@ -162,13 +162,15 @@ void ZrmCellView::cell_params(uint16_t value)
         mid_temp /= double(value);
     }
 
-    ptr = beg;
+
     int col = 0;
     auto dU = cell_dU->value();
     auto dT = cell_dT->value();
     QColor bk_color = cell_table->palette().color(QPalette::Background);
     QColor txt_color = cell_table->palette().color(QPalette::Text);
 
+
+    ptr = beg;
     while (ptr < end)
     {
         QTableWidgetItem* item_u = cell_table->item(0, col);
@@ -191,6 +193,59 @@ void ZrmCellView::cell_params(uint16_t value)
         ++ptr;
     }
 }
+
+class MinMaxValues
+{
+    double min_volt = std::numeric_limits<double>::max();
+    double max_volt = std::numeric_limits<double>::min();
+    double sum_volt = 0;
+    double min_temp = std::numeric_limits<double>::max();
+    double max_temp = std::numeric_limits<double>::min();
+    double sum_temp = 0;
+    int    count = 0;
+public:
+    void   appendValue(double volt, double temp);
+    double minVolt() {return min_volt;}
+    double maxVolt() {return max_volt;}
+    double midVolt() {return sum_volt / double((count < 2) ? 1 : count);}
+    double minTemp() {return min_temp;}
+    double maxTemp() {return max_temp;}
+    double midTemp() {return sum_temp / double((count < 2) ? 1 : count);}
+
+};
+
+void   MinMaxValues::appendValue(double volt, double temp)
+{
+    ++count;
+    min_volt = qMin(volt, min_volt);
+    max_volt = qMax(volt, max_volt);
+    sum_volt += volt;
+    min_temp = qMin(temp, min_temp);
+    max_temp = qMax(temp, max_temp);
+    sum_temp += temp;
+};
+
+void ZrmCellView::cellParams(uint16_t value)
+{
+
+    cellsCount(value);
+    zrm::zrm_cells_t cells =  m_source->channel_cell_info(m_channel);
+    MinMaxValues mmv;
+
+    for (const zrm::zrm_cell_t& cell : cells)
+    {
+        mmv.appendValue(cell.volt(), cell.temp());
+    }
+
+    int row = 0;
+    for (const zrm::zrm_cell_t& cell : cells)
+    {
+        QTreeWidgetItem* item = cellsTree->topLevelItem(row);
+        item->setText(ColumnRoles::volt, QString::number(cell.volt(), 'f', 2));
+        item->setText(ColumnRoles::temp, QString::number(cell.temp(), 'f', 2));
+    }
+}
+
 
 void ZrmCellView::update_controls()
 {
@@ -283,10 +338,6 @@ void ZrmCellView::cellsCount(uint16_t ccnt)
     }
 }
 
-void ZrmCellView::cellParams(uint16_t value)
-{
-
-}
 
 
 
