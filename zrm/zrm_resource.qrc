@@ -51,5 +51,7 @@
         <file>icons/modeP.png</file>
         <file>icons/active.png</file>
         <file>icons/no_active.png</file>
+        <file>icons/edit_2.png</file>
+        <file>icons/service_mode.png</file>
     </qresource>
 </RCC>
