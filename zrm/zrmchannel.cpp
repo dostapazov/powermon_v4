@@ -698,4 +698,67 @@ bool ZrmChannel::write_method(const zrm_method_t& method, param_write_mode_t wr_
     return false;
 }
 
+void ZrmChannel::reset_error()
+{
+    oper_state_t state = get_state();
+    state.state_bits.fault_reset = 1;
+
+    queuePacket
+    (
+        PT_DATAWRITE,
+        makeParam( WM_PROCESS, PARAM_STATE, sizeof(state), &state)
+    );
+
+}
+
+void ZrmChannel::start_execute()
+{
+    if (is_executing())
+        return;
+
+    write_method();
+    oper_state_t state = get_state();
+    state.state = 0;
+    state.state_bits.start_pause = 0;
+    state.state_bits.auto_on     = 1;
+    queuePacket
+    (
+        PT_DATAWRITE,
+        makeParam( WM_PROCESS, PARAM_STATE, sizeof(state), &state)
+    );
+
+}
+
+void ZrmChannel::stop_execute()
+{
+    if (is_stopped())
+        return;
+
+    oper_state_t state = get_state();
+    state.state = 0;
+    state.state_bits.start_pause = 0;
+    state.state_bits.auto_on     = 0;
+    queuePacket
+    (
+        PT_DATAWRITE,
+        makeParam( WM_PROCESS, PARAM_STATE, sizeof(state), &state)
+    );
+}
+
+void ZrmChannel::pause_execute()
+{
+    if (!is_executing())
+        return;
+    oper_state_t state = get_state();
+    state.state = 0;
+    state.state_bits.start_pause = 1;
+    state.state_bits.auto_on     = 0;
+    queuePacket
+    (
+        PT_DATAWRITE,
+        makeParam( WM_PROCESS, PARAM_STATE, sizeof(state), &state)
+    );
+}
+
+
 } // namespace zrm

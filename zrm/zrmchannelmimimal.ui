@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>255</width>
-    <height>230</height>
+    <width>265</width>
+    <height>260</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -107,7 +107,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>name</string>
+             <string> -- : -- </string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -326,6 +326,15 @@ p, li { white-space: pre-wrap; }
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>volt</tabstop>
+  <tabstop>curr</tabstop>
+  <tabstop>btStop</tabstop>
+  <tabstop>bExpand</tabstop>
+  <tabstop>ed_time</tabstop>
+  <tabstop>textBrowser</tabstop>
+  <tabstop>pushButton</tabstop>
+ </tabstops>
  <resources>
   <include location="zrm_resource.qrc"/>
  </resources>

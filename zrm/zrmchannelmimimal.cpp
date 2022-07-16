@@ -38,8 +38,11 @@ void ZrmChannelMimimal::set_active(bool active)
 
 QString getDevText(int box, int dev)
 {
-    QString empty(" ");
-    return QString("%1-%2").arg((box ? QString::number(box) : empty), (dev ? QString::number(dev) : empty));
+
+    if (box || dev)
+        return QString::asprintf("%02d-%02d", box, dev);
+
+    return QString("     ");
 }
 
 void ZrmChannelMimimal::bind(zrm::ZrmConnectivity* src, uint16_t chan, bool _connect_signals)

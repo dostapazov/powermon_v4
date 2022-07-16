@@ -121,7 +121,12 @@ public:
     void   pingChannel();
 
     bool write_method(const zrm_method_t& method, param_write_mode_t wr_mode  );
-    bool write_method( );
+    bool write_method();
+
+    void reset_error();
+    void start_execute();
+    void stop_execute();
+    void pause_execute();
 
 
     static QByteArray makeSendPacket
@@ -276,8 +281,6 @@ inline void               ZrmChannel::set_masakb_param(const zrm_maskab_param_t&
 {
     m_maskab_param = map;
 }
-
-
 
 inline const method_exec_results_t& ZrmChannel::results_get() const
 {return  m_exec_results;}
