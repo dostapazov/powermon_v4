@@ -76,7 +76,6 @@ void  ZrmChannelMimimal::clear_controls  ()
     curr->setValue(.0);
     volt->setSpecialValueText(ZrmBaseWidget::no_value);
     curr->setSpecialValueText(ZrmBaseWidget::no_value);
-    ed_time->setText(no_value);
 
     btStop->setEnabled(false);
 }
@@ -131,12 +130,12 @@ void  ZrmChannelMimimal::channel_param_changed(unsigned channel, const zrm::para
                 case zrm::PARAM_CUR          :
                     curr->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
                     break;
-                case zrm::PARAM_WTIME        :
-                    ed_time ->setText(ZrmParamCvt::toTime(param.second).toString());
-                    break;
-                case zrm::PARAM_STG_NUM      :
-                    set_number_value(lbStageNum, param.second.value<int>(false), 2, "--");
-                    break;
+//                case zrm::PARAM_WTIME        :
+//                    ed_time ->setText(ZrmParamCvt::toTime(param.second).toString());
+//                    break;
+//                case zrm::PARAM_STG_NUM      :
+//                    set_number_value(lbStageNum, param.second.value<int>(false), 2, "--");
+//                    break;
                 case zrm::PARAM_ERROR_STATE  :
                     handle_error_state(param.second.udword);
                     break;
