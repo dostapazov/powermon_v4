@@ -15,7 +15,10 @@ ZrmCellView::ZrmCellView(QWidget* parent) :
 
     connect(cell_dU, SIGNAL(valueChanged(double)), this, SLOT(saveCell()));
     connect(cell_dT, SIGNAL(valueChanged(double)), this, SLOT(saveCell()));
+    initCellsTree();
+
 }
+
 
 void ZrmCellView::channel_session(unsigned ch_num)
 {
@@ -32,14 +35,21 @@ void ZrmCellView::channel_param_changed(unsigned channel, const zrm::params_list
 {
     if (channel == m_channel)
     {
+
         zrm::params_list_t::const_iterator end = params_list.end();
         zrm::params_list_t::const_iterator ptr;
 
         if ( (ptr = params_list.find(zrm::PARAM_CCNT)) != end )
-            cell_count(ptr->second.uword);
+        {
+            cell_count(ptr->second.value<uint16_t>(false));
+            cellsCount(ptr->second.value<uint16_t>(false));
+        }
 
-        if ( (ptr = params_list.find(zrm::PARAM_CELL)) != end )
+        if ((ptr = params_list.find(zrm::PARAM_CELL)) != end )
+        {
             cell_params(ptr->second.uword);
+            cellParams(ptr->second.value<uint16_t>(false));
+        }
     }
     ZrmChannelWidget::channel_param_changed(channel, params_list);
 }
@@ -64,10 +74,15 @@ void ZrmCellView::create_cell_item(int row, int col)
     }
 }
 
+
 void ZrmCellView::cell_count(uint16_t ccnt)
 {
+    qDebug() << Q_FUNC_INFO;
+
+
     if (ccnt == cell_table->columnCount())
         return;
+
     cell_table->clearContents();
     cell_table->setColumnCount(ccnt);
     int row_count = cell_table->rowCount();
@@ -96,11 +111,12 @@ void check_out_bounds(QTableWidgetItem* item, double value, double mid, double d
 
 void ZrmCellView::cell_params(uint16_t value)
 {
+    qDebug() << Q_FUNC_INFO;
     cell_count(value);
     zrm::zrm_cells_t cells =  m_source->channel_cell_info(m_channel);
 
-    double min_volt = 10000;
-    double max_volt = -10000;
+    double min_volt = std::numeric_limits<double>::max();// 10000;
+    double max_volt = std::numeric_limits<double>::min();
     double mid_volt = 0;
     double min_temp = 10000;
     double max_temp = -10000;
@@ -197,12 +213,14 @@ void ZrmCellView::resizeEvent(QResizeEvent* re)
 {
     ZrmChannelWidget::resizeEvent(re);
     update_column_width();
+    updateColumnWidth();
 }
 
 void ZrmCellView::showEvent(QShowEvent* se)
 {
     ZrmChannelWidget::showEvent(se);
     update_column_width();
+    updateColumnWidth();
 }
 
 void ZrmCellView::update_params()
@@ -222,3 +240,53 @@ void ZrmCellView::saveCell()
     _map.dT = cell_dT->value();
     m_source->channel_set_masakb_param(m_channel, _map);
 }
+
+void ZrmCellView::initCellsTree()
+{
+    QHeaderView* hv = cellsTree->header();
+    hv->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+    hv->setDefaultAlignment(Qt::AlignmentFlag::AlignCenter);
+    updateColumnWidth();
+}
+
+void ZrmCellView::updateColumnWidth()
+{
+    QHeaderView* hv = cellsTree->header();
+    int colWidth = hv->width() / hv->count();
+
+    for (int index = 0; index < hv->count(); index++)
+    {
+        hv->resizeSection(index, colWidth);
+
+    }
+
+}
+
+void ZrmCellView::cellsCount(uint16_t ccnt)
+{
+    uint16_t itemsCount = cellsTree->topLevelItemCount();
+    while (itemsCount < ccnt  )
+    {
+        QTreeWidgetItem* item = new QTreeWidgetItem(cellsTree);
+        item->setText(ColumnRoles::number, QString::number(++itemsCount));
+        item->setText(ColumnRoles::volt, QString("--,--"));
+        item->setText(ColumnRoles::temp, QString("--,--"));
+        for (int i = 0; i <= ColumnRoles::temp; i++)
+        {
+            item->setTextAlignment(i, Qt::AlignmentFlag::AlignCenter );
+        }
+    }
+
+    while (itemsCount > ccnt)
+    {
+        delete cellsTree->topLevelItem(--itemsCount);
+    }
+}
+
+void ZrmCellView::cellParams(uint16_t value)
+{
+
+}
+
+
+
