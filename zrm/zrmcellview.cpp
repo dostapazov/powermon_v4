@@ -1,5 +1,9 @@
 #include "zrmcellview.h"
 #include <algorithm>
+#include <QPalette>
+#ifdef QT_DEBUG
+    #include <QRandomGenerator>
+#endif
 
 ZrmCellView::ZrmCellView(QWidget* parent) :
     ZrmChannelWidget(parent)
@@ -203,7 +207,10 @@ class MinMaxValues
     double max_temp = std::numeric_limits<double>::min();
     double sum_temp = 0;
     int    count = 0;
+    double dU ;
+    double dT ;
 public:
+    MinMaxValues(double du, double dt): dU(du), dT(dt) {};
     void   appendValue(double volt, double temp);
     double minVolt() {return min_volt;}
     double maxVolt() {return max_volt;}
@@ -211,6 +218,11 @@ public:
     double minTemp() {return min_temp;}
     double maxTemp() {return max_temp;}
     double midTemp() {return sum_temp / double((count < 2) ? 1 : count);}
+    void   checkOutBounds(QTreeWidgetItem* item,
+                          double volt, double temp,
+                          const QColor& bk, const QColor& text,
+                          const QColor& outBk, const QColor& outText
+                         );
 
 };
 
@@ -225,25 +237,88 @@ void   MinMaxValues::appendValue(double volt, double temp)
     sum_temp += temp;
 };
 
+
+void   MinMaxValues::checkOutBounds(QTreeWidgetItem* item,
+                                    double volt, double temp,
+                                    const QColor& bk, const QColor& text,
+                                    const QColor& outBk, const QColor& outText
+                                   )
+{
+    if (!item)
+        return;
+    auto cond = [](double value, double midValue, double delta)->bool
+    {
+        return !qFuzzyIsNull(delta) && fabs(midValue - value) > fabs(delta);
+    };
+
+    if (!qFuzzyIsNull(dU) && cond(volt, midVolt(), dU))
+    {
+        item->setData(ZrmCellView::ColumnRoles::volt, Qt::BackgroundColorRole, outBk);
+        item->setData(ZrmCellView::ColumnRoles::volt, Qt::TextColorRole, outText);
+    }
+    else
+    {
+        item->setData(ZrmCellView::ColumnRoles::volt, Qt::BackgroundColorRole, bk);
+        item->setData(ZrmCellView::ColumnRoles::volt, Qt::TextColorRole, text);
+    }
+
+    if (!qFuzzyIsNull(dT) && cond(temp, midTemp(), dT))
+    {
+        item->setData(ZrmCellView::ColumnRoles::temp, Qt::BackgroundColorRole, outBk);
+        item->setData(ZrmCellView::ColumnRoles::temp, Qt::TextColorRole, outText);
+    }
+    else
+    {
+        item->setData(ZrmCellView::ColumnRoles::temp, Qt::BackgroundColorRole, bk);
+        item->setData(ZrmCellView::ColumnRoles::temp, Qt::TextColorRole, text);
+    }
+
+}
+
+#ifdef QT_DEBUG
+zrm::zrm_cells_t fakeCells(size_t sz)
+{
+    zrm::zrm_cells_t cells;
+    cells.resize(sz);
+    for (zrm::zrm_cell_t& cell : cells)
+    {
+        cell.m_volt = QRandomGenerator::global()->bounded(2000, 100000);
+        cell.m_temp = QRandomGenerator::global()->bounded(5000, 30000);
+    }
+    return cells;
+}
+#endif
+
+
 void ZrmCellView::cellParams(uint16_t value)
 {
-
-    cellsCount(value);
+    cellsTree->setUpdatesEnabled(false);
+#ifdef QT_DEBUG
+    zrm::zrm_cells_t cells = fakeCells(20);
+#else
     zrm::zrm_cells_t cells =  m_source->channel_cell_info(m_channel);
-    MinMaxValues mmv;
+#endif
 
-    for (const zrm::zrm_cell_t& cell : cells)
-    {
-        mmv.appendValue(cell.volt(), cell.temp());
-    }
+    cellsCount(cells.size());
+    MinMaxValues mmv(cell_dU->value(), cell_dT->value());
 
     int row = 0;
     for (const zrm::zrm_cell_t& cell : cells)
     {
-        QTreeWidgetItem* item = cellsTree->topLevelItem(row);
+        QTreeWidgetItem* item = cellsTree->topLevelItem(row++);
         item->setText(ColumnRoles::volt, QString::number(cell.volt(), 'f', 2));
         item->setText(ColumnRoles::temp, QString::number(cell.temp(), 'f', 2));
+        mmv.appendValue(cell.volt(), cell.temp());
     }
+
+    row = 0;
+    for (const zrm::zrm_cell_t& cell : cells)
+    {
+        QTreeWidgetItem* item = cellsTree->topLevelItem(row++);
+        mmv.checkOutBounds(item, cell.volt(), cell.temp(), normalBackground, normalText, outBoundBackground, outBoundText);
+
+    }
+    cellsTree->setUpdatesEnabled(true);
 }
 
 
@@ -298,6 +373,11 @@ void ZrmCellView::saveCell()
 
 void ZrmCellView::initCellsTree()
 {
+    normalBackground = cellsTree->palette().color(QPalette::Background);
+    normalText = cellsTree->palette().color(QPalette::Text);
+    outBoundBackground = Qt::GlobalColor::darkRed;
+    outBoundText = Qt::GlobalColor::white;
+
     QHeaderView* hv = cellsTree->header();
     hv->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
     hv->setDefaultAlignment(Qt::AlignmentFlag::AlignCenter);

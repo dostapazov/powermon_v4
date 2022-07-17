@@ -31,6 +31,8 @@ private:
     void cellsCount(uint16_t ccnt);
     void cellParams(uint16_t value) ;
     void updateColumnWidth() ;
+    QColor normalBackground, normalText;
+    QColor outBoundBackground, outBoundText;
 };
 
 #endif // ZRMCELLVIEW_H
