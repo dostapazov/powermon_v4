@@ -19,6 +19,7 @@ ZrmWidget::ZrmWidget(QWidget* parent) :
     {
         widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     }
+    tabWidget->setCurrentWidget(tabChart);
 }
 
 void ZrmWidget::update_ui()

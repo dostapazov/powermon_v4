@@ -146,6 +146,7 @@ void  ZrmChannelMimimal::channel_param_changed(unsigned channel, const zrm::para
         }
     }
     ZrmGroupWidget::channel_param_changed(channel, params_list);
+    bExpand->setEnabled( bExpand->isChecked() || zrmCellView->getCellsCount() );
 }
 
 void  ZrmChannelMimimal::channel_session(unsigned ch_num)
@@ -236,15 +237,5 @@ void ZrmChannelMimimal::expand(bool checked)
     extraPanel->adjustSize();
     adjustSize();
     qDebug() << "Cells count " << zrmCellView->getCellsCount();
-}
-
-QSize ZrmChannelMimimal::sizeHint() const
-{
-    QSize sz = ZrmGroupWidget::sizeHint();
-    if (extraPanel->isVisible())
-    {
-        qDebug() << "Expanded " << sz;
-    }
-    return sz;
 }
 

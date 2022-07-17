@@ -16,7 +16,6 @@ public:
     void set_active(bool active);
     void set_method(const zrm::zrm_method_t& method);
     void bind(zrm::ZrmConnectivity* src, uint16_t chan, bool _connect_signals = true) override;
-    QSize sizeHint() const override;
 
 signals:
     void clicked();

@@ -142,10 +142,11 @@ zrm::zrm_cells_t fakeCells(size_t sz)
 void ZrmCellViewMinimal::cellsParam()
 {
     cellsTree->setUpdatesEnabled(false);
+    zrm::zrm_cells_t cells;
 #ifdef QT_DEBUG
-    zrm::zrm_cells_t cells = fakeCells(20);
+    cells = fakeCells(20);
 #else
-    zrm::zrm_cells_t cells =  m_source->channel_cell_info(m_channel);
+    cells  =  m_source->channel_cell_info(m_channel);
 #endif
 
     cellsCount(cells.size());
@@ -253,19 +254,14 @@ int  ZrmCellViewMinimal::getCellsCount() const
 QSize ZrmCellViewMinimal::sizeHint() const
 {
     QSize sz = ZrmChannelWidget::sizeHint();
-    qDebug() << "ZrmCellViewMinimal size hint " << sz;
-    qDebug() << "Cells Minimun size hint " << cellsTree->minimumSizeHint();
-    qDebug() << "Cells size hint " << cellsTree->sizeHint();
-    if (getCellsCount())
+    int cCount = getCellsCount() ;
+    if (cCount)
     {
+        cCount += 2;
         QTreeWidgetItem* item = cellsTree->topLevelItem(0);
         QSize itemSize =  cellsTree->visualItemRect(item).size();
-        qDebug() << "Item visual size" << itemSize;
-        itemSize.setHeight(getCellsCount() * (itemSize.height() + 3));
-        qDebug() << "Item new visual size" << itemSize;
-        sz.setHeight(itemSize.height());
+        sz.setHeight(itemSize.height()*cCount);
     }
-
     return sz;
 }
 
