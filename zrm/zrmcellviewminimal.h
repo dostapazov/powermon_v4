@@ -9,11 +9,8 @@ class ZrmCellViewMinimal : public ZrmChannelWidget, private Ui::ZrmCellViewMinim
     Q_OBJECT
 public:
     explicit ZrmCellViewMinimal(QWidget* parent = nullptr);
-    void update_params();
     enum ColumnRoles : int {number, volt, temp};
 
-public slots:
-    void saveCell();
 
 protected:
     virtual void resizeEvent(QResizeEvent* re) override;
@@ -27,8 +24,8 @@ private:
     void cellsCount(uint16_t ccnt);
     void cellsParam() ;
     void updateColumnWidth() ;
-    QColor normalBackground, normalText;
-    QColor outBoundBackground, outBoundText;
+//    QColor normalBackground, normalText;
+//    QColor outBoundBackground, outBoundText;
 };
 
 #endif // ZRMCELLVIEWMINIMAL_H

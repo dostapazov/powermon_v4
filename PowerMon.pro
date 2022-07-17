@@ -77,6 +77,7 @@ SOURCES += \
 	zrm/ZrmTCPSettings.cpp \
 	zrm/zrm_connectivity.cpp \
 	zrm/zrmcalibrate.cpp \
+	zrm/zrmcellview.cpp \
 	zrm/zrmcellviewminimal.cpp \
 	zrm/zrmchannel.cpp \
 	zrm/zrmdevmethods.cpp \
@@ -123,6 +124,7 @@ HEADERS += \
 	zrm/ui_constraints.hpp \
 		zrm/zrm_connectivity.hpp \
 	zrm/zrmcalibrate.h \
+	zrm/zrmcellview.h \
 	zrm/zrmcellviewminimal.h \
 	zrm/zrmchannel.hpp \
 	zrm/zrmdevmethods.h \
@@ -163,6 +165,7 @@ FORMS += \
 	zrm/ZrmReports.ui \
 	zrm/ZrmTCPSettings.ui \
 	zrm/zrmcalibrate.ui \
+	zrm/zrmcellview.ui \
 	zrm/zrmcellviewminimal.ui \
 	zrm/zrmconnectivityparam.ui \
 	zrm/zrmdevmethods.ui \

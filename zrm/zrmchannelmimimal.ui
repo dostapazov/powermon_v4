@@ -263,7 +263,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
-       <widget class="ZrmCellView" name="zrmCellView" native="true"/>
+       <widget class="ZrmCellViewMinimal" name="zrmCellView" native="true"/>
       </item>
      </layout>
     </widget>
@@ -272,15 +272,15 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ZrmCellView</class>
-   <extends>QWidget</extends>
-   <header>zrmcellview.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>ZrmRelayBase</class>
    <extends>QWidget</extends>
    <header>zrmrelaybase.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZrmCellViewMinimal</class>
+   <extends>QWidget</extends>
+   <header>zrmcellviewminimal.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

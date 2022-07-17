@@ -10,9 +10,7 @@ ZrmCellViewMinimal::ZrmCellViewMinimal(QWidget* parent) :
 {
     setupUi(this);
     initCellsTree();
-
 }
-
 
 void ZrmCellViewMinimal::channel_session(unsigned ch_num)
 {
@@ -46,84 +44,85 @@ void ZrmCellViewMinimal::channel_param_changed(unsigned channel, const zrm::para
     ZrmChannelWidget::channel_param_changed(channel, params_list);
 }
 
-class MinMaxValues
-{
-    double min_volt = std::numeric_limits<double>::max();
-    double max_volt = std::numeric_limits<double>::min();
-    double sum_volt = 0;
-    double min_temp = std::numeric_limits<double>::max();
-    double max_temp = std::numeric_limits<double>::min();
-    double sum_temp = 0;
-    int    count = 0;
-    double dU ;
-    double dT ;
-public:
-    MinMaxValues(double du, double dt): dU(du), dT(dt) {};
-    void   appendValue(double volt, double temp);
-    double minVolt() {return min_volt;}
-    double maxVolt() {return max_volt;}
-    double midVolt() {return sum_volt / double((count < 2) ? 1 : count);}
-    double minTemp() {return min_temp;}
-    double maxTemp() {return max_temp;}
-    double midTemp() {return sum_temp / double((count < 2) ? 1 : count);}
-    void   checkOutBounds(QTreeWidgetItem* item,
-                          double volt, double temp,
-                          const QColor& bk, const QColor& text,
-                          const QColor& outBk, const QColor& outText
-                         );
+//class MinMaxValues
+//{
+//    double min_volt = std::numeric_limits<double>::max();
+//    double max_volt = std::numeric_limits<double>::min();
+//    double sum_volt = 0;
+//    double min_temp = std::numeric_limits<double>::max();
+//    double max_temp = std::numeric_limits<double>::min();
+//    double sum_temp = 0;
+//    int    count = 0;
+//    double dU ;
+//    double dT ;
+//public:
+//    MinMaxValues(double du, double dt): dU(du), dT(dt) {};
+//    void   appendValue(double volt, double temp);
+//    double minVolt() {return min_volt;}
+//    double maxVolt() {return max_volt;}
+//    double midVolt() {return sum_volt / double((count < 2) ? 1 : count);}
+//    double minTemp() {return min_temp;}
+//    double maxTemp() {return max_temp;}
+//    double midTemp() {return sum_temp / double((count < 2) ? 1 : count);}
+//    void   checkOutBounds(QTreeWidgetItem* item,
+//                          double volt, double temp,
+//                          const QColor& bk, const QColor& text,
+//                          const QColor& outBk, const QColor& outText
+//                         );
 
-};
+//};
 
-void   MinMaxValues::appendValue(double volt, double temp)
-{
-    ++count;
-    min_volt = qMin(volt, min_volt);
-    max_volt = qMax(volt, max_volt);
-    sum_volt += volt;
-    min_temp = qMin(temp, min_temp);
-    max_temp = qMax(temp, max_temp);
-    sum_temp += temp;
-};
+//void   MinMaxValues::appendValue(double volt, double temp)
+//{
+//    ++count;
+//    min_volt = qMin(volt, min_volt);
+//    max_volt = qMax(volt, max_volt);
+//    sum_volt += volt;
+//    min_temp = qMin(temp, min_temp);
+//    max_temp = qMax(temp, max_temp);
+//    sum_temp += temp;
+//};
 
 
-void   MinMaxValues::checkOutBounds(QTreeWidgetItem* item,
-                                    double volt, double temp,
-                                    const QColor& bk, const QColor& text,
-                                    const QColor& outBk, const QColor& outText
-                                   )
-{
-    if (!item)
-        return;
-    auto cond = [](double value, double midValue, double delta)->bool
-    {
-        return !qFuzzyIsNull(delta) && fabs(midValue - value) > fabs(delta);
-    };
+//void   MinMaxValues::checkOutBounds(QTreeWidgetItem* item,
+//                                    double volt, double temp,
+//                                    const QColor& bk, const QColor& text,
+//                                    const QColor& outBk, const QColor& outText
+//                                   )
+//{
+//    if (!item)
+//        return;
+//    auto cond = [](double value, double midValue, double delta)->bool
+//    {
+//        return !qFuzzyIsNull(delta) && fabs(midValue - value) > fabs(delta);
+//    };
 
-    if (!qFuzzyIsNull(dU) && cond(volt, midVolt(), dU))
-    {
-        item->setData(ZrmCellViewMinimal::ColumnRoles::volt, Qt::BackgroundColorRole, outBk);
-        item->setData(ZrmCellViewMinimal::ColumnRoles::volt, Qt::TextColorRole, outText);
-    }
-    else
-    {
-        item->setData(ZrmCellViewMinimal::ColumnRoles::volt, Qt::BackgroundColorRole, bk);
-        item->setData(ZrmCellViewMinimal::ColumnRoles::volt, Qt::TextColorRole, text);
-    }
+//    if (!qFuzzyIsNull(dU) && cond(volt, midVolt(), dU))
+//    {
+//        item->setData(ZrmCellViewMinimal::ColumnRoles::volt, Qt::BackgroundColorRole, outBk);
+//        item->setData(ZrmCellViewMinimal::ColumnRoles::volt, Qt::TextColorRole, outText);
+//    }
+//    else
+//    {
+//        item->setData(ZrmCellViewMinimal::ColumnRoles::volt, Qt::BackgroundColorRole, bk);
+//        item->setData(ZrmCellViewMinimal::ColumnRoles::volt, Qt::TextColorRole, text);
+//    }
 
-    if (!qFuzzyIsNull(dT) && cond(temp, midTemp(), dT))
-    {
-        item->setData(ZrmCellViewMinimal::ColumnRoles::temp, Qt::BackgroundColorRole, outBk);
-        item->setData(ZrmCellViewMinimal::ColumnRoles::temp, Qt::TextColorRole, outText);
-    }
-    else
-    {
-        item->setData(ZrmCellViewMinimal::ColumnRoles::temp, Qt::BackgroundColorRole, bk);
-        item->setData(ZrmCellViewMinimal::ColumnRoles::temp, Qt::TextColorRole, text);
-    }
+//    if (!qFuzzyIsNull(dT) && cond(temp, midTemp(), dT))
+//    {
+//        item->setData(ZrmCellViewMinimal::ColumnRoles::temp, Qt::BackgroundColorRole, outBk);
+//        item->setData(ZrmCellViewMinimal::ColumnRoles::temp, Qt::TextColorRole, outText);
+//    }
+//    else
+//    {
+//        item->setData(ZrmCellViewMinimal::ColumnRoles::temp, Qt::BackgroundColorRole, bk);
+//        item->setData(ZrmCellViewMinimal::ColumnRoles::temp, Qt::TextColorRole, text);
+//    }
 
-}
+//}
 
 #ifdef QT_DEBUG
+namespace {
 zrm::zrm_cells_t fakeCells(size_t sz)
 {
     zrm::zrm_cells_t cells;
@@ -134,6 +133,7 @@ zrm::zrm_cells_t fakeCells(size_t sz)
         cell.m_temp = QRandomGenerator::global()->bounded(5000, 30000);
     }
     return cells;
+}
 }
 #endif
 
@@ -148,7 +148,6 @@ void ZrmCellViewMinimal::cellsParam()
 #endif
 
     cellsCount(cells.size());
-    MinMaxValues mmv(cell_dU->value(), cell_dT->value());
 
     int row = 0;
     for (const zrm::zrm_cell_t& cell : cells)
@@ -156,16 +155,15 @@ void ZrmCellViewMinimal::cellsParam()
         QTreeWidgetItem* item = cellsTree->topLevelItem(row++);
         item->setText(ColumnRoles::volt, QString::number(cell.volt(), 'f', 2));
         item->setText(ColumnRoles::temp, QString::number(cell.temp(), 'f', 2));
-        mmv.appendValue(cell.volt(), cell.temp());
     }
 
-    row = 0;
-    for (const zrm::zrm_cell_t& cell : cells)
-    {
-        QTreeWidgetItem* item = cellsTree->topLevelItem(row++);
-        mmv.checkOutBounds(item, cell.volt(), cell.temp(), normalBackground, normalText, outBoundBackground, outBoundText);
+//    row = 0;
+//    for (const zrm::zrm_cell_t& cell : cells)
+//    {
+//        QTreeWidgetItem* item = cellsTree->topLevelItem(row++);
+//        mmv.checkOutBounds(item, cell.volt(), cell.temp(), normalBackground, normalText, outBoundBackground, outBoundText);
 
-    }
+//    }
     cellsTree->setUpdatesEnabled(true);
 }
 
@@ -198,30 +196,13 @@ void ZrmCellViewMinimal::showEvent(QShowEvent* se)
     updateColumnWidth();
 }
 
-void ZrmCellViewMinimal::update_params()
-{
-    if (m_source && m_channel)
-    {
-        auto p = m_source->channel_masakb_param(m_channel);
-        cell_dU->setValue(p.dU);
-        cell_dT->setValue(p.dT);
-    }
-}
-
-void ZrmCellViewMinimal::saveCell()
-{
-    zrm::zrm_maskab_param_t _map;
-    _map.dU = cell_dU->value();
-    _map.dT = cell_dT->value();
-    m_source->channel_set_masakb_param(m_channel, _map);
-}
 
 void ZrmCellViewMinimal::initCellsTree()
 {
-    normalBackground = cellsTree->palette().color(QPalette::Background);
-    normalText = cellsTree->palette().color(QPalette::Text);
-    outBoundBackground = Qt::GlobalColor::darkRed;
-    outBoundText = Qt::GlobalColor::white;
+//    normalBackground = cellsTree->palette().color(QPalette::Background);
+//    normalText = cellsTree->palette().color(QPalette::Text);
+//    outBoundBackground = Qt::GlobalColor::darkRed;
+//    outBoundText = Qt::GlobalColor::white;
 
     QHeaderView* hv = cellsTree->header();
     hv->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
