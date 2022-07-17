@@ -204,6 +204,7 @@ zrm::zrm_work_mode_t ZrmChannelMimimal::work_mode()
 
 bool  ZrmChannelMimimal::eventFilter(QObject* target, QEvent* event)
 {
+
 //    switch (event->type())
 //    {
 //        case QEvent::MouseButtonRelease :
@@ -231,5 +232,19 @@ void ZrmChannelMimimal::expand(bool checked)
 {
     extraPanel->setVisible(checked);
     bExpand->setArrowType(checked ? Qt::ArrowType::UpArrow : Qt::ArrowType::DownArrow);
+    zrmCellView->adjustSize();
+    extraPanel->adjustSize();
+    adjustSize();
+    qDebug() << "Cells count " << zrmCellView->getCellsCount();
+}
+
+QSize ZrmChannelMimimal::sizeHint() const
+{
+    QSize sz = ZrmGroupWidget::sizeHint();
+    if (extraPanel->isVisible())
+    {
+        qDebug() << "Expanded " << sz;
+    }
+    return sz;
 }
 

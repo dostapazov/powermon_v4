@@ -10,6 +10,8 @@ class ZrmCellViewMinimal : public ZrmChannelWidget, private Ui::ZrmCellViewMinim
 public:
     explicit ZrmCellViewMinimal(QWidget* parent = nullptr);
     enum ColumnRoles : int {number, volt, temp};
+    int getCellsCount() const;
+    QSize sizeHint() const override;
 
 
 protected:

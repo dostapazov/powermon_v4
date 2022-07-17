@@ -20,6 +20,7 @@ void ZrmCellViewMinimal::channel_session(unsigned ch_num)
         params.push_back(zrm::PARAM_CCNT);
         params.push_back(zrm::PARAM_CELL);
         m_source->channel_subscribe_params(m_channel, params, true);
+        cellsCount(20);
     }
 }
 
@@ -244,6 +245,28 @@ void ZrmCellViewMinimal::cellsCount(uint16_t ccnt)
     }
 }
 
+int  ZrmCellViewMinimal::getCellsCount() const
+{
+    return cellsTree->topLevelItemCount();
+}
 
+QSize ZrmCellViewMinimal::sizeHint() const
+{
+    QSize sz = ZrmChannelWidget::sizeHint();
+    qDebug() << "ZrmCellViewMinimal size hint " << sz;
+    qDebug() << "Cells Minimun size hint " << cellsTree->minimumSizeHint();
+    qDebug() << "Cells size hint " << cellsTree->sizeHint();
+    if (getCellsCount())
+    {
+        QTreeWidgetItem* item = cellsTree->topLevelItem(0);
+        QSize itemSize =  cellsTree->visualItemRect(item).size();
+        qDebug() << "Item visual size" << itemSize;
+        itemSize.setHeight(getCellsCount() * (itemSize.height() + 3));
+        qDebug() << "Item new visual size" << itemSize;
+        sz.setHeight(itemSize.height());
+    }
+
+    return sz;
+}
 
 
