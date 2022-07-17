@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ZrmCellView</class>
- <widget class="QWidget" name="ZrmCellView">
+ <class>ZrmCellViewMinimal</class>
+ <widget class="QWidget" name="ZrmCellViewMinimal">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>252</width>
-    <height>162</height>
+    <height>252</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,80 +23,6 @@
    <property name="sizeConstraint">
     <enum>QLayout::SetMinimumSize</enum>
    </property>
-   <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="title">
-      <string/>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <property name="spacing">
-       <number>4</number>
-      </property>
-      <property name="leftMargin">
-       <number>2</number>
-      </property>
-      <property name="topMargin">
-       <number>2</number>
-      </property>
-      <property name="rightMargin">
-       <number>2</number>
-      </property>
-      <property name="bottomMargin">
-       <number>2</number>
-      </property>
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>dU</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QDoubleSpinBox" name="cell_dU">
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>dT</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QDoubleSpinBox" name="cell_dT">
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Expanding</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>346</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item>
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="sizePolicy">
