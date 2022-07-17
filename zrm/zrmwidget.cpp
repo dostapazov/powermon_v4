@@ -15,6 +15,11 @@ ZrmWidget::ZrmWidget(QWidget* parent) :
     zrm_method->set_details_enable(false);
     connect(zrm_ready, &ZrmReadySlaveWidget::channel_activated, this, &ZrmWidget::channel_activated);
 #endif
+    for (auto&& widget : tabCell->findChildren<QWidget*>())
+    {
+        widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    }
+    tabWidget->setCurrentWidget(tabChart);
 }
 
 void ZrmWidget::update_ui()

@@ -81,8 +81,6 @@ QSize ZrmReadyLayout::minimumSize() const
         w->adjustSize();
         QSize wsz = w->size();
         sz =  sz.expandedTo(wsz);
-//        sz.setWidth( qMax(sz.width(), wsz.width())); // sz.expandedTo(wsz);
-//        sz.setHeight(qMax(sz.height(), wsz.height()));
     }
     m_min_width  = sz.width();
     m_min_height = sz.height();
@@ -110,24 +108,22 @@ void ZrmReadyLayout::doHorizontalPlacement(const QRect& rect)
     QRect r = this->alignmentRect(rect);
     int x = r.left() + sp;
     int y = r.top () + sp;
-    int max_x = 0;
+
     for (auto&& litem : m_items)
     {
-        auto* w = dynamic_cast<ZrmBaseWidget*>(litem->widget());
-        w->setGeometry(QRect(x, y, m_min_width, m_min_height));
-        x += sp + m_min_width;
-        max_x = qMax(max_x, x);
+        QWidget* w = litem->widget();
         if ((x + m_min_width + sp) > r.right() && x > (r.left() + sp))
         {
             x = r.left() + sp;
             y += m_min_height + sp;
         }
+        w->setGeometry(QRect(x, y, m_min_width, m_min_height));
+        x += sp + m_min_width;
     }
-    m_hint_width = max_x;
-    m_hint_height = (x == r.left() + sp) ? y : y + m_min_height + sp;
+    m_hint_width = x + sp;
+    m_hint_height =  y +  sp;
 
     parentWidget()->setMinimumHeight(m_hint_height);
-
     parentWidget()->setMinimumWidth(m_hint_width);
 }
 
@@ -148,8 +144,6 @@ void ZrmReadyLayout::doVerticalPlacement(const QRect& rect)
     QRect r = alignmentRect(rect);
     int x = r.left() + sp;
     int y = r.top () + sp;
-    int max_x = 0;
-    int max_y = 0;
     int max_row_with = getMaximumWidth();
     for (auto&& litem : m_items)
     {
@@ -162,18 +156,13 @@ void ZrmReadyLayout::doVerticalPlacement(const QRect& rect)
             y = r.top() + sp;
 
         }
-
         w->setGeometry(QRect(x, y, max_row_with, widgetHeight));
         y += (sp + widgetHeight);
     }
+    m_hint_height = y + sp;
+    m_hint_width  = x + sp + max_row_with;
 
-    max_y = qMax(max_y, y);
-    max_x = qMax(max_x, x);
-
-    m_hint_height = max_y;
-    m_hint_width  = max_x;
-
-    parentWidget()->setMinimumWidth(m_hint_width + max_row_with);
+    parentWidget()->setMinimumWidth(m_hint_width );
     parentWidget()->setMinimumHeight(m_hint_height);
 
 }

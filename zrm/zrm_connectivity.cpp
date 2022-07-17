@@ -483,31 +483,11 @@ void   ZrmConnectivity::channels_stop       (bool silent)
         if (mod->session_active())
         {
             mod->session_reset();
-            if (!silent)
-            {
-                mod->stopSession();
-            }
+            if (silent)
+                continue;
+            mod->stopSession();
         }
     }
-
-    //TODO make asynchronous
-//    while (!m_send_buffer.is_empty())
-//    {
-//        //m_enable_send = true;
-//        send_next_packet();
-//        QThread::msleep(m_send_period);
-//    }
-}
-
-
-
-void   ZrmConnectivity::ping_module         (ZrmChannel* mod)
-{
-
-    // Отправка запроса параметров устройству
-    //  qDebug()<<tr("%2 ping module channel %1 ").arg(mod->channel()).arg(QDateTime::currentDateTime().toString("mm:ss.zzz"));
-    mod->pingChannel();
-
 }
 
 void   ZrmConnectivity::sl_ping_timer ()
@@ -517,7 +497,7 @@ void   ZrmConnectivity::sl_ping_timer ()
     for (auto mod : qAsConst(m_channels))
     {
         if (mod.data() && mod->ping_check(interval))
-            ping_module(mod.data());
+            mod->pingChannel();
     }
 }
 
@@ -654,17 +634,10 @@ void              ZrmConnectivity::channel_start       (uint16_t ch_num)
 {
 
     QMutexLocker l(&m_zrm_mutex) ;
-    auto mod = get_channel(ch_num);
-    if (mod.data() && !mod->is_executing())
-    {
-        channel_write_method(ch_num);
 
-        auto state = mod->get_state();
-        state.state = 0;
-        state.state_bits.start_pause = 0;
-        state.state_bits.auto_on     = 1;
-        channel_write_param(ch_num, WM_PROCESS, PARAM_STATE, &state, sizeof(state));
-    }
+    if (channel_exists(ch_num))
+        get_channel(ch_num)->start_execute();
+
 }
 
 bool              ZrmConnectivity::channel_is_stopped  (uint16_t ch_num) const
@@ -679,19 +652,9 @@ bool              ZrmConnectivity::channel_is_stopped  (uint16_t ch_num) const
 void              ZrmConnectivity::channel_stop        (uint16_t ch_num)
 {
     QMutexLocker l(&m_zrm_mutex) ;
-    auto mod = get_channel(ch_num);
-    if (mod.data())
-    {
-        if (!mod->is_stopped())
-        {
-            auto state = mod->get_state();
-            state.state = 0;
-            state.state_bits.start_pause = 0;
-            state.state_bits.auto_on     = 0;
-            channel_write_param(ch_num, WM_PROCESS, PARAM_STATE, &state, sizeof(state));
-        }
 
-    }
+    if (channel_exists(ch_num))
+        get_channel(ch_num)->stop_execute();
 }
 
 bool    ZrmConnectivity::channel_is_paused   (uint16_t chan) const
@@ -703,32 +666,18 @@ bool    ZrmConnectivity::channel_is_paused   (uint16_t chan) const
 
 void              ZrmConnectivity::channel_pause       (uint16_t ch_num)
 {
+
     QMutexLocker l(&m_zrm_mutex) ;
-    auto mod = get_channel(ch_num);
-    if (mod.data() && mod->is_executing())
-    {
-        auto state = mod->get_state();
-        state.state = 0;
-        state.state_bits.start_pause = 1;
-        state.state_bits.auto_on     = 0;
-        channel_write_param(ch_num, WM_PROCESS, PARAM_STATE, &state, sizeof(state));
-    }
+    if (channel_exists(ch_num))
+        get_channel(ch_num)->pause_execute();
 }
 
 void              ZrmConnectivity::channel_reset_error       (uint16_t ch_num)
 {
-
     QMutexLocker l(&m_zrm_mutex) ;
-    auto mod = get_channel(ch_num);
-    if (mod.data())
-    {
-        auto state = mod->get_state();
-        //state.state = 0;
-        state.state_bits.fault_reset = 1;
-        channel_write_param(ch_num, WM_PROCESS, PARAM_STATE, &state, sizeof(state));
-    }
+    if (channel_exists(ch_num))
+        get_channel(ch_num)->reset_error();
 }
-
 
 zrm_maskab_param_t ZrmConnectivity::channel_masakb_param(uint16_t ch_num)
 {
@@ -791,12 +740,6 @@ void ZrmConnectivity::channel_write_param(uint16_t ch_num, param_write_mode_t wr
 
     if (!channel_exists(ch_num))
         return;
-
-//    if (QThread::currentThread() != m_thread)
-//    {
-//        qApp->postEvent(this, new QChannelControlEvent(ctrl_write_param, ch_num, wr_mode, param, param_data, param_data_sz));
-//        return;
-//    }
 
     QByteArray data = ZrmChannel::makeParam( wr_mode, param, param_data_sz, param_data);
     auto chan = get_channel(ch_num);
@@ -897,17 +840,17 @@ size_t ZrmConnectivity::channel_write_method(uint16_t ch_num, const zrm_method_t
 }
 
 
-size_t ZrmConnectivity::channel_write_method(uint16_t ch_num)
-{
-    QMutexLocker l(&m_zrm_mutex) ;
-    auto mod = get_channel(ch_num);
-    if (mod.data())
-    {
+//size_t ZrmConnectivity::channel_write_method(uint16_t ch_num)
+//{
+//    QMutexLocker l(&m_zrm_mutex) ;
+//    auto mod = get_channel(ch_num);
+//    if (mod.data())
+//    {
 
-        return mod->write_method();
-    }
-    return 0;
-}
+//        return mod->write_method();
+//    }
+//    return 0;
+//}
 
 
 zrm_cells_t   ZrmConnectivity::channel_cell_info     (uint16_t     channel)

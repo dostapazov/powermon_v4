@@ -619,8 +619,8 @@ struct zrm_cell_t
     int32_t  m_temp;
     zrm_cell_t() { m_volt = m_temp = 0; }
     static constexpr double SCALE_FACTOR = 1000;
-    double volt() { return double(m_volt) / SCALE_FACTOR; }
-    double temp() { return double(m_temp) / SCALE_FACTOR; }
+    double volt() const { return double(m_volt) / SCALE_FACTOR; }
+    double temp() const { return double(m_temp) / SCALE_FACTOR; }
 };
 
 typedef       zrm_cell_t* lp_zrm_cell_t;

@@ -147,12 +147,9 @@ protected:
     int     channels_start      ();
     void    channels_stop       (bool silent = false);
 
-    void    ping_module         (ZrmChannel* mod);
-
     void    on_channels_changed  ();
     void    module_state_changed (ZrmChannelSharedPointer& mod, bool* pneed_request_method);
     void    send_timer_ctrl      (bool start);
-    size_t          channel_write_method (uint16_t ch_num);
 
     void writeToDevice(const void* data, size_t size);
     void writeToDevice(const QByteArray& data);

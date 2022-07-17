@@ -1,5 +1,9 @@
 #include "zrmcellview.h"
 #include <algorithm>
+#ifdef QT_DEBUG
+    #include <QRandomGenerator>
+#endif
+
 
 ZrmCellView::ZrmCellView(QWidget* parent) :
     ZrmChannelWidget(parent)
@@ -94,10 +98,32 @@ void check_out_bounds(QTableWidgetItem* item, double value, double mid, double d
     item->setForeground(text_color);
 }
 
+#ifdef QT_DEBUG
+namespace {
+zrm::zrm_cells_t fakeCells(size_t sz)
+{
+    zrm::zrm_cells_t cells;
+    cells.resize(sz);
+    for (zrm::zrm_cell_t& cell : cells)
+    {
+        cell.m_volt = QRandomGenerator::global()->bounded(2000, 100000);
+        cell.m_temp = QRandomGenerator::global()->bounded(5000, 30000);
+    }
+    return cells;
+}
+}
+#endif
+
+
 void ZrmCellView::cell_params(uint16_t value)
 {
-    cell_count(value);
+#ifdef QT_DEBUG
+    zrm::zrm_cells_t cells =  fakeCells(20);
+#else
     zrm::zrm_cells_t cells =  m_source->channel_cell_info(m_channel);
+#endif
+    cell_count(cells.size());
+
 
     double min_volt = 10000;
     double max_volt = -10000;
@@ -221,4 +247,9 @@ void ZrmCellView::saveCell()
     _map.dU = cell_dU->value();
     _map.dT = cell_dT->value();
     m_source->channel_set_masakb_param(m_channel, _map);
+}
+
+void ZrmCellView::showDeltaParam(bool show)
+{
+    gbDelta->setVisible(show);
 }

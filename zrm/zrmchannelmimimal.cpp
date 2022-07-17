@@ -38,8 +38,11 @@ void ZrmChannelMimimal::set_active(bool active)
 
 QString getDevText(int box, int dev)
 {
-    QString empty(" ");
-    return QString("%1-%2").arg((box ? QString::number(box) : empty), (dev ? QString::number(dev) : empty));
+
+    if (box || dev)
+        return QString::asprintf("%02d-%02d", box, dev);
+
+    return QString("     ");
 }
 
 void ZrmChannelMimimal::bind(zrm::ZrmConnectivity* src, uint16_t chan, bool _connect_signals)
@@ -73,7 +76,6 @@ void  ZrmChannelMimimal::clear_controls  ()
     curr->setValue(.0);
     volt->setSpecialValueText(ZrmBaseWidget::no_value);
     curr->setSpecialValueText(ZrmBaseWidget::no_value);
-    ed_time->setText(no_value);
 
     btStop->setEnabled(false);
 }
@@ -128,12 +130,12 @@ void  ZrmChannelMimimal::channel_param_changed(unsigned channel, const zrm::para
                 case zrm::PARAM_CUR          :
                     curr->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
                     break;
-                case zrm::PARAM_WTIME        :
-                    ed_time ->setText(ZrmParamCvt::toTime(param.second).toString());
-                    break;
-                case zrm::PARAM_STG_NUM      :
-                    set_number_value(lbStageNum, param.second.value<int>(false), 2, "--");
-                    break;
+//                case zrm::PARAM_WTIME        :
+//                    ed_time ->setText(ZrmParamCvt::toTime(param.second).toString());
+//                    break;
+//                case zrm::PARAM_STG_NUM      :
+//                    set_number_value(lbStageNum, param.second.value<int>(false), 2, "--");
+//                    break;
                 case zrm::PARAM_ERROR_STATE  :
                     handle_error_state(param.second.udword);
                     break;
@@ -144,6 +146,7 @@ void  ZrmChannelMimimal::channel_param_changed(unsigned channel, const zrm::para
         }
     }
     ZrmGroupWidget::channel_param_changed(channel, params_list);
+    bExpand->setEnabled( bExpand->isChecked() || zrmCellView->getCellsCount() );
 }
 
 void  ZrmChannelMimimal::channel_session(unsigned ch_num)
@@ -202,6 +205,7 @@ zrm::zrm_work_mode_t ZrmChannelMimimal::work_mode()
 
 bool  ZrmChannelMimimal::eventFilter(QObject* target, QEvent* event)
 {
+
 //    switch (event->type())
 //    {
 //        case QEvent::MouseButtonRelease :
@@ -229,5 +233,9 @@ void ZrmChannelMimimal::expand(bool checked)
 {
     extraPanel->setVisible(checked);
     bExpand->setArrowType(checked ? Qt::ArrowType::UpArrow : Qt::ArrowType::DownArrow);
+    zrmCellView->adjustSize();
+    extraPanel->adjustSize();
+    adjustSize();
+    qDebug() << "Cells count " << zrmCellView->getCellsCount();
 }
 
