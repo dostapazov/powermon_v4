@@ -15,7 +15,6 @@ ZrmReadyWidget::ZrmReadyWidget(QWidget* parent) :
     m_ready_layout->set_scroll_area(ready_area);
     m_ready_layout->setSpacing(4);
     ready_widget->setLayout(m_ready_layout);
-
 }
 
 
@@ -103,17 +102,22 @@ void ZrmReadyWidget::zrm_chanhel_activate (ZrmChannelMimimal* w, bool bSelect)
     if (m_current != w )
     {
         if (m_current)
+        {
             m_current->set_active(false);
+        }
         m_current = w;
     }
     if (m_current)
+    {
         m_current->set_active(true);
+    }
     emit channel_activated(m_current, bSelect);
 }
 
 void ZrmReadyWidget::zrm_clicked()
 {
     auto w = dynamic_cast<ZrmChannelMimimal*>(sender());
+
     zrm_chanhel_activate(w, true);
 }
 

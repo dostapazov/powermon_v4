@@ -248,3 +248,8 @@ void ZrmCellView::saveCell()
     _map.dT = cell_dT->value();
     m_source->channel_set_masakb_param(m_channel, _map);
 }
+
+void ZrmCellView::showDeltaParam(bool show)
+{
+    gbDelta->setVisible(show);
+}
