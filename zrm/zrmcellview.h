@@ -22,14 +22,10 @@ protected:
     virtual void update_controls() override;
     virtual void clear_controls() override;
     virtual void channel_session(unsigned ch_num) override;
-    void update_column_width() ;
-    void cell_count(uint16_t ccnt) ;
-    void cell_params(uint16_t value) ;
-    void create_cell_item(int row, int col);
 private:
     void initCellsTree();
     void cellsCount(uint16_t ccnt);
-    void cellParams(uint16_t value) ;
+    void cellsParam() ;
     void updateColumnWidth() ;
     QColor normalBackground, normalText;
     QColor outBoundBackground, outBoundText;
