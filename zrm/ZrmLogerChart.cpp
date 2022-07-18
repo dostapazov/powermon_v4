@@ -9,7 +9,7 @@
 #include <QValueAxis>
 #include <QDateTime>
 
-ZrmLogerChart::ZrmLogerChart(QWidget *parent) :
+ZrmLogerChart::ZrmLogerChart(QWidget* parent) :
     ZrmChannelWidget(parent)
 {
     setupUi(this);
@@ -24,6 +24,7 @@ ZrmLogerChart::ZrmLogerChart(QWidget *parent) :
 
 void ZrmLogerChart::on_connected(bool con_state)
 {
+    Q_UNUSED(con_state);
     //buttonSetSettings->setEnabled(con_state);
 }
 
@@ -31,7 +32,7 @@ void ZrmLogerChart::update_controls()
 {
     clear_controls();
 
-    if(m_source && m_channel )
+    if (m_source && m_channel )
         channel_param_changed(m_channel, m_source->channel_params(m_channel));
 }
 
@@ -44,8 +45,10 @@ void ZrmLogerChart::clear_controls()
     map_max.clear();
 }
 
-void ZrmLogerChart::channel_recv_packet(unsigned channel, const zrm::recv_header_t *recv_data)
+void ZrmLogerChart::channel_recv_packet(unsigned channel, const zrm::recv_header_t* recv_data)
 {
+    Q_UNUSED(channel)
+    Q_UNUSED(recv_data)
     /*if (m_source && channel == m_channel)
     {
         if (zrm::packet_types_t::PT_DATAREAD == recv_data->proto_hdr.type)
@@ -76,20 +79,26 @@ void ZrmLogerChart::channel_recv_packet(unsigned channel, const zrm::recv_header
     }*/
 }
 
-void  ZrmLogerChart::channel_param_changed(unsigned channel, const zrm::params_list_t & params_list  )
+void  ZrmLogerChart::channel_param_changed(unsigned channel, const zrm::params_list_t& params_list  )
 {
     SignalBlocker sb(findChildren<QWidget*>());
     if (channel == m_channel && m_source)
     {
         for (auto param : params_list)
         {
-            QVariant value = m_source->param_get(m_channel, param.first);
             switch (param.first)
             {
-                case zrm::PARAM_LOG_COUNT : setLogCount(param.second); break;
-                case zrm::PARAM_LOG_ID : setLogID(param.second); break;
-                case zrm::PARAM_LOG_POINT : addPoint(param.second); break;
-                default: break;
+                case zrm::PARAM_LOG_COUNT :
+                    setLogCount(param.second);
+                    break;
+                case zrm::PARAM_LOG_ID :
+                    setLogID(param.second);
+                    break;
+                case zrm::PARAM_LOG_POINT :
+                    addPoint(param.second);
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -111,11 +120,11 @@ void ZrmLogerChart::getLog()
     // получить время лога
     if (m_source && channel() == m_channel && m_source->channel_session(m_channel).is_active())
     {
-        quint8 wr_value = static_cast<quint8>(spinBoxLogCount->value());
-        m_source->channel_write_param(m_channel, zrm::WM_PROCESS_AND_WRITE, zrm::PARAM_LOG_ID, &wr_value, sizeof(wr_value));
-        /*QByteArray ba(7, 0x0000);
-        memcpy(ba.data(), &wr_value, 1);
-        m_source->channel_write_param(m_channel, zrm::WM_PROCESS_AND_WRITE, zrm::PARAM_LOG_ID, ba.data(), 7);*/
+        //quint8 wr_value = static_cast<quint8>(spinBoxLogCount->value());
+        //m_source->channel_write_param(m_channel, zrm::WM_PROCESS_AND_WRITE, zrm::PARAM_LOG_ID, &wr_value, sizeof(wr_value));
+        QByteArray ba(7, 0x0000);
+        *ba.data() = static_cast<QByteArray::value_type>(spinBoxLogCount->value());
+        m_source->channel_write_param(m_channel, zrm::WM_PROCESS_AND_WRITE, zrm::PARAM_LOG_ID, ba.constData(), ba.size());
     }
 }
 
@@ -178,7 +187,7 @@ void ZrmLogerChart::init_chart()
     QFont font = legend->font();
     font.setPointSizeF(10.0);
     legend->setFont(font);
-    legend->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
+    legend->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     update_chart_legend_position();
 }
 
@@ -186,7 +195,7 @@ void ZrmLogerChart::update_chart_legend_position()
 {
     if (m_chart)
     {
-        QtCharts::QLegend * legend = m_chart->legend();
+        QtCharts::QLegend* legend = m_chart->legend();
         QRectF r = chart_view->geometry();
         QSizeF legend_size = legend->size();
         legend_size = legend_size.expandedTo(QSizeF(300, 50));
@@ -197,20 +206,20 @@ void ZrmLogerChart::update_chart_legend_position()
     }
 }
 
-void ZrmLogerChart::setLogCount(const zrm::param_variant &pv)
+void ZrmLogerChart::setLogCount(const zrm::param_variant& pv)
 {
     qDebug() << "count!!!!!";
 
     if (pv.is_valid())
     {
-        uint8_t countLog = pv.sbyte;
+        uint8_t countLog = pv.value<uint8_t>(true);
         qDebug() << "log count" << countLog;
         spinBoxLogCount->setMaximum(countLog);
         spinBoxLogCount->setValue(countLog > 0 ? 1 : 0);
     }
 }
 
-void ZrmLogerChart::setLogID(const zrm::param_variant &pv)
+void ZrmLogerChart::setLogID(const zrm::param_variant& pv)
 {
     qDebug() << "time!!!!!";
 
@@ -243,7 +252,7 @@ void ZrmLogerChart::setLogID(const zrm::param_variant &pv)
     buttonLoad->setEnabled(false);
 }
 
-void ZrmLogerChart::addPoint(const zrm::param_variant &pv)
+void ZrmLogerChart::addPoint(const zrm::param_variant& pv)
 {
     qDebug() << "point!!!!!" << pv.is_valid();
     uint16_t id;
@@ -254,8 +263,6 @@ void ZrmLogerChart::addPoint(const zrm::param_variant &pv)
     //qDebug() << "length" << packLength;
     //if (pv.is_valid())
     {
-        char test[packLength];
-        memcpy(test, pv.puchar, packLength);
         QByteArray ba;
         ba.resize(packLength);
         memcpy(ba.data(), pv.puchar, packLength);
@@ -281,7 +288,7 @@ void ZrmLogerChart::addPoint(const zrm::param_variant &pv)
             {
                 qDebug() << "stop";
                 stop();
-                for (auto u : map_series[6]->points())
+                for (auto&& u : map_series[6]->points())
                     qDebug() << u;
                 m_chart->update();
                 return;
@@ -296,7 +303,7 @@ void ZrmLogerChart::addPoint(const zrm::param_variant &pv)
                     axisTime->setMax(QDateTime::fromMSecsSinceEpoch(time + 1));
                     axisTime->setMin(QDateTime::fromMSecsSinceEpoch(time));
                 }
-                QtCharts::QLineSeries * series  = new QtCharts::QLineSeries(m_chart);
+                QtCharts::QLineSeries* series  = new QtCharts::QLineSeries(m_chart);
                 QVector<Qt::GlobalColor> vec_color;
                 vec_color << Qt::darkRed << Qt::darkRed << Qt::darkBlue << Qt::darkCyan << Qt::darkMagenta << Qt::darkYellow << Qt::black << Qt::darkGray;
                 //series->setColor(Qt::darkBlue);
@@ -307,13 +314,13 @@ void ZrmLogerChart::addPoint(const zrm::param_variant &pv)
                 map_min[id] = 2147483647;
                 map_max[id] = -2147483648;
 
-                QtCharts::QValueAxis *axis = new QtCharts::QValueAxis;
+                QtCharts::QValueAxis* axis = new QtCharts::QValueAxis;
                 axis->setTitleText(QString::number(id));
                 m_chart->addAxis(axis, Qt::AlignLeft);
                 series->attachAxis(axis);
                 series->attachAxis(axisTime);
             }
-            QtCharts::QLineSeries * lseries = map_series[id];
+            QtCharts::QLineSeries* lseries = map_series[id];
 
             lseries->append(time, value);
             if (value < map_min[id])
@@ -397,7 +404,7 @@ void ZrmLogerChart::addPoint(const uint8_t* data, uint16_t size)
                 axisTime->setMax(QDateTime::fromMSecsSinceEpoch(time + 1));
                 axisTime->setMin(QDateTime::fromMSecsSinceEpoch(time));
             }
-            QtCharts::QLineSeries * series  = new QtCharts::QLineSeries(m_chart);
+            QtCharts::QLineSeries* series  = new QtCharts::QLineSeries(m_chart);
             QVector<Qt::GlobalColor> vec_color;
             vec_color << Qt::darkRed << Qt::darkRed << Qt::darkBlue << Qt::darkCyan << Qt::darkMagenta << Qt::darkYellow << Qt::black << Qt::darkGray;
             //series->setColor(Qt::darkBlue);
@@ -408,13 +415,13 @@ void ZrmLogerChart::addPoint(const uint8_t* data, uint16_t size)
             map_min[id] = 2147483647;
             map_max[id] = -2147483648;
 
-            QtCharts::QValueAxis *axis = new QtCharts::QValueAxis;
+            QtCharts::QValueAxis* axis = new QtCharts::QValueAxis;
             axis->setTitleText(QString::number(id));
             m_chart->addAxis(axis, Qt::AlignLeft);
             series->attachAxis(axis);
             series->attachAxis(axisTime);
         }
-        QtCharts::QLineSeries * lseries = map_series[id];
+        QtCharts::QLineSeries* lseries = map_series[id];
 
         lseries->append(time, value);
         if (value < map_min[id])

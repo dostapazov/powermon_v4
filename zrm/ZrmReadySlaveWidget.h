@@ -3,7 +3,7 @@
 
 #include <zrmbasewidget.h>
 
-class ZrmChannel;
+class ZrmChannelView;
 class ZrmReadyLayout;
 class QScrollArea;
 
@@ -27,14 +27,14 @@ private slots:
 
 private:
     void set_layout_count(int count);
-    ZrmChannel* create_channel_widget();
-    void zrm_chanhel_activate (ZrmChannel * w);
+    ZrmChannelView* create_channel_widget();
+    void zrm_chanhel_activate (ZrmChannelView * w);
 
 private:
     QScrollArea* ready_area = nullptr;
     QWidget* ready_widget = nullptr;
     ZrmReadyLayout* m_ready_layout = nullptr;
-    ZrmChannel* m_current      = nullptr;
+    ZrmChannelView* m_current      = nullptr;
 };
 
 #endif // ZRMREADYSLAVEWIDGET_H

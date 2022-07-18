@@ -1,333 +1,368 @@
 QWidget
 {
-    color: white;
-    background: transparent;
+	color: white;
+	background: transparent;
 }
 
 QMainWindow
 {
-    background-image: url(:icons/icons/background.png);
+	background-image: url(:icons/icons/background.png);
 }
 
 QLabel
 {
-    color: white;
+	color: white;
 }
 
 QGroupBox
 {
-    background-color: rgb(70, 130, 180);
-    border: 2px solid black;
-    border-radius: 10px;
-    margin-top: 1em;
-    padding: 1.3em 5px 5px 5px;
+	background-color: rgb(70, 130, 180);
+	border: 1px solid black;
+	border-radius: 5px;
+
+	margin-top: 0.4em;
+	padding: 0.4em 1px 1px 1px;
 }
 
 QGroupBox::title
 {
-    subcontrol-origin: margin;
-    subcontrol-position: top center;
-    padding: 1px;
-    border: 1px solid black;
-    border-radius: 5px;
-    background-color: rgb(135, 206, 235);
+	subcontrol-origin: margin;
+	subcontrol-position: top center;
+	padding: 1px;
+	border: 1px solid black;
+	border-radius: 3px;
+	background-color: rgb(135, 206, 235);
 }
+
 
 QPushButton,
 QToolButton
 {
-    background-color: rgb(70, 130, 180);
-    color: white;
-    border: 2px solid black;
-    border-radius: 10px;
-    min-height: 35px;
+	background-color: rgb(70, 130, 180);
+	color: white;
+	border: 2px solid black;
+	border-radius: 5px;
+	min-height: 25px;
 }
 
 QPushButton:hover,
 QToolButton:hover
 {
-    background-color: rgb(176, 196, 222);
-    color: yellow
+	background-color: rgb(176, 196, 222);
+	color: yellow
 }
 
 QPushButton:checked,
 QToolButton:checked
 {
-    /*background-color: rgb(135, 206, 235);*/
-    background-color: rgb(30, 144, 255);
-    color: white
+	background-color: rgb(30, 144, 255);
+	color: white
 }
 
 QPushButton:disabled,
 QToolButton:disabled
 {
-    background-color: grey;
-    color: white
+	background-color: grey;
+	color: white
 }
 
 QRadioButton,
 QCheckBox
 {
-    border: none;
-    background-color: rgb(70, 130, 180);
-    color: white;
+	border: none;
+	background-color: rgb(70, 130, 180);
+	color: white;
 }
 
 /*QRadioButton::indicator
 {
-    background-color: white;
+	background-color: white;
 }*/
 
 QCheckBox::indicator
 {
-    width: 24px;
-    height: 24px;
+	width: 24px;
+	height: 24px;
 }
 
 QCheckBox::indicator:checked
 {
-    image: url(:/icons/icons/checkbox_checked_focus.png);
+	image: url(:/icons/icons/checkbox_checked_focus.png);
 }
 
 QCheckBox::indicator:unchecked
 {
-    image: url(:/icons/icons/checkbox_unchecked_disabled.png);
+	image: url(:/icons/icons/checkbox_unchecked_disabled.png);
 }
 
 QHeaderView
 {
-    background-color: white;
-    color: black;
-    font-weight: bold;
+	background-color: white;
+	color: black;
+	font-weight: bold;
 }
 
-QTreeWidget, QTextEdit, QTextViewer, QTableView
+QTreeWidget, QTextEdit, QTextViewer, QTableView,QListWidget
 {
-    background-color: lightgray;
-    selection-background-color: steelblue;
-    color: black;
+	background-color: lightgray;
+	selection-background-color: steelblue;
+	color: black;
 }
 
 QTabWidget
 {
-    background-color: rgb(70, 130, 180);
-    color: black;
-    margin: 0;
-    padding: 0;
+	background-color: rgb(70, 130, 180);
+	color: black;
+	margin: 0;
+	padding: 0;
 }
 
 QTabWidget::pane
 {
-    border: 2px solid black;
-    border-radius: 10px;
-    background-color: rgb(70, 130, 180);
-    margin: 0px;
-    padding: 0px;
+	border: 2px solid black;
+	border-radius: 10px;
+	background-color: rgb(70, 130, 180);
+	margin: 0px;
+	padding: 0px;
 }
 
 QTabWidget::tab-bar
 {
-    left: 10px;
+	left: 5px;
 }
 
 QTabBar::tab
 {
-    padding: 4px;
-    color: blak;
-    font-weight: bold;
-    border: 1px solid black;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    background-color: lightgray;
+	padding: 4px;
+	color: blak;
+	font-weight: bold;
+	border: 1px solid black;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	background-color: lightgray;
 }
 
 QTabBar::tab:selected
 {
-    background-color: white;
+	background-color: white;
 }
 
 QLineEdit
 {
-    background-color: white;
-    color: black;
-    border: 2px solid black;
-    border-radius: 10px;
-    min-height: 25px;
+	background-color: white;
+	color: black;
+	border: 2px solid black;
+	/*border-radius: 10px;*/
+	min-height: 25px;
 }
+
 
 QLineEdit:read-only
 {
-    background-color: gray;
+	background-color: gray;
 }
 
 QSpinBox,
 QDoubleSpinBox,
 QDateEdit
 {
-    padding-right: 15px; /* создаем место для стрелок */
-    border: 2px solid black;
-    /*border-radius: 10px;*/
-    background-color: white;
-    color: black;
-    min-height: 25px;
+	padding-right: 15px; /* создаем место для стрелок */
+	border: 2px solid black;
+	/*border-radius: 10px;*/
+	background-color: white;
+	color: black;
+	min-height: 25px;
 }
 
 QSpinBox::up-button,
 QDoubleSpinBox::up-button
 {
-    subcontrol-position: top right;
+	subcontrol-position: top right;
 }
 
 QSpinBox::down-button,
 QDoubleSpinBox::down-button
 {
-    subcontrol-position: bottom right;
+	subcontrol-position: bottom right;
 }
 
 QSpinBox:!enabled,
 QDoubleSpinBox:!enabled
 {
-    background-color: gray;
+	background-color: gray;
 }
 
 QComboBox
 {
-    border: 2px solid black;
-    min-height: 25px;
-    background-color: white;
-    color: black;
+	border: 2px solid black;
+	min-height: 25px;
+	background-color: white;
+	color: black;
 }
 
 QComboBox QAbstractItemView
 {
-    background-color: white;
-    color: black;
+	background-color: white;
+	color: black;
 }
 
 QCalendarWidget QWidget#qt_calendar_navigationbar
 {
-    background-color: rgb(70, 130, 180);
+	background-color: rgb(70, 130, 180);
 }
 
 QScrollBar:horizontal
 {
-    height: 20px;
+	height: 20px;
 }
 
 QScrollBar:vertical
 {
-    width: 20px;
+	width: 20px;
 }
 
 /*QProgressBar
 {
-    border: 2px solid black;
-    background-color: lightgrey;
-    text-align: right;
+	border: 2px solid black;
+	background-color: lightgrey;
+	text-align: right;
 }
 
 QProgressBar::chunk
 {
-    background-color: green;
+	background-color: green;
 }*/
 
 QMessageBox
 {
-    background-color: rgb(70, 130, 180);
+	background-color: rgb(70, 130, 180);
 }
+
 
 QLabel#labelMenuStart
 {
-    min-width: 150;
-    min-height: 90;
-    background: url(:icons/icons/logo.png) no-repeat;
+	image:url(:/icons/icons/logo.png);
+	min-height:50px;
+	min-width:90px;
 }
+
 
 QFrame#frameMenu
 {
-    background: rgb(70, 130, 180);
-    border: 5px solid;
-    border-color: rgb(0, 216, 230);
-    border-radius: 10px;
+	background: rgb(70, 130, 180);
+	border: 2px solid;
+	border-color: rgb(0, 216, 230);
+	border-radius: 5px;
 }
 
 QFrame#frame
 {
-    background-color: rgb(70, 130, 180);
+	background-color: rgb(70, 130, 180);
 }
 
 QPushButton#bStart
 {
-    width: 50px;
-    height: 50px;
-    background-color: transparent;
-    border: none;
-    image: url(:zrm/icons/start_pressed.png);
+	width: 50px;
+	height: 50px;
+	background-color: transparent;
+	border: none;
+	image: url(:zrm/icons/start_pressed.png);
+}
+
+QLineEdit#methodLabel,
+QLineEdit#stateLabel,
+QLineEdit#errorLabel
+{
+  background-color : transparent;
+  border : none;
+}
+
+QToolButton#tempButton
+{
+  border : none;
 }
 
 QPushButton#bStart[start = "false"]
 {
-    image: url(:zrm/icons/start.png);
+	image: url(:zrm/icons/start.png);
 }
 
 QPushButton#bStart[start = "true"]
 {
-    image: url(:zrm/icons/start_pressed.png);
+	image: url(:zrm/icons/start_pressed.png);
 }
+
+QPushButton#bStart:hover
+{
+	background-color: rgb(176, 196, 222);
+}
+
 
 QPushButton#bPause
 {
-    width: 50px;
-    height: 50px;
-    background-color: transparent;
-    border: none;
-    image: url(:zrm/icons/pause_pressed.png);
+	width: 50px;
+	height: 50px;
+	background-color: transparent;
+	border: none;
+	image: url(:zrm/icons/pause_pressed.png);
 }
 
 QPushButton#bPause[pause = "false"]
 {
-    image: url(:zrm/icons/pause.png);
+	image: url(:zrm/icons/pause.png);
 }
 
 QPushButton#bPause[pause = "true"]
 {
-    image: url(:zrm/icons/pause_pressed.png);
+	image: url(:zrm/icons/pause_pressed.png);
 }
+
+QPushButton#bPause:hover
+{
+	background-color: rgb(176, 196, 222);
+}
+
 
 QPushButton#bStop
 {
-    width: 50px;
-    height: 50px;
-    background-color: transparent;
-    border: none;
-    image: url(:zrm/icons/stop_pressed.png);
+	width: 50px;
+	height: 50px;
+	background-color: transparent;
+	border: none;
+	image: url(:zrm/icons/stop_pressed.png);
 }
 
 QPushButton#bStop[stop = "false"]
 {
-    image: url(:zrm/icons/stop.png);
+	image: url(:zrm/icons/stop.png);
 }
 
 QPushButton#bStop[stop = "true"]
 {
-    image: url(:zrm/icons/stop_pressed.png);
+	image: url(:zrm/icons/stop_pressed.png);
 }
+
+QPushButton#bStop:hover
+{
+	background-color: rgb(176, 196, 222);
+}
+
 
 QPushButton#bResetError
 {
-    background-color: transparent;
-    border: none;
-    image: url(:zrm/icons/reset_error.png);
+	background-color: transparent;
+	border: none;
+	image: url(:zrm/icons/reset_error.png);
 }
 
 QPushButton#bResetError:pressed
 {
-    image: url(:zrm/icons/reset_error_pressed.png);
+	image: url(:zrm/icons/reset_error_pressed.png);
 }
 
 QToolButton#tbCharge, #tbDischarge, #tbImpulse, #tbPause, #tbStageAdd, #tbStageRemove, #tbStageMoveDown, #tbStageMoveUp, #tbLinkMethod
 {
-    background-color: lightblue;
+	background-color: lightblue;
 }
 
 QToolButton:hover#tbCharge,
@@ -340,8 +375,8 @@ QToolButton:hover#tbStageMoveDown,
 QToolButton:hover#tbStageMoveUp,
 QToolButton:hover#tbLinkMethod
 {
-    background-color: rgb(176, 196, 222);
-    color: yellow
+	background-color: rgb(176, 196, 222);
+	color: yellow
 }
 
 QToolButton:checked#tbCharge,
@@ -354,8 +389,8 @@ QToolButton:checked#tbStageMoveDown,
 QToolButton:checked#tbStageMoveUp,
 QToolButton:checked#tbLinkMethod
 {
-    background-color: rgb(30, 144, 255);
-    color: white
+	background-color: rgb(30, 144, 255);
+	color: white
 }
 
 QToolButton:disabled#tbCharge,
@@ -368,82 +403,83 @@ QToolButton:disabled#tbStageMoveDown,
 QToolButton:disabled#tbStageMoveUp,
 QToolButton:disabled#tbLinkMethod
 {
-    background-color: grey;
-    color: white
+	background-color: grey;
+	color: white
 }
 
 QToolButton#buttonReadyView[error-state = "blue"]
 {
-    background-color: rgb(70, 130, 180);
-    color: white;
-    border: 2px solid black;
-    border-radius: 10px;
-    min-height: 35px;
+	background-color: rgb(70, 130, 180);
+	color: white;
+	border: 2px solid black;
+	border-radius: 10px;
+	min-height: 30px;
 }
 
 QToolButton:hover#buttonReadyView[error-state = "blue"]
 {
-    background-color: rgb(176, 196, 222);
+	background-color: rgb(176, 196, 222);
 }
 
 QToolButton:checked#buttonReadyView[error-state = "blue"]
 {
-    background-color: rgb(30, 144, 255);
+	background-color: rgb(30, 144, 255);
 }
 
 QToolButton#buttonReadyView[error-state = "red"]
 {
-    background-color: rgb(255, 0, 0);
-    color: white;
-    border: 2px solid black;
-    border-radius: 10px;
-    min-height: 35px;
+	background-color: rgb(255, 0, 0);
+	color: white;
+	border: 2px solid black;
+	border-radius: 10px;
 }
 
 QToolButton:hover#buttonReadyView[error-state = "red"]
 {
-    background-color: rgb(250, 128, 114);
+	background-color: rgb(250, 128, 114);
 }
 
 QToolButton:checked#buttonReadyView[error-state = "red"]
 {
-    background-color: rgb(255, 30, 130);
+	background-color: rgb(255, 30, 130);
 }
 
 QToolButton#buttonReadyView[error-state = "yellow"]
 {
-    background-color: rgb(255, 255, 0);
-    color: white;
-    border: 2px solid black;
-    border-radius: 10px;
-    min-height: 35px;
+	background-color: rgb(255, 255, 0);
+	color: white;
+	border: 2px solid black;
+	border-radius: 10px;
+	/*min-height: 35px;*/
 }
 
 QToolButton:hover#buttonReadyView[error-state = "yellow"]
 {
-    background-color: rgb(240, 230, 140);
+	background-color: rgb(240, 230, 140);
 }
 
 QToolButton:checked#buttonReadyView[error-state = "yellow"]
 {
-    background-color: rgb(255, 150, 20);
+	background-color: rgb(255, 150, 20);
 }
 
 QToolButton#buttonReadyView[error-state = "green"]
 {
-    background-color: rgb(0, 255, 0);
-    color: white;
-    border: 2px solid black;
-    border-radius: 10px;
-    min-height: 35px;
+	background-color: rgb(0, 255, 0);
+	color: white;
+	border: 2px solid black;
+	border-radius: 10px;
+	/*min-height: 35px;*/
 }
 
 QToolButton:hover#buttonReadyView[error-state = "green"]
 {
-    background-color: rgb(0, 255, 127);
+	background-color: rgb(0, 255, 127);
 }
 
 QToolButton:checked#buttonReadyView[error-state = "green"]
 {
-    background-color: rgb(60, 128, 60);
+	background-color: rgb(60, 128, 60);
 }
+
+

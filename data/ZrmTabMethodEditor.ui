@@ -17,16 +17,39 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="ZrmMethodEditor" name="tabAKB">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <attribute name="title">
        <string>Модели АКБ</string>
       </attribute>
      </widget>
      <widget class="ZrmMethodEditor" name="tabMethods">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <attribute name="title">
        <string>Методы (профили)</string>
+      </attribute>
+     </widget>
+     <widget class="ZrmMethodExportImport" name="tabExportImport">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <attribute name="title">
+       <string>Импорт/Export</string>
       </attribute>
      </widget>
     </widget>
@@ -38,6 +61,12 @@
    <class>ZrmMethodEditor</class>
    <extends>QWidget</extends>
    <header>zrmmethodeditor.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZrmMethodExportImport</class>
+   <extends>QWidget</extends>
+   <header>zrmmethodexportimport.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

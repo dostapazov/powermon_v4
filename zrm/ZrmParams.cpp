@@ -1,13 +1,13 @@
 #include "ZrmParams.h"
 
-ZrmParams::ZrmParams(QWidget *parent) :
+ZrmParams::ZrmParams(QWidget* parent) :
     ZrmGroupWidget(parent)
 {
     setupUi(this);
     setSplitterSizes(QList<int>() << 10000 << 10000 << 10000 << 10000);
 
-    connect(splitter, &QSplitter::splitterMoved, [this](){ splitterSizes[0] = splitter->sizes()[0]; splitterSizes[1] = splitter->sizes()[1]; });
-    connect(splitter_2, &QSplitter::splitterMoved, [this](){ splitterSizes[2] = splitter_2->sizes()[0]; splitterSizes[3] = splitter_2->sizes()[1]; });
+    connect(splitter, &QSplitter::splitterMoved, this, [this]() { splitterSizes[0] = splitter->sizes().constFirst(); splitterSizes[1] = splitter->sizes().constLast(); });
+    connect(splitter_2, &QSplitter::splitterMoved, this, [this]() { splitterSizes[2] = splitter_2->sizes().constFirst(); splitterSizes[3] = splitter_2->sizes().constLast(); });
 }
 
 QList<int> ZrmParams::getSplitterSizes()
@@ -15,7 +15,7 @@ QList<int> ZrmParams::getSplitterSizes()
     return  splitterSizes;
 }
 
-void ZrmParams::setSplitterSizes(const QList<int> &list)
+void ZrmParams::setSplitterSizes(const QList<int>& list)
 {
     if (list.size() < 4)
         return;

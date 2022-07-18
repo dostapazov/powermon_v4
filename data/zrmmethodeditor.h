@@ -25,7 +25,14 @@ enum tree_editor_roles_t  { role_changes_mask = ZrmMethodsTree::role_stage_type+
 enum change_mask_t        { changes_empty, change_item  , change_stage , change_all_mask = -1 } ;
 
     explicit ZrmMethodEditor(QWidget *parent = nullptr);
-    bool     open_db      (zrm::zrm_work_mode_t as_charger, bool all_methods);
+    bool     setAbstract(bool abstract);
+    bool     isAbstract();
+    bool     setWorkMode(zrm::zrm_work_mode_t mode);
+    zrm::zrm_work_mode_t getWorkMode();
+    bool     open_db (zrm::zrm_work_mode_t mode, bool all_methods);
+    bool     open_db();
+    void     close_db();
+
     void     save_user_values();
     inline bool isEdit() { return bEdit; }
     void setAllMethods(bool all_methods);

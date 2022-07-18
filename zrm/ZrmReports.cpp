@@ -1,12 +1,13 @@
 #include "ZrmReports.h"
 
-ZrmReports::ZrmReports(QWidget *parent) :
+ZrmReports::ZrmReports(QWidget* parent) :
     ZrmGroupWidget(parent)
 {
     setupUi(this);
+    connect(tabWidget, &QTabWidget::currentChanged, this, &ZrmReports::tabChanged);
 }
 
-void ZrmReports::on_tabWidget_currentChanged(int index)
+void ZrmReports::tabChanged(int index)
 {
     // обновляем список отчетов
     if (1 == index)

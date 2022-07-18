@@ -1,11 +1,15 @@
 #include "zrmcellview.h"
 #include <algorithm>
+#ifdef QT_DEBUG
+    #include <QRandomGenerator>
+#endif
 
-ZrmCellView::ZrmCellView(QWidget *parent) :
+
+ZrmCellView::ZrmCellView(QWidget* parent) :
     ZrmChannelWidget(parent)
 {
     setupUi(this);
-    QHeaderView * hv = cell_table->horizontalHeader();
+    QHeaderView* hv = cell_table->horizontalHeader();
     hv->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
     cell_table->setRowCount(2);
     cell_table->setColumnCount(0);
@@ -28,7 +32,7 @@ void ZrmCellView::channel_session(unsigned ch_num)
     }
 }
 
-void ZrmCellView::channel_param_changed(unsigned channel, const zrm::params_list_t & params_list)
+void ZrmCellView::channel_param_changed(unsigned channel, const zrm::params_list_t& params_list)
 {
     if (channel == m_channel)
     {
@@ -47,14 +51,14 @@ void ZrmCellView::channel_param_changed(unsigned channel, const zrm::params_list
 void ZrmCellView::update_column_width()
 {
     int ccnt = cell_table->columnCount();
-    QHeaderView * hv = cell_table->horizontalHeader();
+    QHeaderView* hv = cell_table->horizontalHeader();
     if (hv && ccnt)
         hv->setDefaultSectionSize((cell_table->width() - cell_table->verticalHeader()->width()) / ccnt);
 }
 
 void ZrmCellView::create_cell_item(int row, int col)
 {
-    QTableWidgetItem * item;
+    QTableWidgetItem* item;
     item = cell_table->item(row, col);
     if (!item)
     {
@@ -86,18 +90,40 @@ void ZrmCellView::cell_count(uint16_t ccnt)
     }
 }
 
-void check_out_bounds(QTableWidgetItem * item, double value, double mid, double delta, QColor bk_color ,QColor text_color )
+void check_out_bounds(QTableWidgetItem* item, double value, double mid, double delta, QColor bk_color, QColor text_color )
 {
     if (!qFuzzyIsNull(delta) && fabs(mid - value) > fabs(delta))
-         std::swap(bk_color, text_color);
+        std::swap(bk_color, text_color);
     item->setBackground(bk_color);
     item->setForeground(text_color);
 }
 
+#ifdef QT_DEBUG
+namespace {
+zrm::zrm_cells_t fakeCells(size_t sz)
+{
+    zrm::zrm_cells_t cells;
+    cells.resize(sz);
+    for (zrm::zrm_cell_t& cell : cells)
+    {
+        cell.m_volt = QRandomGenerator::global()->bounded(2000, 100000);
+        cell.m_temp = QRandomGenerator::global()->bounded(5000, 30000);
+    }
+    return cells;
+}
+}
+#endif
+
+
 void ZrmCellView::cell_params(uint16_t value)
 {
-    cell_count(value);
+#ifdef QT_DEBUG
+    zrm::zrm_cells_t cells =  fakeCells(20);
+#else
     zrm::zrm_cells_t cells =  m_source->channel_cell_info(m_channel);
+#endif
+    cell_count(cells.size());
+
 
     double min_volt = 10000;
     double max_volt = -10000;
@@ -155,8 +181,8 @@ void ZrmCellView::cell_params(uint16_t value)
 
     while (ptr < end)
     {
-        QTableWidgetItem * item_u = cell_table->item(0, col);
-        QTableWidgetItem * item_t = cell_table->item(1, col);
+        QTableWidgetItem* item_u = cell_table->item(0, col);
+        QTableWidgetItem* item_t = cell_table->item(1, col);
 
         if (item_u)
         {
@@ -169,7 +195,7 @@ void ZrmCellView::cell_params(uint16_t value)
         {
             double temp = ptr->temp();
             item_t->setText(number_text(temp, 1));
-            check_out_bounds(item_t, temp,mid_temp, dT, bk_color, txt_color);
+            check_out_bounds(item_t, temp, mid_temp, dT, bk_color, txt_color);
         }
         ++col;
         ++ptr;
@@ -181,7 +207,7 @@ void ZrmCellView::update_controls()
     ZrmChannelWidget::update_controls();
     if (m_source && m_channel)
     {
-        uint16_t ccnt = uint16_t(param_get(zrm::PARAM_CCNT).toUInt());
+        uint16_t ccnt = param_get(zrm::PARAM_CCNT).value<uint16_t>(false);
         cell_params(ccnt);
         channel_session(m_channel);
         channel_param_changed(m_channel, m_source->channel_params(m_channel));
@@ -193,13 +219,13 @@ void ZrmCellView::clear_controls()
     cell_count(0);
 }
 
-void ZrmCellView::resizeEvent(QResizeEvent * re)
+void ZrmCellView::resizeEvent(QResizeEvent* re)
 {
     ZrmChannelWidget::resizeEvent(re);
     update_column_width();
 }
 
-void ZrmCellView::showEvent(QShowEvent * se)
+void ZrmCellView::showEvent(QShowEvent* se)
 {
     ZrmChannelWidget::showEvent(se);
     update_column_width();
@@ -221,4 +247,9 @@ void ZrmCellView::saveCell()
     _map.dU = cell_dU->value();
     _map.dT = cell_dT->value();
     m_source->channel_set_masakb_param(m_channel, _map);
+}
+
+void ZrmCellView::showDeltaParam(bool show)
+{
+    gbDelta->setVisible(show);
 }

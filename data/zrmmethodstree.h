@@ -22,9 +22,18 @@ public:
 
     explicit  ZrmMethodsTree(QWidget *parent = nullptr);
     ~ZrmMethodsTree() override;
-    void      close_database();
+
+    bool isOpen(){return db.isOpen();}
+    bool isAbstract() {return m_abstract_methods;}
+    bool setAbstract(bool abstract);
+    zrm::zrm_work_mode_t getWorkMode() { return m_work_mode;}
+    bool setWorkMode(zrm::zrm_work_mode_t wm);
+
+
+
+
     bool      open_database (zrm::zrm_work_mode_t work_mode, bool _abstract_methods);
-    zrm::zrm_work_mode_t open_as(){return m_work_mode;}
+    zrm::zrm_work_mode_t opened_as(){return m_work_mode;}
     bool      abstract_methods()  {return m_abstract_methods;}
     QSqlError last_error();
     virtual   bool item_edit_enable(const QModelIndex &index);
@@ -42,7 +51,14 @@ public:
 
     QString   get_stage_desctipt(unsigned stage_id);
 
+    /**
+     * @brief ZrmMethodsTree::search_method_by_id
+     * @param item
+     * @param method_id
+     * @return method tree item if found
+     */
     QTreeWidgetItem * search_method_by_id(QTreeWidgetItem * item, QVariant method_id);
+    QTreeWidgetItem * search_method_by_name(const QString &name);
     void      save_user_values();
 
 
@@ -60,6 +76,10 @@ static unsigned item_table    (QTreeWidgetItem * item);
 static double   item_capacity (QTreeWidgetItem * item);
 static double   item_voltage  (QTreeWidgetItem * item);
 
+public slots:
+    void volt_cap_changed(const QString & val_text);
+    bool open_database();
+    void close_database();
 
   signals:
     void      method_selected     (QTreeWidgetItem * item);
@@ -69,7 +89,6 @@ static double   item_voltage  (QTreeWidgetItem * item);
     void      database_open       (bool success);
 protected:
     void      fill_tree      ();
-
     void      read_types           ();
     void      read_models          (QTreeWidgetItem * item);
     void      read_methods         (QTreeWidgetItem * item);
@@ -99,8 +118,6 @@ void onItemChanged(QTreeWidgetItem *item, int column);
 void onCurrentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 void slot_item_expanded(QTreeWidgetItem *item);
 void slot_item_collapsed(QTreeWidgetItem *item);
-public slots:
-    void volt_cap_changed(const QString & val_text);
 };
 
 

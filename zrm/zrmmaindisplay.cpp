@@ -4,12 +4,35 @@
 #include <qdesktopwidget.h>
 #include <qscreen.h>
 #include <QGraphicsDropShadowEffect>
+#include <powermon_utils.h>
+#include <zrmparamcvt.h>
+#include "ui_constraints.hpp"
 
-ZrmMainDisplay::ZrmMainDisplay(QWidget *parent) :
+
+
+ZrmMainDisplay::ZrmMainDisplay(QWidget* parent) :
     ZrmChannelWidget(parent)
 {
     setupUi(this);
+    setupIcons();
 
+    addShadow(bMethodAuto, 4, 5);
+    addShadow(bMethodAny, 4, 5);
+    addShadow(bMethodManual, 4, 5);
+    addShadow(bCharge, 4, 5);
+    addShadow(bDischarge, 4, 5);
+
+    style()->polish(bStart);
+    style()->polish(bStop);
+    style()->polish(bPause);
+    style()->polish(bMethodManual);
+
+    bind(Q_NULLPTR, 0);
+    connectSlots();
+}
+
+void ZrmMainDisplay::setupIcons()
+{
     int pixSize = 40;
     QPixmap pixWorkTime(":zrm/icons/work_time.png");
     pixWorkTime = pixWorkTime.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
@@ -32,40 +55,32 @@ ZrmMainDisplay::ZrmMainDisplay(QWidget *parent) :
     QPixmap pixT(":zrm/icons/temperature.png");
     pixT = pixT.scaled(pixSize, pixSize, Qt::KeepAspectRatio);
     labelTemperature->setPixmap(pixT);
+}
 
-    auto addShadow = [](QWidget* w)
-    {
-        QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect();
-        shadow->setOffset(4);
-        shadow->setBlurRadius(5);
-        w->setGraphicsEffect(shadow);
-    };
-    addShadow(bMethodAuto);
-    addShadow(bMethodAny);
-    addShadow(bMethodManual);
-    addShadow(bCharge);
-    addShadow(bDischarge);
 
+void ZrmMainDisplay::connectSlots()
+{
     connect(bMethodAuto, &QAbstractButton::clicked, this, [this]() { select_method(false); });
     connect(bMethodAny, &QAbstractButton::clicked, this, [this]() { select_method(true); });
     connect(bMethodManual, &QAbstractButton::clicked, this, &ZrmMainDisplay::manual_method);
-    bind(Q_NULLPTR,0);
+    connect(bCharge, &QAbstractButton::toggled, this,  &ZrmMainDisplay::manual_method_changed);
+    connect(bDischarge, &QAbstractButton::toggled, this,  &ZrmMainDisplay::manual_method_changed);
+    connect(sbCurrLimit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ZrmMainDisplay::manual_method_changed);
+    connect(sbVoltLimit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ZrmMainDisplay::manual_method_changed);
 
-    connect(edTimeLimit , SIGNAL(textChanged(QString)), this, SLOT(manual_method_changed()));
-    connect(sbCurrLimit , SIGNAL(valueChanged(double)), this, SLOT(manual_method_changed()));
-    connect(sbVoltLimit , SIGNAL(valueChanged(double)), this, SLOT(manual_method_changed()));
-    connect(bCurrDec    , SIGNAL(clicked()), this, SLOT(manual_method_changed()));
-    connect(bCurrInc    , SIGNAL(clicked()), this, SLOT(manual_method_changed()));
-    connect(bVoltDec    , SIGNAL(clicked()), this, SLOT(manual_method_changed()));
-    connect(bVoltInc    , SIGNAL(clicked()), this, SLOT(manual_method_changed()));
-    connect(sbCycleTotal, SIGNAL(valueChanged(int)), this, SLOT(manual_method_changed()));
-    connect(bCharge     , SIGNAL(clicked(bool)), this, SLOT(manual_method_changed()));
-    connect(bDischarge  , SIGNAL(clicked(bool)), this, SLOT(manual_method_changed()));
-    connect(bStart      , &QAbstractButton::clicked, this, &ZrmMainDisplay::start);
-    connect(bStop       , &QAbstractButton::clicked, this, &ZrmMainDisplay::stop);
-    connect(bPause      , &QAbstractButton::clicked, this, &ZrmMainDisplay::pause);
-    connect(bResetError , &QAbstractButton::clicked, this, &ZrmMainDisplay::reset_error);
+
+    connect(bCurrDec, &QAbstractButton::clicked, this, &ZrmMainDisplay::currLimitChange);
+    connect(bCurrInc, &QAbstractButton::clicked, this, &ZrmMainDisplay::currLimitChange);
+    connect(bVoltDec, &QAbstractButton::clicked, this, &ZrmMainDisplay::voltLimitChange);
+    connect(bVoltInc, &QAbstractButton::clicked, this, &ZrmMainDisplay::voltLimitChange);
+
+
+    connect(bStart, &QAbstractButton::clicked, this, &ZrmMainDisplay::start);
+    connect(bStop, &QAbstractButton::clicked, this, &ZrmMainDisplay::stop);
+    connect(bPause, &QAbstractButton::clicked, this, &ZrmMainDisplay::pause);
+    connect(bResetError, &QAbstractButton::clicked, this, &ZrmMainDisplay::reset_error);
 }
+
 
 /**
  * @brief ZrmMainWidget::update_controls
@@ -74,7 +89,7 @@ ZrmMainDisplay::ZrmMainDisplay(QWidget *parent) :
 
 void  ZrmMainDisplay::update_controls()
 {
-    if(m_source && m_channel)
+    if (m_source && m_channel)
     {
         channel_param_changed(m_channel, m_source->channel_params(m_channel));
         setup_method();
@@ -101,70 +116,103 @@ void ZrmMainDisplay::clear_controls()
     sbCurrLimit ->setValue(0.0);
     edCapacity  ->setValue(0.0);
     sbTemperature->setValue(0.0);
-    lb_work_time->setText (no_value);
-    edTimeLimit ->setText (no_value);
-    edMode      ->setText (no_value);
+    pwm_utils::setEditText(lb_work_time, no_value);
+    pwm_utils::setEditText (edTimeLimit, no_value);
+    pwm_utils::setEditText (edMode, no_value);
     lbStageNum  ->setValue(0);
     lbStageTotal->setValue(0);
     lbCycleNum  ->setValue(0);
     sbCycleTotal->setValue(0);
-    edMethodName->setText (no_value);
+    pwm_utils::setEditText (edMethodName, no_value, 0);
     bMethodAuto->setEnabled(false);
     bMethodAny->setEnabled(false);
     bMethodManual->setEnabled(false);
     bPause->setEnabled(false);
     bStart->setEnabled(false);
     bStop->setEnabled(false);
-    edMode->setText(tr("Не назначено устройство"));
+    pwm_utils::setEditText(edMode, tr("Не назначено устройство"), 0);
     handle_error_state(0);
 }
 
 void  ZrmMainDisplay::handle_error_state (uint32_t err_code)
 {
-  auto p = error_state->palette();
-  p.setColor(QPalette::Text, Qt::red);
-  error_state->setPalette(p);
-  error_state->setText(m_source->zrm_error_text(err_code))  ;
-  bResetError->setVisible(err_code);
+    auto p = error_state->palette();
+    p.setColor(QPalette::Text, Qt::red);
+    error_state->setPalette(p);
+    pwm_utils::setEditText(error_state, m_source->zrm_error_text(err_code), 0)  ;
+    bResetError->setVisible(err_code);
 }
 
-void  ZrmMainDisplay::channel_param_changed(unsigned channel, const zrm::params_list_t & params_list  )
+void  ZrmMainDisplay::channel_param_changed(unsigned channel, const zrm::params_list_t& params_list  )
 {
     SignalBlocker sb(findChildren<QWidget*>());
-    if(channel == m_channel && m_source)
+    if (channel == m_channel && m_source)
     {
-        for(auto param : params_list)
+        for (auto param : params_list)
         {
-            QVariant value = m_source->param_get(m_channel, param.first);
-            switch(param.first)
+
+            switch (param.first)
             {
-            case zrm::PARAM_STATE        : update_state(param.second.udword); break;
-            case zrm::PARAM_WTIME        : lb_work_time ->setText(value.toString()); break;
-            case zrm::PARAM_LTIME        : edTimeLimit->setText(value.toString()); break;
-            case zrm::PARAM_CUR          : lbCurr->setValue(value.toDouble()); break;
-            case zrm::PARAM_LCUR         : sbCurrLimit->setValue(value.toDouble()); break;
-            case zrm::PARAM_VOLT         : lbVolt->setValue(value.toDouble()); break;
-            case zrm::PARAM_LVOLT        : sbVoltLimit->setValue(value.toDouble()); break;
-            case zrm::PARAM_CAP          : set_number_value(edCapacity, value.toDouble(), 3); break;
-            case zrm::PARAM_MAXTEMP      : sbTemperature->setValue(value.toDouble()); break;
-            case zrm::PARAM_STG_NUM      : lbStageNum->setValue(int(param.second.sdword)); break;
-            case zrm::PARAM_LOOP_NUM     : lbCycleNum->setValue(int(param.second.sdword)); break;
-            case zrm::PARAM_ERROR_STATE  : handle_error_state(param.second.udword); break;
+                case zrm::PARAM_STATE        :
+                    update_state(param.second.udword);
+                    break;
+                case zrm::PARAM_WTIME        :
+                    pwm_utils::setEditText(lb_work_time, ZrmParamCvt::toTime(param.second).toString(), 0);
+                    break;
+                case zrm::PARAM_LTIME        :
+                    pwm_utils::setEditText(edTimeLimit, ZrmParamCvt::toTime(param.second).toString(), 0);
+                    break;
+                case zrm::PARAM_CUR          :
+                    lbCurr->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
+                    break;
+                case zrm::PARAM_LCUR         :
+                    sbCurrLimit->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
+                    break;
+                case zrm::PARAM_VOLT         :
+                    lbVolt->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
+                    break;
+                case zrm::PARAM_LVOLT        :
+                    sbVoltLimit->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
+                    break;
+                case zrm::PARAM_CAP          :
+                    set_number_value(edCapacity, ZrmParamCvt::toDouble(param.second).toDouble(), zrm::DEFAULT_DOUBLE_PRECISION);
+                    break;
+                case zrm::PARAM_MAXTEMP      :
+                    sbTemperature->setValue(ZrmParamCvt::toDouble(param.second).toDouble());
+                    break;
+                case zrm::PARAM_STG_NUM      :
+                    lbStageNum->setValue(param.second.value<int>(true));
+                    break;
+                case zrm::PARAM_LOOP_NUM     :
+                    lbCycleNum->setValue(param.second.value<int>(true));
+                    break;
+                case zrm::PARAM_ERROR_STATE  :
+                    handle_error_state(param.second.value<uint32_t>(false));
+                    break;
 
 #ifdef DEF_RUPREHT
-            case zrm::PARAM_DOUT         : if (param.second.uword & 0x0001)
-                {
-                    bRupreht = true;
-                    edMode->setText(QString("Брак батареи, этап %1").arg(m_source->param_get(m_channel, zrm::PARAM_STG_NUM).toInt()));
-                }
-                break;
-            case zrm::PARAM_ZRMMODE      : if (!bRupreht) edMode->setText(m_source->zrm_mode_text(param.second.udword)); break;
+                case zrm::PARAM_DOUT         :
+                    if (param.second.uword & 0x0001)
+                    {
+                        bRupreht = true;
+                        setEditText(edMode, QString("Брак батареи, этап %1").arg(m_source->param_get(m_channel, zrm::PARAM_STG_NUM).toInt()), 0);
+                    }
+                    break;
+                case zrm::PARAM_ZRMMODE      :
+                    if (!bRupreht)
+                        edMode->setText(m_source->zrm_mode_text(param.second.udword));
+                    break;
 #else
-            case zrm::PARAM_ZRMMODE      :edMode->setText(m_source->zrm_mode_text(param.second.udword)); break;
+                case zrm::PARAM_ZRMMODE      :
+                    pwm_utils::setEditText(edMode, m_source->zrm_mode_text(param.second.udword), 0);
+                    break;
 #endif
-            case zrm::PARAM_METHOD_STAGES: setup_method();break;
+                case zrm::PARAM_METHOD_STAGES:
+                    setup_method();
+                    break;
 
-            default: break;
+                default:
+                    break;
             }
         }
     }
@@ -174,7 +222,7 @@ void  ZrmMainDisplay::channel_param_changed(unsigned channel, const zrm::params_
 void  ZrmMainDisplay::channel_session  (unsigned ch_num)
 {
     bool wr_enabled = false;
-    if(ch_num == m_channel)
+    if (ch_num == m_channel)
     {
         wr_enabled = m_source && !m_source->channel_session(m_channel).is_read_only();
         make_request();
@@ -187,34 +235,36 @@ void  ZrmMainDisplay::channel_session  (unsigned ch_num)
 
 void  ZrmMainDisplay::make_request  ()
 {
- if(m_source)
-   {
-      zrm::params_t params;
-      unsigned pv_first = zrm::PARAM_STATE;
-      unsigned pv_last  = zrm::PARAM_ZRMMODE+1;
-      params.resize(zrm::params_t::size_type(pv_last - pv_first));
-      auto pb = params.begin();
-      while(pb < params.end())
-      {
-           *pb = zrm::params_t::value_type(pv_first++);
-           ++pb;
-      }
-    m_source->channel_subscribe_params(m_channel, params,true);
-   }
+    if (m_source)
+    {
+        zrm::params_t params;
+
+        constexpr size_t PARAMS_SIZE = 1 + zrm::PARAM_ZRMMODE  - zrm::PARAM_STATE;
+        params.resize(zrm::params_t::size_type(PARAMS_SIZE));
+        unsigned pv_first = zrm::PARAM_STATE;
+        auto pb = params.begin();
+        while (pb < params.end())
+        {
+            *pb = zrm::params_t::value_type(pv_first++);
+            ++pb;
+        }
+        m_source->channel_subscribe_params(m_channel, params, true);
+    }
 }
 
 void  ZrmMainDisplay::setup_method()
 {
+
     SignalBlocker sb(findChildren<QWidget*>());
     auto method = m_source->channel_get_method(m_channel, false);
-    if(method.m_method.m_id != m_method_id)
+    if (method.m_method.m_id != m_method_id)
     {
         m_auto_method = method.m_method.method_kind() == zrm::method_kind_automatic;
         m_model_name = QString();
         m_method_id = method.m_method.m_id;
 
-        bool bManual = (0 == m_method_id);
-        if (bManual)
+        manualButtonsFrame->setVisible(is_manual());
+        if (is_manual())
         {
             bool charge = true;
             if (method.stages_count() > 0)
@@ -229,307 +279,318 @@ void  ZrmMainDisplay::setup_method()
                 bCharge->setChecked(false);
                 bDischarge->setChecked(true);
             }
-            bMethodManual->setChecked(bManual);
+            bMethodManual->setChecked(is_manual());
         }
 
-        update_method_controls();
+        //update_method_controls();
     }
     else
     {
-       m_model_name = QString();
+        m_model_name = QString();
     }
     //qDebug() << Q_FUNC_INFO  <<" method_id " << m_method_id;
 
     QString method_name;
-    if(m_model_name.isEmpty())
+    if (m_model_name.isEmpty())
+    {
         method_name = to_utf(method.m_method.m_name, sizeof(method.m_method.m_name));
+    }
     else
-        method_name = QString("%1:%2").arg(m_model_name).arg(to_utf(method.m_method.m_name, sizeof(method.m_method.m_name)));
+    {
+        method_name = QString("%1:%2").arg(m_model_name, to_utf(method.m_method.m_name, sizeof(method.m_method.m_name)));
+    }
 
-    edMethodName->setText(method_name.remove('\u0000'));
+    method_name = method_name.remove(QChar('\u0000'));
+
+    pwm_utils::setEditText(edMethodName, method_name, 0);
+
 
     //set_number_value(lbStageTotal, int(method.stages_count()), 2, infinity_symbol);
     lbStageTotal->setValue(int(method.stages_count()));
     sbCycleTotal->setValue(method.m_method.m_cycles_count);
 
-    QString time_limit_string = zrm_method_duration_text(method);
-    edTimeLimit->setText(time_limit_string);
-    auto param = m_source->param_get(m_channel, zrm::PARAM_STG_NUM);
+    if (!m_manual_change)
+    {
+        QString time_limit_string = zrm_method_duration_text(method);
+        pwm_utils::setEditText(edTimeLimit, time_limit_string, 0);
+    }
+
+    auto param = m_source->getParameter(m_channel, zrm::PARAM_STG_NUM);
     //set_number_value(lbStageNum, param.toInt(), 2);
-    lbStageNum->setValue(param.toInt());
+    lbStageNum->setValue(param.value<int>(false));
+    update_method_controls();
+    m_manual_change = false;
+
 }
 
 void ZrmMainDisplay::update_state    (uint32_t state)
 {
-  zrm::oper_state_t oper_state;
-  oper_state.state = uint16_t(state);
+    zrm::oper_state_t oper_state;
+    oper_state.state = uint16_t(state);
 
-  bool stopped = is_stopped();
-  bool paused  = is_paused ();
+    bool stopped = oper_state.is_stopped();
+    bool paused  = oper_state.is_paused();
 //  qDebug()<<QString("Update state %1").arg(state,4,16,QLatin1Char('0'));
 //  qDebug()<< tr(" auto on %1  is_stopped  %2 ").arg(oper_state.state_bits.auto_on).arg(stopped);
 #ifdef DEF_RUPREHT
-  static bool bLastStop = false;
+    static bool bLastStop = false;
     if (bRupreht && !stopped && bLastStop)
     {
         bRupreht = false;
-        edMode->setText(m_source->zrm_mode_text(m_source->param_get(m_channel, zrm::PARAM_ZRMMODE).toUInt()));
+        setEditText(edMode, m_source->zrm_mode_text(m_source->param_get(m_channel, zrm::PARAM_ZRMMODE).toUInt()), 0);
     }
     bLastStop = stopped;
 #endif
-  bMethodAuto->setEnabled(stopped);
-  bMethodAny->setEnabled(stopped);
-  bMethodManual->setEnabled(stopped);
-  bStart->setEnabled(stopped);
-  bStart->setProperty("start", !stopped);
-  style()->polish(bStart);
-  bStop->setEnabled(!stopped);
-  bStop->setProperty("stop", stopped);
-  style()->polish(bStop);
+    bMethodAuto->setEnabled(stopped);
+    bMethodAny->setEnabled(stopped);
+    bMethodManual->setEnabled(stopped);
+    bStart->setEnabled(stopped);
+    bStart->setProperty("start", !stopped);
+    bStop->setEnabled(!stopped);
+    bStop->setProperty("stop", stopped);
 
-  bPause->setVisible(!stopped || paused);
-  bPause->setProperty("pause", paused);
-  //bPause->setText   ( (paused ) ? tr("Дальше") : tr("Пауза"));
-  style()->polish(bPause);
-  update_method_controls();
+    bPause->setEnabled(!stopped);
+    bPause->setProperty("pause", paused);
+    //bPause->setText   ( (paused ) ? tr("Дальше") : tr("Пауза"));
+    update_method_controls();
 }
 
 void  ZrmMainDisplay::update_method_controls()
 {
     bool is_stopped = m_source && m_source->channel_is_stopped(m_channel);
-    bool enabled = is_stopped & !m_auto_method;
-    bool visible = m_method_id == 0;
-    edTimeLimit->setEnabled(enabled);
+    bool enabled = is_stopped && is_manual();
+
+
     sbCycleTotal->setEnabled(enabled);
     sbVoltLimit->setEnabled(enabled);
     sbCurrLimit->setEnabled(enabled);
+
     bCurrDec->setEnabled(enabled);
     bCurrInc->setEnabled(enabled);
     bVoltDec->setEnabled(enabled);
     bVoltInc->setEnabled(enabled);
+
+
+    edTimeLimit->setReadOnly(!enabled);
+    //edTimeLimit->setEnabled(enabled);
+
+    sbCurrLimit->setReadOnly(!enabled);
+    sbVoltLimit->setReadOnly(!enabled);
+    sbCycleTotal->setReadOnly(!enabled);
+
+
+    bCurrDec->setVisible(is_manual());
+    bCurrInc->setVisible(is_manual());
+
+    bVoltDec->setVisible(is_manual());
+    bVoltInc->setVisible(is_manual());
+
     bCharge->setEnabled(enabled);
     bDischarge->setEnabled(enabled);
 
-    edTimeLimit->setReadOnly(m_auto_method);
+    bMethodManual->setChecked(is_manual());
+    manualButtonsFrame->setVisible(is_manual());
 
-    bCurrDec->setVisible(visible);
-    bCurrInc->setVisible(visible);
-    sbCurrLimit->setReadOnly(m_auto_method);
-
-    bVoltDec->setVisible(visible);
-    bVoltInc->setVisible(visible);
-    sbVoltLimit->setReadOnly(m_auto_method);
-
-    sbCycleTotal->setReadOnly(m_auto_method);
-
-    bMethodManual->setChecked(visible);
-    /*if (visible)
-        manual_method();*/
-
-    if (visible)
+    if (!is_manual())
     {
-        sbVoltLimit->setMaximum(m_source->param_get(m_channel, zrm::PARAM_MVOLT).toDouble());
-        if (bCharge->isChecked())
+        manualButtons->setExclusive(false);
+        bCharge->setChecked(false);
+        bDischarge->setChecked(false);
+        manualButtons->setExclusive(true);
+    }
+
+}
+
+
+pwm_utils::method_hms String2Duration(const QString& str)
+{
+    uint8_t hours = 0, minutes = 0, secunds = 0;
+    QStringList sl = str.split(':');
+    int i = 0;
+    for (QString& text : sl)
+    {
+        switch (i)
         {
-            double value = sbCurrLimit->value();
-            sbCurrLimit->setMinimum(-m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble());
-            sbCurrLimit->setMaximum(m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble());
-            if (value < 0)
-                sbCurrLimit->setValue(-value);
+            case 0:
+                hours   = uint8_t(text.trimmed().toUInt());
+                break;
+            case 1:
+                minutes = uint8_t(text.trimmed().toUInt());
+                break;
+            case 2:
+                secunds    = uint8_t(text.trimmed().toUInt());
+                break;
+            default :
+                break;
         }
-        else
-        {
-            double value = sbCurrLimit->value();
-            sbCurrLimit->setMinimum(-m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble());
-            sbCurrLimit->setMaximum(m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble());
-            if (value > 0)
-                sbCurrLimit->setValue(-value);
-        }
+        ++i;
+    }
+    return std::make_tuple(hours, minutes, secunds);
+}
+
+void ZrmMainDisplay::set_method_duration(zrm::zrm_method_t& method, const QString& str)
+{
+    pwm_utils::method_hms hms = String2Duration(str);
+    method.m_method.m_hours = std::get<0>(hms);
+    method.m_method.m_minutes = std::get<1>(hms);
+    method.m_method.m_secs = std::get<2>(hms);
+}
+
+void ZrmMainDisplay::currLimitChange()
+{
+    QDoubleSpinBox* sb = sbCurrLimit;
+    double newValue = sb->value();
+    if (sender() == bCurrDec)
+        newValue -=  sb->singleStep();
+    else
+        newValue +=  sb->singleStep();
+    sb->setValue(newValue );
+}
+
+void ZrmMainDisplay::voltLimitChange()
+{
+    QDoubleSpinBox* sb = sbVoltLimit;
+    double newValue = sb->value();
+    if (sender() == bVoltDec)
+        newValue -=  sb->singleStep();
+    else
+        newValue +=  sb->singleStep();
+    sb->setValue(newValue );
+}
+
+double ZrmMainDisplay::getManualVoltage()
+{
+    double voltage = sbVoltLimit->value();
+    double voltLimit = ZrmParamCvt::toDouble(param_get(zrm::zrm_param_t::PARAM_MVOLT)).toDouble();
+    if (!qFuzzyIsNull(voltLimit))
+        voltage = qMin(sbVoltLimit->value(), voltLimit);
+    return voltage;
+}
+
+double ZrmMainDisplay::getManualCurrent(bool charge)
+{
+    double currLimit = ZrmParamCvt::toDouble( param_get(charge ? zrm::zrm_param_t::PARAM_MCUR : zrm::zrm_param_t::PARAM_MCURD )).toDouble();
+    double current = sbCurrLimit->value();
+    if (!qFuzzyIsNull(currLimit))
+        current = qMin(sbCurrLimit->value(), currLimit);
+    return current;
+}
+
+zrm::zrm_method_t ZrmMainDisplay::create_manual_method(bool charge)
+{
+    zrm::zrm_method_t method;
+    set_method_duration(method, edTimeLimit->text());
+
+    QString text = tr("Ручной ") + (charge ? bCharge : bDischarge)->text();
+    QByteArray name = codec() ? codec()->fromUnicode(text) : text.toLocal8Bit();
+    method.m_method.m_id = zrm::METHOD_MANUAL_ID;
+    memcpy(method.m_method.m_name, name.constData(), std::min(sizeof(method.m_method.m_name), size_t(name.size())));
+    method.m_method.set_cycles(sbCycleTotal->value());
+
+    double voltage = getManualVoltage();
+    double current = getManualCurrent(charge);
+
+    method.m_method.set_voltage(voltage);
+    method.m_method.set_capacity(current);
+    method.m_method.set_current(current);
+
+    zrm::stage_t st;
+    st.m_number = 1;
+
+    if (charge)
+    {
+        st.m_type = zrm::stage_type_t::STT_CHARGE ;
+        st.set_charge_volt   (voltage, method.m_method);
+        st.set_charge_curr   (current, method.m_method);
     }
     else
     {
-        sbVoltLimit->setMaximum(100000.);
-        sbCurrLimit->setMaximum(100000.);
-        sbCurrLimit->setMinimum(-100000.);
-    }
-}
-
-
-void ZrmMainDisplay::set_method_duration(zrm::zrm_method_t &method, const QString & str)
-{
-    method.m_method.m_hours = method.m_method.m_minutes = method.m_method.m_secs = 0;
-    QStringList sl = str.split(':');
-    int i = 0;
-    for(auto text : sl)
-    {
-      switch(i)
-      {
-       case 0: method.m_method.m_hours   = uint8_t(text.trimmed().toUInt());break;
-       case 1: method.m_method.m_minutes = uint8_t(text.trimmed().toUInt());break;
-       case 2: method.m_method.m_secs    = uint8_t(text.trimmed().toUInt());break;
-       default : return;
-      }
-      ++i;
+        st.m_type = zrm::stage_type_t::STT_DISCHARGE;
+        st.set_discharge_volt(voltage, method.m_method);
+        st.set_discharge_curr(current, method.m_method);
     }
 
-}
+    method += st;
+    return method;
 
+}
 
 void ZrmMainDisplay::manual_method_changed()
 {
-    auto method = m_source->channel_get_method(m_channel, false);
+    if (!is_manual())
+        return;
+
+    zrm::zrm_method_t method;
+
+    if (bCharge->isChecked())
+    {
+        method = create_manual_method(true);
+    }
+
+    if (bDischarge->isChecked())
+    {
+        method = create_manual_method(false);
+    }
+
     if (method.stages_count())
     {
-        QObject * src = sender();
-        if(src == edTimeLimit)
-        {
-            set_method_duration(method, edTimeLimit->text());
-        }
-
-        if (src == bCharge || src == bDischarge)
-        {
-            QString text = tr("Ручной %1").arg((src == bCharge) ? bCharge->text() : bDischarge->text());
-            QByteArray name = codec() ? codec()->fromUnicode(text) : text.toLocal8Bit();
-            zrm::method_t & met = method.m_method ;
-            memset(met.m_name, ' ', sizeof(met.m_name));
-            memcpy(met.m_name, name.constData(), std::min(sizeof(met.m_name), size_t(name.size())));
-
-            method.m_stages[0].m_type = (src == bCharge) ? zrm::stage_type_t::STT_CHARGE : zrm::stage_type_t::STT_DISCHARGE;
-
-            if (src == bCharge)
-            {
-                bCharge->setChecked(true);
-                bDischarge->setChecked(false);
-            }
-            else
-            {
-                bDischarge->setChecked(true);
-                bCharge->setChecked(false);
-            }
-
-            if (bCharge->isChecked())
-            {
-                double value = sbCurrLimit->value();
-                sbCurrLimit->setMinimum(-m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble());
-                sbCurrLimit->setMaximum(m_source->param_get(m_channel, zrm::PARAM_MCUR).toDouble());
-                if (value < 0)
-                    sbCurrLimit->setValue(-value);
-            }
-            else
-            {
-                double value = sbCurrLimit->value();
-                sbCurrLimit->setMinimum(-m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble());
-                sbCurrLimit->setMaximum(m_source->param_get(m_channel, zrm::PARAM_MCURD).toDouble());
-                if (value > 0)
-                    sbCurrLimit->setValue(-value);
-            }
-        }
-
-        if(src == sbCurrLimit)
-            method.m_method.set_current(sbCurrLimit->value());
-
-        if(src == sbVoltLimit)
-            method.m_method.set_voltage(sbVoltLimit->value());
-
-        if(src == bCurrDec)
-        {
-            sbCurrLimit->setValue(sbCurrLimit->value() - 0.1);
-            method.m_method.set_current(sbCurrLimit->value());
-        }
-
-        if(src == bCurrInc)
-        {
-            sbCurrLimit->setValue(sbCurrLimit->value() + 0.1);
-            method.m_method.set_current(sbCurrLimit->value());
-        }
-
-        if(src == bVoltDec)
-        {
-            sbVoltLimit->setValue(sbVoltLimit->value() - 0.1);
-            method.m_method.set_current(sbVoltLimit->value());
-        }
-
-        if(src == bVoltInc)
-        {
-            sbVoltLimit->setValue(sbVoltLimit->value() + 0.1);
-            method.m_method.set_current(sbVoltLimit->value());
-        }
-
-        if(src == sbCycleTotal)
-            method.m_method.m_cycles_count = uint8_t(sbCycleTotal->value());
         m_source->channel_set_method(m_channel, method);
     }
 }
+
 
 void ZrmMainDisplay::manual_method()
 {
     bMethodManual->setChecked(true);
 
-    zrm::zrm_method_t method;
+    m_method_id = zrm::METHOD_MANUAL_ID;
+    update_method_controls();
+    bMethodAuto->setChecked(false);
+    bMethodAny->setChecked(false);
 
-    QString text = tr("Ручной %1").arg(bCharge->isChecked() ? bCharge->text() : bDischarge->text());
-    QByteArray name = codec() ? codec()->fromUnicode(text) : text.toLocal8Bit();
-    zrm::method_t  & met = method.m_method ;
-    met = zrm::method_t();
-    met.m_id = 0;
-    memcpy(met.m_name, name.constData(), std::min(sizeof(met.m_name), size_t(name.size())));
-    if (0 == sbVoltLimit->value())
-        sbVoltLimit->setValue(1);
-    if (0 == sbCurrLimit->value())
-        sbCurrLimit->setValue(1);
-    met.set_voltage(sbVoltLimit->value());
-    met.set_current(sbCurrLimit->value());
-    met.set_capacity(sbCurrLimit->value());
-    set_method_duration(method, edTimeLimit->text());
-    met.set_cycles(sbCycleTotal->value());
-    met.m_stages  = 1;
-    method.m_stages.resize(1);
-
-    zrm::stage_t st;
-    st.m_number = 1;
-    st.m_type   = (bCharge->isChecked()) ? zrm::stage_type_t::STT_CHARGE : zrm::stage_type_t::STT_DISCHARGE;
-    st.set_charge_volt   (1.0, 1.0);
-    st.set_charge_curr   (1.0, 1.0);
-    st.set_discharge_volt(1.0, 1.0);
-    st.set_discharge_curr(1.0, 1.0);
-    method.m_stages.at(0) = st;
-
-    m_source->channel_set_method(m_channel, method);
+    manual_method_changed();
 }
 
 void    ZrmMainDisplay::on_connected         (bool con_state)
 {
-  edMode->setText(con_state ? QString() : tr("Нет связи"));
+    pwm_utils::setEditText(edMode, con_state ? QString() : tr("Нет связи"), 0);
 }
 
-void    ZrmMainDisplay::on_ioerror           (const QString & error_string)
+void    ZrmMainDisplay::on_ioerror           (const QString& error_string)
 {
-   edMode->setText(error_string);
+    if (error_string.length())
+        pwm_utils::setEditText(edMode, error_string, 0);
 }
 
 void ZrmMainDisplay::start()
 {
-    if(is_stopped())
+    if (is_stopped())
+    {
+        if (is_manual())
+        {
+            manual_method_changed();
+        }
         m_source->channel_start(m_channel);
+    }
 }
 
 void ZrmMainDisplay::stop()
 {
-    if(!is_stopped())
+    if (!is_stopped())
         m_source->channel_stop(m_channel);
 }
 
 void  ZrmMainDisplay::pause        ()
 {
-  if(is_paused())
-      m_source->channel_start(m_channel);
-      else
-      m_source->channel_pause(m_channel);
+    if (is_paused())
+        m_source->channel_start(m_channel);
+    else
+        m_source->channel_pause(m_channel);
 }
 
 void  ZrmMainDisplay::reset_error  ()
 {
-  m_source->channel_reset_error(m_channel);
+    m_source->channel_reset_error(m_channel);
 }
 
 void ZrmMainDisplay::select_method(bool bAbstract)
@@ -538,12 +599,57 @@ void ZrmMainDisplay::select_method(bool bAbstract)
     zrm::zrm_work_mode_t wm = m_source->channel_work_mode(m_channel);
     dlg.set_mode(wm);
     dlg.setAbstract(bAbstract);
+    dlg.adjustSize();
     if (QDialog::Accepted == dlg.exec())
     {
+        bMethodManual->setChecked(false);
+        bMethodAuto->setChecked(!bAbstract);
+        bMethodAny->setChecked(bAbstract);
+
         zrm::zrm_method_t method;
         if (dlg.get_method(method, codec(), nullptr))
         {
             m_source->channel_set_method(m_channel, method);
         }
     }
+}
+
+#ifdef Q_OS_ANDROID
+void ZrmMainDisplay::update_android_ui()
+{
+    for (auto&& btn : this->ctrlButtonFrame->findChildren<QPushButton*>())
+    {
+        QSize size(64, 64);
+        btn->setMinimumSize(size);
+        btn->setMaximumSize(size);
+        btn->setIconSize(size);
+    }
+
+    QSize icon_size(MAIN_DISPLAT_ICON_WIDTH, MAIN_DISPLAT_ICON_HEIGHT);
+
+    for (auto&& lbl : paramFrame->findChildren<QLabel*>() )
+    {
+
+        lbl->setMaximumSize(icon_size);
+        lbl->setMinimumSize(icon_size);
+    }
+
+
+    bVoltDec->setMinimumWidth(MAIN_DISPLAT_ICON_WIDTH);
+    bVoltInc->setMinimumWidth(MAIN_DISPLAT_ICON_WIDTH);
+    bCurrDec->setMinimumWidth(MAIN_DISPLAT_ICON_WIDTH);
+    bCurrInc->setMinimumWidth(MAIN_DISPLAT_ICON_WIDTH);
+    tempButton->setMinimumSize(icon_size);
+    tempButton->setIconSize(icon_size);
+
+}
+#endif
+
+
+void ZrmMainDisplay::update_ui()
+{
+    ZrmChannelWidget::update_ui();
+#ifdef Q_OS_ANDROID
+    update_android_ui();
+#endif
 }

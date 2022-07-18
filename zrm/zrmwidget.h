@@ -9,7 +9,8 @@ class ZrmWidget : public ZrmGroupWidget, private Ui::ZrmWidget
     Q_OBJECT
 public:
     explicit ZrmWidget(QWidget *parent = nullptr);
-    void  bind(zrm::ZrmConnectivity* src, uint16_t chan, bool _connect_signals = true) override;
+    void bind(zrm::ZrmConnectivity* src, uint16_t chan, bool _connect_signals = true) override;
+    void update_ui() override;
     void update_ready();
     ZrmMainDisplay * main_display() { return zrm_display; }
     QList<int> getSplitterSizes();
@@ -18,8 +19,6 @@ public:
 signals:
     void channel_activated(zrm::ZrmConnectivity * conn, unsigned channel);
 
-private:
-    QList<int> splitterSizes;
 };
 
 #endif // ZRMWIDGET_H

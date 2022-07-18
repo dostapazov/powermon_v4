@@ -2,11 +2,11 @@
 
 #include <QMessageBox>
 
-ZrmCalibrate::ZrmCalibrate(QWidget *parent) :
+ZrmCalibrate::ZrmCalibrate(QWidget* parent) :
     ZrmChannelWidget(parent)
 {
     setupUi(this);
-    for(auto b : findChildren<QAbstractButton*>())
+    for (auto&& b : findChildren<QAbstractButton*>())
         connect(b, &QAbstractButton::clicked, this, &ZrmCalibrate::set_real_value);
     connect(vVoltage, SIGNAL(valueChanged(double)), this, SLOT(updateButtons()));
     connect(vCurrent, SIGNAL(valueChanged(double)), this, SLOT(updateButtons()));
@@ -15,23 +15,23 @@ ZrmCalibrate::ZrmCalibrate(QWidget *parent) :
 
 void ZrmCalibrate::set_real_value()
 {
-    QObject * src = sender();
+    QObject* src = sender();
     double value = .0;
     zrm::zrm_param_t param = zrm::PARAM_CON;
     char p = ' ';
-    if(src == this->bSetVoltage)
+    if (src == this->bSetVoltage)
     {
         param = zrm::PARAM_CALIB_U;
         value = vVoltage->value();
         p = 'U';
     }
-    if(src == this->bSetCurrent)
+    if (src == this->bSetCurrent)
     {
         param = zrm::PARAM_CALIB_I;
         value = vCurrent->value();
         p = 'I';
     }
-    if(param && m_source && value != 0.)
+    if (param && m_source && value != 0.)
     {
         if (QMessageBox::Yes != QMessageBox::question(this, "Калибровка", QString("Выполнить калибровку %1 %2 ?").arg(p).arg(value)))
             return;

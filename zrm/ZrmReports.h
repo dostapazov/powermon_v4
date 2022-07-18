@@ -13,7 +13,7 @@ public:
     explicit ZrmReports(QWidget *parent = nullptr);
 
 private slots:
-    void on_tabWidget_currentChanged(int index);
+    void tabChanged(int index);
 };
 
 #endif // ZRMREPORTS_H
